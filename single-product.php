@@ -15,6 +15,8 @@ if (empty($product_code)) {
     exit;
 }
 
+$product_code = strtoupper($product_code);
+
 // Nhúng class cung cấp dữ liệu mẫu
 require_once get_template_directory() . '/includes/api/class-sample-product-provider.php';
 
@@ -24,8 +26,10 @@ $product_provider = new Sample_Product_Provider();
 // Lấy thông tin sản phẩm
 $product_response = $product_provider->get_product($product_code);
 
+
 // Kiểm tra sản phẩm có tồn tại không
 if (!isset($product_response['success']) || !$product_response['success']) {
+    echo "$product_code";
     get_template_part('template-parts/content', 'none');
     get_footer();
     return;
@@ -121,24 +125,28 @@ $product_specs = [
         <div class="product-left-column">
             <!-- Product Gallery with Thumbnails -->
             <div class="product-gallery">
-                <div class="product-main-image">
-                    <div class="product-slider">
+                 <div class="gallery-container">
+                    <!-- Thumbnails (bên trái) -->
+                    <div class="product-thumbnails">
                         <?php foreach ($product_gallery as $index => $gallery_image) : ?>
-                            <div class="slide">
-                                <img src="<?php echo esc_url($gallery_image); ?>" alt="<?php echo esc_attr($product_name . ' - ' . ($index + 1)); ?>">
+                            <div class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
+                                <img src="<?php echo esc_url($gallery_image); ?>" alt="Thumbnail <?php echo $index + 1; ?>">
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button class="slider-nav prev-slide">‹</button>
-                    <button class="slider-nav next-slide">›</button>
-                </div>
-                
-                <div class="product-thumbnails">
-                    <?php foreach ($product_gallery as $index => $gallery_image) : ?>
-                        <div class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
-                            <img src="<?php echo esc_url($gallery_image); ?>" alt="Thumbnail <?php echo $index + 1; ?>">
+                    
+                    <!-- Main Image (bên phải) -->
+                    <div class="product-main-image">
+                        <div class="product-slider">
+                            <?php foreach ($product_gallery as $index => $gallery_image) : ?>
+                                <div class="slide">
+                                    <img src="<?php echo esc_url($gallery_image); ?>" alt="<?php echo esc_attr($product_name . ' - ' . ($index + 1)); ?>">
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
+                        <button class="slider-nav prev-slide">‹</button>
+                        <button class="slider-nav next-slide">›</button>
+                    </div>
                 </div>
             </div>
             

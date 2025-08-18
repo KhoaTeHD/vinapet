@@ -23,7 +23,7 @@ if (empty($breadcrumb_data)) {
                 <?php endif; ?>
                 
                 <?php if ($index < count($breadcrumb_data) - 1): ?>
-                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-separator">></span>
                 <?php endif; ?>
             </li>
         <?php endforeach; ?>

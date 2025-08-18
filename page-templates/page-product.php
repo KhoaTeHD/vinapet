@@ -48,14 +48,15 @@ $breadcrumb_data = [
         <!-- Search and Filter Bar -->
         <div class="search-filter-bar">
             <div class="search-container">
+                <!-- <i class="search-icon">🔍</i> -->
                 <input 
                     type="text" 
                     class="search-input" 
-                    placeholder="Tìm theo tên, mẫu, mã hàng..." 
+                    placeholder="🔍 Tìm theo tên, mẫu, mã hàng..." 
                     value="<?php echo esc_attr($search_query); ?>"
                     id="product-search"
                 >
-                <i class="search-icon">🔍</i>
+                
             </div>
             
             <select class="sort-dropdown" id="sort-select">
@@ -88,7 +89,16 @@ $breadcrumb_data = [
                 <div class="product-card" onclick="window.location.href='<?php echo esc_url($product_url); ?>'">
                     <div class="product-image" style="background-image: url('<?php echo esc_url($product_image); ?>');">
                         <div class="product-overlay">
-                            <h3 class="product-title"><?php echo esc_html($product_name); ?></h3>
+                            <div class="product-title-container">
+                                <h3 class="product-title">
+                                    <span class="title-text"><?php echo esc_html($product_name); ?></span>
+                                </h3>
+                                <div class="arrow-icon">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 5l7 7-7 7M21 12H3"/>
+                                    </svg>
+                                </div>
+                            </div>
                             <p class="product-description"><?php echo esc_html(wp_trim_words($product_desc, 12, '...')); ?></p>
                         </div>
                     </div>

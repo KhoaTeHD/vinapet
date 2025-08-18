@@ -1,171 +1,49 @@
 <?php
 /**
  * Template Name: Product Listing Page
- * Description: Trang hiển thị tất cả sản phẩm cho VinaPet
+ * Description: Trang hiển thị danh sách sản phẩm từ dữ liệu mẫu
  * Path: page-templates/page-product.php
  */
 
-get_header(); 
+get_header();
 
 // Lấy parameters từ URL
 $current_page = get_query_var('paged') ? get_query_var('paged') : 1;
 $search_query = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
 $sort_by = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'default';
-$products_per_page = 12;
+$category = isset($_GET['category']) ? sanitize_text_field($_GET['category']) : '';
+$products_per_page = 8; // Số sản phẩm trên một trang
 
-// Dữ liệu giả lập sản phẩm VinaPet
-$mock_products = [
-    [
-        'id' => 1,
-        'name' => 'Cát tre',
-        'short_description' => 'Siêu Khử Mùi & Khôi Mũi Tự Uy. Siêu Nhẹ & Thấm Hút Mạnh Mẽ',
-        'image' => get_template_directory_uri() . '/assets/images/products/cat-tre.jpg',
-        'url' => '/san-pham/cat-tre',
-        'category' => 'cat-ve-sinh',
-        'price' => 150000,
-        'created_date' => '2024-01-15'
-    ],
-    [
-        'id' => 2,
-        'name' => 'Cát đậu nành',
-        'short_description' => 'Vón Cục Tốt & Ít Bụi. Thân thiện môi trường',
-        'image' => get_template_directory_uri() . '/assets/images/products/cat-dau-nanh.jpg',
-        'url' => '/san-pham/cat-dau-nanh',
-        'category' => 'cat-ve-sinh',
-        'price' => 120000,
-        'created_date' => '2024-01-20'
-    ],
-    [
-        'id' => 3,
-        'name' => 'Cát vỏ trấu',
-        'short_description' => 'Khang Khuẩn & Khang Nấm Mốc. Tự Nhiên trong môi trường ẩm',
-        'image' => get_template_directory_uri() . '/assets/images/products/cat-vo-trau.jpg',
-        'url' => '/san-pham/cat-vo-trau',
-        'category' => 'cat-ve-sinh',
-        'price' => 95000,
-        'created_date' => '2024-01-25'
-    ],
-    [
-        'id' => 4,
-        'name' => 'Cát đất sét',
-        'short_description' => 'Vón Cực Chặt-Chắn & Tức Thì. Xả thông toilet dễ dàng lót',
-        'image' => get_template_directory_uri() . '/assets/images/products/cat-dat-set.jpg',
-        'url' => '/san-pham/cat-dat-set',
-        'category' => 'cat-ve-sinh',
-        'price' => 85000,
-        'created_date' => '2024-01-30'
-    ],
-    [
-        'id' => 5,
-        'name' => 'Pet Bowl',
-        'short_description' => 'For Cats and Dogs Best Seller Auto Dog Feeder',
-        'image' => get_template_directory_uri() . '/assets/images/products/pet-bowl.jpg',
-        'url' => '/san-pham/pet-bowl',
-        'category' => 'dung-cu-an-uong',
-        'price' => 75000,
-        'created_date' => '2024-02-01'
-    ],
-    [
-        'id' => 6,
-        'name' => 'Pet Soft Cushion',
-        'short_description' => 'Comfortable Bed for Dog Cats Washable Winter Warm Mattress',
-        'image' => get_template_directory_uri() . '/assets/images/products/pet-soft-cushion.jpg',
-        'url' => '/san-pham/pet-soft-cushion',
-        'category' => 'nha-o-thu-cung',
-        'price' => 280000,
-        'created_date' => '2024-02-05'
-    ],
-    [
-        'id' => 7,
-        'name' => 'Pet Cave',
-        'short_description' => 'Cozy House Cats Tent',
-        'image' => get_template_directory_uri() . '/assets/images/products/pet-cave.jpg',
-        'url' => '/san-pham/pet-cave',
-        'category' => 'nha-o-thu-cung',
-        'price' => 320000,
-        'created_date' => '2024-02-10'
-    ],
-    [
-        'id' => 8,
-        'name' => 'Metal Cat Litter',
-        'short_description' => 'Pet Cleaning Products with Small Hole Dog Accessories',
-        'image' => get_template_directory_uri() . '/assets/images/products/metal-cat-litter.jpg',
-        'url' => '/san-pham/metal-cat-litter',
-        'category' => 'dung-cu-ve-sinh',
-        'price' => 45000,
-        'created_date' => '2024-02-15'
-    ],
-    [
-        'id' => 9,
-        'name' => 'Lược chải lông mèo',
-        'short_description' => 'Removing Cat Hair and Loose Hair for Cat Dog Pet',
-        'image' => get_template_directory_uri() . '/assets/images/products/luoc-chai-long-meo.jpg',
-        'url' => '/san-pham/luoc-chai-long-meo',
-        'category' => 'dung-cu-ve-sinh',
-        'price' => 65000,
-        'created_date' => '2024-02-20'
-    ],
-    [
-        'id' => 10,
-        'name' => 'Vòng cổ thú cưng',
-        'short_description' => 'Pet Dog Necklace Collar Dogs Valentine\'s Day New Year Gift',
-        'image' => get_template_directory_uri() . '/assets/images/products/vong-co-thu-cung.jpg',
-        'url' => '/san-pham/vong-co-thu-cung',
-        'category' => 'phu-kien',
-        'price' => 95000,
-        'created_date' => '2024-02-25'
-    ]
-];
+// Nhúng class cung cấp dữ liệu mẫu
+require_once get_template_directory() . '/includes/api/class-sample-product-provider.php';
 
-// Xử lý tìm kiếm
-if (!empty($search_query)) {
-    $mock_products = array_filter($mock_products, function($product) use ($search_query) {
-        return stripos($product['name'], $search_query) !== false || 
-               stripos($product['short_description'], $search_query) !== false;
-    });
-}
+// Khởi tạo provider
+$product_provider = new Sample_Product_Provider();
 
-// Xử lý sắp xếp
-switch ($sort_by) {
-    case 'name-asc':
-        usort($mock_products, function($a, $b) {
-            return strcmp($a['name'], $b['name']);
-        });
-        break;
-    case 'name-desc':
-        usort($mock_products, function($a, $b) {
-            return strcmp($b['name'], $a['name']);
-        });
-        break;
-    case 'price-asc':
-        usort($mock_products, function($a, $b) {
-            return $a['price'] - $b['price'];
-        });
-        break;
-    case 'price-desc':
-        usort($mock_products, function($a, $b) {
-            return $b['price'] - $a['price'];
-        });
-        break;
-    case 'newest':
-        usort($mock_products, function($a, $b) {
-            return strtotime($b['created_date']) - strtotime($a['created_date']);
-        });
-        break;
-}
+// Lấy sản phẩm với các tham số
+$products_response = $product_provider->get_products([
+    'search' => $search_query,
+    'category' => $category,
+    'sort' => $sort_by,
+    'limit' => $products_per_page,
+    'page' => $current_page
+]);
 
-// Phân trang
-$total_products = count($mock_products);
+// Xử lý dữ liệu trả về
+$products = isset($products_response['data']) ? $products_response['data'] : [];
+$total_products = isset($products_response['total']) ? $products_response['total'] : 0;
 $total_pages = ceil($total_products / $products_per_page);
-$offset = ($current_page - 1) * $products_per_page;
-$products = array_slice($mock_products, $offset, $products_per_page);
 
-// Add breadcrumb data
+// Thêm breadcrumb data
 global $breadcrumb_data;
 $breadcrumb_data = [
     ['name' => 'Trang chủ', 'url' => home_url()],
     ['name' => 'Sản phẩm', 'url' => '']
 ];
+
+// Lấy danh sách danh mục sản phẩm
+$categories_response = $product_provider->get_product_categories();
+$categories = isset($categories_response['data']) ? $categories_response['data'] : [];
 ?>
 
 <div class="container">
@@ -191,6 +69,18 @@ $breadcrumb_data = [
             <i class="search-icon">🔍</i>
         </div>
         
+        <!-- Thêm dropdown danh mục nếu có -->
+        <?php if (!empty($categories)): ?>
+        <select class="category-dropdown" id="category-select">
+            <option value="">Tất cả danh mục</option>
+            <?php foreach ($categories as $cat): ?>
+                <option value="<?php echo esc_attr($cat['name']); ?>" <?php selected($category, $cat['name']); ?>>
+                    <?php echo esc_html($cat['display_name']); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php endif; ?>
+        
         <select class="sort-dropdown" id="sort-select">
             <option value="default" <?php selected($sort_by, 'default'); ?>>Thứ tự mặc định</option>
             <option value="name-asc" <?php selected($sort_by, 'name-asc'); ?>>Tên A → Z</option>
@@ -204,12 +94,24 @@ $breadcrumb_data = [
     <!-- Products Grid -->
     <?php if (!empty($products)): ?>
         <div class="products-grid" id="products-container">
-            <?php foreach ($products as $product): ?>
-                <div class="product-card" onclick="window.location.href='<?php echo esc_url($product['url']); ?>'">
-                    <div class="product-image" style="background-image: url('<?php echo esc_url($product['image']); ?>');">
+            <?php foreach ($products as $product): 
+                // Lấy thông tin sản phẩm
+                $product_name = isset($product['item_name']) ? $product['item_name'] : '';
+                $product_desc = isset($product['description']) ? $product['description'] : '';
+                $product_image = isset($product['image']) ? $product['image'] : '';
+                $product_code = isset($product['item_code']) ? $product['item_code'] : '';
+                $product_url = home_url('/san-pham/' . sanitize_title($product_code));
+                
+                // Nếu không có hình ảnh, sử dụng hình mặc định
+                if (empty($product_image)) {
+                    $product_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+                }
+            ?>
+                <div class="product-card" onclick="window.location.href='<?php echo esc_url($product_url); ?>'">
+                    <div class="product-image" style="background-image: url('<?php echo esc_url($product_image); ?>');">
                         <div class="product-overlay">
-                            <h3 class="product-title"><?php echo esc_html($product['name']); ?></h3>
-                            <p class="product-description"><?php echo esc_html($product['short_description']); ?></p>
+                            <h3 class="product-title"><?php echo esc_html($product_name); ?></h3>
+                            <p class="product-description"><?php echo esc_html(wp_trim_words($product_desc, 12, '...')); ?></p>
                         </div>
                     </div>
                 </div>
@@ -270,5 +172,51 @@ $breadcrumb_data = [
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+    (function($) {
+        $(document).ready(function() {
+            // Xử lý tìm kiếm
+            $('#product-search').keypress(function(e) {
+                if (e.which == 13) {
+                    let searchValue = $(this).val().trim();
+                    updateURLParam('s', searchValue);
+                }
+            });
+            
+            // Xử lý lọc danh mục
+            $('#category-select').on('change', function() {
+                let categoryValue = $(this).val();
+                updateURLParam('category', categoryValue);
+            });
+            
+            // Xử lý sắp xếp
+            $('#sort-select').on('change', function() {
+                let sortValue = $(this).val();
+                updateURLParam('sort', sortValue);
+            });
+            
+            // Hàm cập nhật URL
+            function updateURLParam(param, value) {
+                let url = new URL(window.location.href);
+                let params = new URLSearchParams(url.search);
+                
+                // Cập nhật tham số
+                if (value && value !== '') {
+                    params.set(param, value);
+                } else {
+                    params.delete(param);
+                }
+                
+                // Reset trang về 1 khi lọc hoặc tìm kiếm
+                params.delete('paged');
+                
+                // Chuyển hướng đến URL mới
+                url.search = params.toString();
+                window.location.href = url.toString();
+            }
+        });
+    })(jQuery);
+</script>
 
 <?php get_footer(); ?>

@@ -31,10 +31,6 @@ Các file JS cho các tính năng cụ thể
 images/ - Hình ảnh, chia thành các thư mục con theo mục đích sử dụng
 libs/ - Thư viện bên thứ ba:
 
-swiper/
-select2/
-rateit/
-
 
 
 3. Thư Mục includes/

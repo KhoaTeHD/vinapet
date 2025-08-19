@@ -125,28 +125,26 @@ $product_specs = [
         <div class="product-left-column">
             <!-- Product Gallery with Thumbnails -->
             <div class="product-gallery">
-                 <div class="gallery-container">
-                    <!-- Thumbnails (bên trái) -->
-                    <div class="product-thumbnails">
+                 <!-- Thumbnails Column - Bên trái -->
+                <div class="product-thumbnails">
+                    <?php foreach ($product_gallery as $index => $gallery_image) : ?>
+                        <div class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
+                            <img src="<?php echo esc_url($gallery_image); ?>" alt="Thumbnail <?php echo $index + 1; ?>">
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                
+                <!-- Main Image - Bên phải -->
+                <div class="product-main-image">
+                    <div class="product-slider">
                         <?php foreach ($product_gallery as $index => $gallery_image) : ?>
-                            <div class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
-                                <img src="<?php echo esc_url($gallery_image); ?>" alt="Thumbnail <?php echo $index + 1; ?>">
+                            <div class="slide <?php echo $index === 0 ? 'active' : ''; ?>">
+                                <img src="<?php echo esc_url($gallery_image); ?>" alt="<?php echo esc_attr($product_name . ' - ' . ($index + 1)); ?>">
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
-                    <!-- Main Image (bên phải) -->
-                    <div class="product-main-image">
-                        <div class="product-slider">
-                            <?php foreach ($product_gallery as $index => $gallery_image) : ?>
-                                <div class="slide">
-                                    <img src="<?php echo esc_url($gallery_image); ?>" alt="<?php echo esc_attr($product_name . ' - ' . ($index + 1)); ?>">
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <button class="slider-nav prev-slide">‹</button>
-                        <button class="slider-nav next-slide">›</button>
-                    </div>
+                    <button class="slider-nav prev-slide">‹</button>
+                    <button class="slider-nav next-slide">›</button>
                 </div>
             </div>
             

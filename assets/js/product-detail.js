@@ -1,42 +1,80 @@
 (function($) {
         $(document).ready(function() {
-            // Product Image Slider
             let currentSlide = 0;
             const totalSlides = $('.slide').length;
             
-            // Hiển thị slide hiện tại
-            function showSlide(index) {
-                // Ẩn tất cả các slide
-                $('.slide').css('display', 'none');
-                // Hiển thị slide hiện tại
-                $('.slide').eq(index).css('display', 'block');
-                // Cập nhật thumbnail active
-                $('.thumbnail').removeClass('active');
-                $('.thumbnail').eq(index).addClass('active');
-                // Cập nhật chỉ số slide hiện tại
-                currentSlide = index;
-            }
+            // Hiển thị slide đầu tiên
+            showSlide(0);
             
-            // Chuyển đến slide tiếp theo
-            $('.next-slide').on('click', function() {
-                currentSlide = (currentSlide + 1) % totalSlides;
-                showSlide(currentSlide);
-            });
-            
-            // Chuyển đến slide trước đó
-            $('.prev-slide').on('click', function() {
-                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-                showSlide(currentSlide);
-            });
-            
-            // Khi nhấp vào thumbnail
+            // Xử lý click thumbnail
             $('.thumbnail').on('click', function() {
                 const index = $(this).data('index');
                 showSlide(index);
             });
             
-            // Hiển thị slide đầu tiên khi trang tải
-            showSlide(0);
+            // Xử lý nút prev
+            $('.prev-slide').on('click', function() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                showSlide(currentSlide);
+            });
+            
+            // Xử lý nút next
+            $('.next-slide').on('click', function() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                showSlide(currentSlide);
+            });
+            
+            // Hàm hiển thị slide
+            function showSlide(index) {
+                currentSlide = index;
+                
+                // Ẩn tất cả slides
+                $('.slide').removeClass('active');
+                
+                // Hiển thị slide được chọn
+                $('.slide').eq(index).addClass('active');
+                
+                // Cập nhật thumbnail active
+                $('.thumbnail').removeClass('active');
+                $('.thumbnail').eq(index).addClass('active');
+            }
+            
+            // Xử lý keyboard navigation
+            $(document).on('keydown', function(e) {
+                if (e.which === 37) { // Left arrow
+                    $('.prev-slide').click();
+                } else if (e.which === 39) { // Right arrow
+                    $('.next-slide').click();
+                }
+            });
+            
+            // Touch/swipe support cho mobile
+            let startX = 0;
+            let endX = 0;
+            
+            $('.product-main-image').on('touchstart', function(e) {
+                startX = e.originalEvent.touches[0].clientX;
+            });
+            
+            $('.product-main-image').on('touchend', function(e) {
+                endX = e.originalEvent.changedTouches[0].clientX;
+                handleSwipe();
+            });
+            
+            function handleSwipe() {
+                const diffX = startX - endX;
+                const threshold = 50; // Minimum swipe distance
+                
+                if (Math.abs(diffX) > threshold) {
+                    if (diffX > 0) {
+                        // Swipe left - next slide
+                        $('.next-slide').click();
+                    } else {
+                        // Swipe right - prev slide
+                        $('.prev-slide').click();
+                    }
+                }
+            }
             
             // Tabs
             $('.tab-btn').on('click', function() {

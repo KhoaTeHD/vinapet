@@ -83,18 +83,68 @@
     min-width: 300px;
 }
 
-/* Product Gallery */
+/* Product Gallery - Layout mới với thumbnails bên trái */
 .product-gallery {
     margin-bottom: 40px;
+    display: flex;
+    gap: 16px;
 }
 
+/* Cột thumbnails bên trái */
+.product-thumbnails {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 68px;
+    flex-shrink: 0;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid var(--border-color);
+    transition: var(--transition);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.thumbnail.active {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-light);
+}
+
+.thumbnail:hover {
+    border-color: var(--primary-color);
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+/* Main image bên phải */
 .product-main-image {
     position: relative;
     border-radius: var(--border-radius);
     overflow: hidden;
-    margin-bottom: 16px;
     height: 400px;
     background-color: var(--bg-light);
+    flex: 1;
+    border: 1px solid var(--border-color);
+}
+
+/* Đảm bảo thumbnails không vượt quá height của main image */
+.product-gallery {
+    align-items: flex-start;
 }
 
 .product-slider {
@@ -108,6 +158,10 @@
     display: none;
 }
 
+.slide.active {
+    display: block;
+}
+
 .slide img {
     width: 100%;
     height: 100%;
@@ -119,7 +173,7 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     border: none;
     width: 40px;
     height: 40px;
@@ -127,10 +181,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 20px;
     cursor: pointer;
     transition: var(--transition);
     z-index: 2;
+    color: var(--text-primary);
 }
 
 .prev-slide {
@@ -144,37 +199,7 @@
 .slider-nav:hover {
     background: var(--white);
     box-shadow: var(--shadow-light);
-}
-
-.product-thumbnails {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 4px 0;
-}
-
-.thumbnail {
-    width: 70px;
-    height: 70px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: var(--transition);
-    flex-shrink: 0;
-}
-
-.thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.thumbnail.active {
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-light);
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* Product Title & Info */
@@ -257,8 +282,8 @@
 
 .variant-option {
     padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border: 2px dashed var(--border-color);
+    border-radius: 1px;
     text-align: center;
     cursor: pointer;
     transition: var(--transition);
@@ -539,6 +564,10 @@
         gap: 30px;
     }
     
+      .product-thumbnails {
+        max-height: 350px;
+    }
+    
     .product-main-image {
         height: 350px;
     }
@@ -584,18 +613,34 @@
     .product-card {
         height: 280px;
     }
-}
 
-@media (max-width: 480px) {
-    .product-main-image {
-        height: 250px;
+    .product-gallery {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .product-thumbnails {
+        flex-direction: row;
+        width: 100%;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 4px 0;
+        gap: 8px;
     }
     
     .thumbnail {
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
     }
     
+    .product-main-image {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
     .product-sizes {
         flex-direction: column;
         gap: 10px;
@@ -622,6 +667,19 @@
     
     .product-card {
         height: 250px;
+    }
+
+    .product-main-image {
+        height: 250px;
+    }
+    
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .product-thumbnails {
+        gap: 6px;
     }
 }
 

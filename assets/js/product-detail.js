@@ -76,6 +76,7 @@
                 }
             }
             
+            
             // Tabs
             $('.tab-btn').on('click', function() {
                 const tabId = $(this).data('tab');
@@ -96,3 +97,4 @@
             });
         });
     })(jQuery);
+

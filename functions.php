@@ -76,6 +76,11 @@ function vinapet_scripts() {
     if (get_query_var('product_code')) {
         wp_enqueue_script('vinapet-product-detail', VINAPET_THEME_URI . '/assets/js/product-detail.js', array('jquery'), VINAPET_VERSION, true);
     }
+
+    if (is_page_template('page-templates/page-order.php')) {
+        wp_enqueue_style('vinapet-order-page', VINAPET_THEME_URI . '/assets/css/order-page.css', array(), VINAPET_VERSION);
+        wp_enqueue_script('vinapet-order-page', VINAPET_THEME_URI . '/assets/js/order-page.js', array('jquery'), VINAPET_VERSION, true);
+    }
     
     // Cung cấp dữ liệu cho JavaScript
     wp_localize_script('vinapet-navigation', 'vinapet_data', array(

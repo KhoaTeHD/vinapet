@@ -307,5 +307,42 @@ $product_specs = [
     <?php endif; ?>
 </div>
 
+<script>
+jQuery(document).ready(function($) {
+    // Cập nhật nút đặt hàng
+    $('.add-to-cart-btn').on('click', function(e) {
+        e.preventDefault();
+        redirectToOrderPage();
+    });
+    
+    function redirectToOrderPage() {
+        // Lấy variant được chọn
+        var selectedVariant = $('.variant-option.selected').val();
+        if (!selectedVariant) {
+            selectedVariant = $('.variant-options:first-child').val();
+        }
+        
+        // Lấy product code
+        var productCode = '<?php echo $product_code; ?>';
+        
+        // Redirect với parameters
+        var orderUrl = '<?php echo home_url("/dat-hang"); ?>?product=' + encodeURIComponent(productCode);
+        if (selectedVariant) {
+            orderUrl += '&variant=' + encodeURIComponent(selectedVariant);
+        }
+        
+        window.location.href = orderUrl;
+    }
+    
+    // Debug: Log khi click để kiểm tra
+    $('.add-to-cart-btn').on('click', function() {
+        console.log('Order button clicked');
+        console.log('Product code:', '<?php echo $product_code; ?>');
+        console.log('Selected variant:', $('.variant-option.selected').val());
+    });
+});
+</script>
+
+
 
 <?php get_footer(); ?>

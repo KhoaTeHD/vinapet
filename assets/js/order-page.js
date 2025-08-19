@@ -1,0 +1,140 @@
+(function($) {
+    $(document).ready(function() {
+        // Price calculation constants
+        const basePrices = {
+            '100': 50000,   // 100kg = 50,000/kg
+            '300': 50000,   // 300kg = 50,000/kg
+            '500': 50000,   // 500kg = 50,000/kg
+            '1000': 42000,  // 1 tấn = 42,000/kg
+            '3000': 42000,  // 3 tấn = 42,000/kg
+            '5000': 34000   // 5 tấn = 34,000/kg
+        };
+        
+        const packagingPrices = {
+            'pa_pe_thuong': 2600,
+            'pa_pe_khong': 2600,
+            'pa_pe_decal': 2350,
+            'bao_dua': 160,
+            'tui_jumbo': 105
+        };
+        
+        // Handle variant selection
+        $('.variant-option').on('click', function() {
+            $('.variant-option').removeClass('selected');
+            $(this).addClass('selected');
+            $(this).find('input[type="radio"]').prop('checked', true);
+        });
+        
+        // Handle quantity selection
+        $('.quantity-option').on('click', function() {
+            $('.quantity-option').removeClass('selected');
+            $(this).addClass('selected');
+            $(this).find('input[type="radio"]').prop('checked', true);
+            updateOrderSummary();
+        });
+        
+        // Handle packaging selection
+        $('.packaging-option').on('click', function() {
+            $('.packaging-option').removeClass('selected');
+            $(this).addClass('selected');
+            $(this).find('input[type="radio"]').prop('checked', true);
+            updateOrderSummary();
+        });
+        
+        // Update order summary
+        function updateOrderSummary() {
+            const selectedQuantity = $('input[name="quantity"]:checked').val();
+            const selectedPackaging = $('input[name="packaging"]:checked').val();
+            
+            if (!selectedQuantity || !selectedPackaging) return;
+            
+            const quantity = parseInt(selectedQuantity);
+            const basePrice = basePrices[selectedQuantity];
+            const packagingPrice = packagingPrices[selectedPackaging];
+            
+            const totalBasePrice = quantity * basePrice;
+            const totalPackagingFee = quantity * packagingPrice;
+            const totalPrice = totalBasePrice + totalPackagingFee;
+            
+            // Update display
+            let quantityText;
+            if (quantity >= 1000) {
+                quantityText = (quantity / 1000) + ' tấn';
+            } else {
+                quantityText = quantity + ' kg';
+            }
+            
+            $('#total-quantity').text(quantityText);
+            $('#base-price').text(formatPrice(totalBasePrice) + ' đ');
+            $('#packaging-fee').text(formatPrice(totalPackagingFee) + ' đ');
+            $('#total-price').text(formatPrice(totalPrice) + ' đ');
+        }
+        
+        // Format price with thousands separator
+        function formatPrice(price) {
+            return price.toLocaleString('vi-VN');
+        }
+        
+        // Initialize with default values
+        updateOrderSummary();
+        
+        // Handle form submission
+        $('#order-form').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                variant: $('input[name="variant"]:checked').val(),
+                quantity: $('input[name="quantity"]:checked').val(),
+                packaging: $('input[name="packaging"]:checked').val()
+            };
+            
+            // Validate form data
+            if (!formData.variant || !formData.quantity || !formData.packaging) {
+                alert('Vui lòng chọn đầy đủ thông tin trước khi đặt hàng.');
+                return;
+            }
+            
+            // Calculate totals for order data
+            const quantity = parseInt(formData.quantity);
+            const basePrice = basePrices[formData.quantity];
+            const packagingPrice = packagingPrices[formData.packaging];
+            const totalBasePrice = quantity * basePrice;
+            const totalPackagingFee = quantity * packagingPrice;
+            const totalPrice = totalBasePrice + totalPackagingFee;
+            
+            // Store order data in session storage for next page
+            const orderData = {
+                ...formData,
+                quantity_kg: quantity,
+                base_price_per_kg: basePrice,
+                packaging_price_per_kg: packagingPrice,
+                total_base_price: totalBasePrice,
+                total_packaging_fee: totalPackagingFee,
+                total_price: totalPrice,
+                product_code: new URLSearchParams(window.location.search).get('product')
+            };
+            
+            sessionStorage.setItem('vinapet_order_data', JSON.stringify(orderData));
+            
+            // Redirect to checkout page
+            window.location.href = '/checkout';
+        });
+        
+        // Handle "View bag details" link click
+        $('.view-details-link').on('click', function(e) {
+            e.preventDefault();
+            // You can implement a modal or new page to show bag illustrations
+            alert('Tính năng xem minh họa các loại túi sẽ được cập nhật sớm.');
+        });
+        
+        // Auto-select variant if passed from product page
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedVariant = urlParams.get('variant');
+        if (selectedVariant) {
+            const targetVariant = $('.variant-option input[value="' + selectedVariant + '"]');
+            if (targetVariant.length) {
+                targetVariant.closest('.variant-option').click();
+            }
+        }
+    });
+})(jQuery);

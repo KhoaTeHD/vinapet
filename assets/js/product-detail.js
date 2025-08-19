@@ -94,15 +94,5 @@
                 $('.variant-option').removeClass('selected');
                 $(this).addClass('selected');
             });
-            
-            // Product Sizes
-            $('.size-option').on('click', function() {
-                $('.size-option').removeClass('selected');
-                $(this).addClass('selected');
-            });
-            
-            // Chọn variant và size đầu tiên mặc định
-            $('.variant-option:first-child').addClass('selected');
-            $('.size-option:first-child').addClass('selected');
         });
     })(jQuery);

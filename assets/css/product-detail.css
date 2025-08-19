@@ -2,9 +2,9 @@
 
 :root {
     --primary-color: #2E86AB;
-    --secondary-color: #A23B72;
+    --secondary-color: #19457B;
     --accent-color: #F18F01;
-    --text-primary: #1a1a1a;
+    --text-primary: #19457B;
     --text-secondary: #666666;
     --bg-light: #f8f9fa;
     --border-color: #e0e0e0;
@@ -219,33 +219,28 @@
     line-height: 1.5;
 }
 
-/* Product Sizes */
+/* Product Sizes - Tiered Pricing Display */
 .product-sizes {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px dashed var(--border-color);
 }
 
 .size-option {
     flex: 1;
     min-width: 100px;
     padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
     text-align: center;
-    cursor: pointer;
+    background-color: var(--white);
     transition: var(--transition);
 }
 
-.size-option:hover, .size-option.selected {
-    border-color: var(--primary-color);
-    background-color: rgba(46, 134, 171, 0.05);
-}
-
 .size-name {
+    font-family: 'Baloo 2', sans-serif;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 4px;
 }
@@ -272,11 +267,12 @@
     font-weight: 500;
     color: var(--text-primary);
     margin-bottom: 12px;
+    margin-top: 24px;
 }
 
 .variant-options {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
 }
 

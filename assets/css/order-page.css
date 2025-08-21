@@ -116,8 +116,6 @@
 /* Store Logo */
 .store-logo {
     text-align: center;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
 }
 
 .logo {
@@ -175,6 +173,44 @@
 .view-details-link:hover {
     color: var(--secondary-color);
     text-decoration: underline;
+}
+
+/* Product Sizes - Tiered Pricing Display */
+.product-sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px dashed var(--border-color);
+}
+
+.size-option {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px;
+    text-align: center;
+    background-color: var(--white);
+    transition: var(--transition);
+}
+
+.size-name {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.size-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
 }
 
 /* Variant Grid */

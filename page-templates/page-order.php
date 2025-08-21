@@ -119,12 +119,12 @@ $packaging_options = [
                 <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
                 <p class="product-short-desc"><?php echo esc_html($product_desc); ?></p>
                 
-                <!-- Tiered Pricing -->
-                <div class="pricing-info">
-                    <?php foreach ($product_sizes as $size): ?>
-                        <div class="price-tier">
-                            <span class="tier-range"><?php echo esc_html($size['name']); ?></span>
-                            <span class="tier-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></span>
+                <!-- Product Sizes -->
+                <div class="product-sizes">
+                    <?php foreach ($product_sizes as $size) : ?>
+                        <div class="size-option">
+                            <div class="size-name"><?php echo esc_html($size['name']); ?></div>
+                            <div class="size-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></div>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -151,7 +151,7 @@ $packaging_options = [
                         <div class="variant-grid">
                             <?php foreach ($product_variants as $index => $variant): ?>
                                 <label class="variant-option <?php echo ($index === 0 || $variant['id'] === $selected_variant) ? 'selected' : ''; ?>">
-                                    <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($index === 0 || $variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
+                                    <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                     <div class="variant-content">
                                         <div class="variant-image">
                                             <img src="<?php echo esc_url($variant['image']); ?>" alt="<?php echo esc_attr($variant['name']); ?>">

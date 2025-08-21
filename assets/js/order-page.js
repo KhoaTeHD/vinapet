@@ -18,11 +18,12 @@
             'tui_jumbo': 105
         };
         
-        // Handle variant selection
+       // Handle variant selection
         $('.variant-option').on('click', function() {
             $('.variant-option').removeClass('selected');
             $(this).addClass('selected');
             $(this).find('input[type="radio"]').prop('checked', true);
+            updateFooterSummary();
         });
         
         // Handle quantity selection
@@ -30,7 +31,10 @@
             $('.quantity-option').removeClass('selected');
             $(this).addClass('selected');
             $(this).find('input[type="radio"]').prop('checked', true);
-            updateOrderSummary();
+            
+            // Update price tier highlighting
+            updatePriceTierHighlighting();
+            updateFooterSummary();
         });
         
         // Handle packaging selection
@@ -38,15 +42,32 @@
             $('.packaging-option').removeClass('selected');
             $(this).addClass('selected');
             $(this).find('input[type="radio"]').prop('checked', true);
-            updateOrderSummary();
+            updateFooterSummary();
         });
         
-        // Update order summary
-        function updateOrderSummary() {
+        // Update price tier highlighting based on selected quantity
+        function updatePriceTierHighlighting() {
+            const selectedQuantity = $('input[name="quantity"]:checked').val();
+            
+            // Remove all active classes first
+            $('.size-option').removeClass('active');
+            
+            // Find and highlight the correct price tier
+            $('.size-option').each(function() {
+                const quantities = $(this).data('quantities');
+                if (quantities && quantities.includes(selectedQuantity)) {
+                    $(this).addClass('active');
+                }
+            });
+        }
+        
+        // Update footer summary
+        function updateFooterSummary() {
             const selectedQuantity = $('input[name="quantity"]:checked').val();
             const selectedPackaging = $('input[name="packaging"]:checked').val();
+            const selectedVariant = $('input[name="variant"]:checked').val();
             
-            if (!selectedQuantity || !selectedPackaging) return;
+            if (!selectedQuantity || !selectedPackaging || !selectedVariant) return;
             
             const quantity = parseInt(selectedQuantity);
             const basePrice = basePrices[selectedQuantity];
@@ -55,31 +76,45 @@
             const totalBasePrice = quantity * basePrice;
             const totalPackagingFee = quantity * packagingPrice;
             const totalPrice = totalBasePrice + totalPackagingFee;
+            const pricePerKg = totalPrice / quantity;
             
-            // Update display
+            // Update footer display
             let quantityText;
-            if (quantity >= 1000) {
-                quantityText = (quantity / 1000) + ' tấn';
+            // if (quantity >= 1000) {
+            //     quantityText = (quantity / 1000) + ' tấn';
+            // } else {
+            //     quantityText = quantity + ' kg';
+            // }
+
+            quantityText = quantity + ' kg';
+            
+            // Format total price for display
+            let formattedTotalPrice;
+            if (totalPrice >= 1000000) {
+                formattedTotalPrice = Math.round(totalPrice / 1000000) + ' triệu';
             } else {
-                quantityText = quantity + ' kg';
+                formattedTotalPrice = formatPrice(totalPrice) + ' đ';
             }
             
-            $('#total-quantity').text(quantityText);
-            $('#base-price').text(formatPrice(totalBasePrice) + ' đ');
-            $('#packaging-fee').text(formatPrice(totalPackagingFee) + ' đ');
-            $('#total-price').text(formatPrice(totalPrice) + ' đ');
+            // Update footer values
+            $('#footer-sku-count').text('1 SKU');
+            $('#footer-bag-count').text('1 loại túi');
+            $('#footer-total-quantity').text(quantityText);
+            $('#footer-estimated-price').text(formattedTotalPrice);
+            $('#footer-price-per-kg').text(formatPrice(pricePerKg) + ' đ/kg');
         }
         
         // Format price with thousands separator
         function formatPrice(price) {
-            return price.toLocaleString('vi-VN');
+            return Math.round(price).toLocaleString('vi-VN');
         }
         
         // Initialize with default values
-        updateOrderSummary();
+        updatePriceTierHighlighting();
+        updateFooterSummary();
         
-        // Handle form submission
-        $('#order-form').on('submit', function(e) {
+        // Handle next step button
+        $('#next-step-button').on('click', function(e) {
             e.preventDefault();
             
             const formData = {
@@ -90,7 +125,7 @@
             
             // Validate form data
             if (!formData.variant || !formData.quantity || !formData.packaging) {
-                alert('Vui lòng chọn đầy đủ thông tin trước khi đặt hàng.');
+                alert('Vui lòng chọn đầy đủ thông tin trước khi tiếp tục.');
                 return;
             }
             
@@ -116,8 +151,8 @@
             
             sessionStorage.setItem('vinapet_order_data', JSON.stringify(orderData));
             
-            // Redirect to checkout page
-            window.location.href = '/checkout';
+            // Redirect to summary page
+            window.location.href = '/summary';
         });
         
         // Handle "View bag details" link click
@@ -136,5 +171,25 @@
                 targetVariant.closest('.variant-option').click();
             }
         }
+        
+        // Handle keyboard navigation for accessibility
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const focused = $(document.activeElement);
+                if (focused.hasClass('variant-option') || 
+                    focused.hasClass('quantity-option') || 
+                    focused.hasClass('packaging-option')) {
+                    e.preventDefault();
+                    focused.click();
+                }
+            }
+        });
+        
+        // Make options focusable for accessibility
+        $('.variant-option, .quantity-option, .packaging-option').attr('tabindex', '0');
+        
+        // Remove click handler for price tiers (they are display only)
+        // $('.price-tier').on('click', function() { ... }); // Removed
     });
 })(jQuery);
+            

@@ -47,11 +47,11 @@ $breadcrumb_data = [
     ['name' => 'Đặt hàng', 'url' => '']
 ];
 
-// Tiered pricing
+// Tiered pricing with quantity mapping
 $product_sizes = [
-    ['name' => '0,5 - 1 tấn', 'price' => 50000, 'unit' => 'đ/kg'],
-    ['name' => '1 - 5 tấn', 'price' => 42000, 'unit' => 'đ/kg'],
-    ['name' => 'Trên 5 tấn', 'price' => 34000, 'unit' => 'đ/kg'],
+    ['name' => '0,5 - 1 tấn', 'price' => 50000, 'unit' => 'đ/kg', 'quantities' => ['100', '300', '500', '1000']],
+    ['name' => '1 - 5 tấn', 'price' => 42000, 'unit' => 'đ/kg', 'quantities' => ['3000']],
+    ['name' => 'Trên 5 tấn', 'price' => 34000, 'unit' => 'đ/kg', 'quantities' => ['5000']],
 ];
 
 // Biến thể sản phẩm (màu sắc)
@@ -113,16 +113,16 @@ $packaging_options = [
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
     
     <div class="order-page-container">
-        <!-- Left Column - Product Info (35%) -->
+        <!-- Left Column - Product Info (40%) -->
         <div class="order-left-column">
             <div class="product-info-card">
                 <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
                 <p class="product-short-desc"><?php echo esc_html($product_desc); ?></p>
                 
-                <!-- Product Sizes -->
+                <!-- Product Sizes - Copy layout from single-product.php -->
                 <div class="product-sizes">
-                    <?php foreach ($product_sizes as $size) : ?>
-                        <div class="size-option">
+                    <?php foreach ($product_sizes as $index => $size) : ?>
+                        <div class="size-option" data-quantities='<?php echo json_encode($size['quantities']); ?>' data-price="<?php echo $size['price']; ?>">
                             <div class="size-name"><?php echo esc_html($size['name']); ?></div>
                             <div class="size-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></div>
                         </div>
@@ -141,7 +141,7 @@ $packaging_options = [
             </div>
         </div>
         
-        <!-- Right Column - Order Form (65%) -->
+        <!-- Right Column - Order Form (60%) -->
         <div class="order-right-column">
             <div class="order-form-card">
                 <form id="order-form" class="order-form">
@@ -150,7 +150,7 @@ $packaging_options = [
                         <h3 class="section-title">Chọn SKU (Mùi - Màu)</h3>
                         <div class="variant-grid">
                             <?php foreach ($product_variants as $index => $variant): ?>
-                                <label class="variant-option <?php echo ($index === 0 || $variant['id'] === $selected_variant) ? 'selected' : ''; ?>">
+                                <label class="variant-option <?php echo ($variant['id'] === $selected_variant) ? 'selected' : ''; ?>">
                                     <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                     <div class="variant-content">
                                         <div class="variant-image">
@@ -202,34 +202,47 @@ $packaging_options = [
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Order Summary -->
-                    <div class="order-summary">
-                        <div class="summary-row">
-                            <span>Tổng số lượng:</span>
-                            <span id="total-quantity">100 kg</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Giá cơ bản:</span>
-                            <span id="base-price">5,000,000 đ</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Phí đóng gói:</span>
-                            <span id="packaging-fee">260,000 đ</span>
-                        </div>
-                        <div class="summary-row total">
-                            <span>Tổng cộng:</span>
-                            <span id="total-price">5,260,000 đ</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="history.back()">Quay lại</button>
-                        <button type="submit" class="btn btn-primary">Tiếp tục đặt hàng</button>
-                    </div>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fixed Footer Summary - Two main sections: left info + right button -->
+<div class="order-footer-summary">
+    <div class="footer-summary-container">
+        <div class="footer-left-section">
+            <!-- Info Group 1: SKU and Bag Count -->
+            <div class="footer-info-group">
+                <div class="footer-top-row">
+                    <span id="footer-sku-count">1 SKU</span>, <span id="footer-bag-count">1 loại túi</span>
+                </div>
+                <div class="footer-bottom-row">
+                    Tổng số lượng: <span id="footer-total-quantity">1000 kg</span>
+                </div>
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <!-- Info Group 2: Pricing -->
+            <div class="footer-info-group">
+                <div class="footer-top-row">
+                    Báo giá dự kiến
+                </div>
+                <div class="footer-bottom-row">
+                    <div class="footer-pricing-row">
+                        <span class="footer-total-amount" id="footer-estimated-price">52 triệu</span>
+                        <span class="footer-price-per-unit" id="footer-price-per-kg">42,950 đ/kg</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-right-section">
+            <button type="button" class="next-step-btn" id="next-step-button">
+                Qua bước tiếp theo
+                <span class="arrow-icon">→</span>
+            </button>
         </div>
     </div>
 </div>

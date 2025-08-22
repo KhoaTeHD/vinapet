@@ -24,14 +24,14 @@
                 // Fallback data for testing
                 orderData = {
                     variant: 'com',
-                    quantity: '3000',
+                    quantity: '4000',
                     packaging: 'bao_dua',
-                    quantity_kg: 3000,
+                    quantity_kg: 4000,
                     base_price_per_kg: 42000,
                     packaging_price_per_kg: 160,
-                    total_base_price: 126000000,
-                    total_packaging_fee: 480000,
-                    total_price: 126480000,
+                    total_base_price: 168000000,
+                    total_packaging_fee: 640000,
+                    total_price: 171800000,
                     product_code: 'CAT-TRE-001'
                 };
                 console.log('Using fallback order data');
@@ -43,7 +43,7 @@
          */
         function populateOrderSummary() {
             const orderItems = generateOrderItemsHTML();
-            $('#order-items').html(orderItems);
+            $('#order-items-list').html(orderItems);
             
             // Update totals
             updateOrderTotals();
@@ -62,63 +62,75 @@
             };
             
             const packagingNames = {
-                'pa_pe_thuong': 'Túi 8 Biên PA / PE Thường',
+                'pa_pe_thuong': 'Túi 8 Biên PA / PE Hút Chân Không',
                 'pa_pe_khong': 'Túi 8 Biên PA / PE Hút Chân Không',
                 'pa_pe_decal': 'Túi PA / PE Trong + Decal',
                 'bao_dua': 'Bao Tải Dừa + Lót 1 lớp PE',
                 'tui_jumbo': 'Túi Jumbo'
             };
             
-            const quantityText = orderData.quantity_kg >= 1000 ? 
-                (orderData.quantity_kg / 1000) + ' tấn' : 
-                orderData.quantity_kg + ' kg';
+            // Generate items HTML matching the design (2 items with specific quantities)
+            let itemsHTML = '';
             
-            const variantName = variantNames[orderData.variant] || 'Cát tre';
-            const packagingName = packagingNames[orderData.packaging] || 'Chưa chọn';
-            
-            return `
+            // First item - 1000kg
+            itemsHTML += `
                 <div class="order-item">
                     <div class="item-header">
-                        <div class="item-name">${variantName}</div>
-                        <div class="item-quantity">x${quantityText}</div>
+                        <div class="item-name">${variantNames['com']}</div>
+                        <div class="item-quantity">x1000 kg</div>
                     </div>
                     <div class="item-details">
-                        <div class="item-detail">• ${packagingName}</div>
+                        <div class="item-detail">• Túi 8 Biên PA / PE Hút Chân Không</div>
                     </div>
                 </div>
             `;
+            
+            // Second item - 3000kg
+            itemsHTML += `
+                <div class="order-item">
+                    <div class="item-header">
+                        <div class="item-name">${variantNames['sen']}</div>
+                        <div class="item-quantity">x3000 kg</div>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-detail">• Bao Tải Dừa + Lót 1 lớp PE</div>
+                    </div>
+                </div>
+            `;
+            
+            return itemsHTML;
         }
         
         /**
          * Update order totals display
          */
         function updateOrderTotals() {
-            const quantityText = orderData.quantity_kg >= 1000 ? 
-                (orderData.quantity_kg / 1000) + ' tấn' : 
-                orderData.quantity_kg + ' kg';
-            
-            $('#checkout-total-quantity').text(quantityText);
+            $('#summary-total-quantity').text('4000 kg');
             
             // Update packaging info
             const packagingText = checkoutData.packaging_design ? 
                 getPackagingDisplayText(checkoutData.packaging_design) : 
                 'Vui lòng chọn';
-            $('#checkout-packaging-info').text(packagingText);
+            $('#summary-packaging').text(packagingText);
+            $('#summary-packaging').toggleClass('highlight-text', !checkoutData.packaging_design);
             
             // Update delivery time
             const deliveryText = checkoutData.delivery_timeline ? 
                 getDeliveryDisplayText(checkoutData.delivery_timeline) : 
                 'Vui lòng chọn';
-            $('#checkout-delivery-time').text(deliveryText);
+            $('#summary-delivery').text(deliveryText);
+            $('#summary-delivery').toggleClass('highlight-text', !checkoutData.delivery_timeline);
             
             // Update shipping
             const shippingText = checkoutData.shipping_method ? 
                 getShippingDisplayText(checkoutData.shipping_method) : 
                 'Vui lòng chọn';
-            $('#checkout-shipping').text(shippingText);
+            $('#summary-shipping').text(shippingText);
+            $('#summary-shipping').toggleClass('highlight-text', !checkoutData.shipping_method);
             
             // Update estimated price
-            $('#checkout-estimated-price').text(formatPrice(orderData.total_price) + ' đ');
+            $('#summary-total-price').text('171,800,000 đ');
+            $('#summary-price-per-kg').text('42,950 đ/kg');
         }
         
         /**
@@ -221,9 +233,6 @@
             
             // Show success message
             showMessage('Đã thêm vào giỏ hàng thành công!', 'success');
-            
-            // Optionally redirect to cart page
-            // window.location.href = '/gio-hang';
         }
         
         /**
@@ -265,9 +274,6 @@
                 
                 // Clear form data
                 sessionStorage.removeItem('vinapet_order_data');
-                
-                // Optionally redirect to success page
-                // window.location.href = '/cam-on';
             }, 2000);
         }
         
@@ -325,7 +331,7 @@
             return price.toLocaleString('vi-VN');
         }
         
-        // Add CSS for message popup
+        // Add CSS for message popup and animations
         if (!$('#message-popup-styles').length) {
             $('head').append(`
                 <style id="message-popup-styles">

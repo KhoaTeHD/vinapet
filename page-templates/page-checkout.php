@@ -19,50 +19,50 @@ $breadcrumb_data = [
     <!-- Breadcrumb -->
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
     
-    <!-- Back Button -->
-    <div class="back-navigation">
-        <button onclick="history.back()" class="back-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Quay về Bước 1
-        </button>
-        <h1 class="page-title">Đặt hàng</h1>
-    </div>
-    
     <div class="checkout-container">
         <!-- Left Column - Order Summary (40%) -->
         <div class="checkout-left-column">
             <div class="order-summary-card">
-                <!-- Dynamic Order Items -->
-                <div id="order-items">
+                <!-- Back Button and Title -->
+                <div class="summary-header">
+                    <button onclick="history.back()" class="back-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Quay về Bước 1
+                    </button>
+                    <h2 class="summary-title">Đơn hàng</h2>
+                </div>
+                
+                <!-- Order Items List -->
+                <div class="order-items-list" id="order-items-list">
                     <!-- Sẽ được populate bằng JavaScript -->
                 </div>
                 
-                <!-- Order Totals -->
-                <div class="order-totals">
-                    <div class="total-row">
-                        <span>Tổng số lượng:</span>
-                        <span id="checkout-total-quantity">4000 kg</span>
+                <!-- Order Summary Table -->
+                <div class="order-summary-table">
+                    <div class="summary-row">
+                        <span class="summary-label">Tổng số lượng:</span>
+                        <span class="summary-value" id="summary-total-quantity">4000 kg</span>
                     </div>
-                    <div class="total-row">
-                        <span>Bao bì:</span>
-                        <span id="checkout-packaging-info">Vui lòng chọn</span>
+                    <div class="summary-row">
+                        <span class="summary-label">Bao bì:</span>
+                        <span class="summary-value highlight-text" id="summary-packaging">Vui lòng chọn</span>
                     </div>
-                    <div class="total-row">
-                        <span>Thời gian nhận hàng:</span>
-                        <span id="checkout-delivery-time">Vui lòng chọn</span>
+                    <div class="summary-row">
+                        <span class="summary-label">Thời gian nhận hàng:</span>
+                        <span class="summary-value highlight-text" id="summary-delivery">Vui lòng chọn</span>
                     </div>
-                    <div class="total-row">
-                        <span>Vận chuyển:</span>
-                        <span id="checkout-shipping">Vui lòng chọn</span>
+                    <div class="summary-row">
+                        <span class="summary-label">Vận chuyển:</span>
+                        <span class="summary-value highlight-text" id="summary-shipping">Vui lòng chọn</span>
                     </div>
-                    <div class="total-row">
-                        <span>Báo giá dự kiến:</span>
-                        <span class="price-total" id="checkout-estimated-price">171,800,000 đ</span>
-                    </div>
-                    <div class="total-row price-note">
-                        <small>(Giá cost: 42,950 đ/kg)</small>
+                    <div class="summary-row">
+                        <span class="summary-label">Báo giá dự kiến:</span>
+                        <div class="total-price-section">
+                            <span class="total-price" id="summary-total-price">171,800,000 đ</span>
+                            <span class="price-note">(Giá cost: <span id="summary-price-per-kg">42,950 đ/kg</span>)</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -86,185 +86,187 @@ $breadcrumb_data = [
             </div>
         </div>
         
-        <!-- Right Column - Checkout Form (60%) -->
+        <!-- Right Column - Single Checkout Form Card (60%) -->
         <div class="checkout-right-column">
-            <form id="checkout-form" class="checkout-form">
-                
-                <!-- Packaging Design Section -->
-                <div class="form-section">
-                    <h3 class="section-title">Chọn cách thiết kế bao bì</h3>
+            <div class="checkout-form-card">
+                <form id="checkout-form" class="checkout-form">
                     
-                    <div class="packaging-design-options">
-                        <label class="design-option">
-                            <input type="radio" name="packaging_design" value="company_design">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                        <polyline points="14,2 14,8 20,8"/>
-                                    </svg>
-                                </div>
-                                <div class="option-text">
-                                    <div class="option-title">Nhà máy hỗ trợ thiết kế decal/ túi đơn giản</div>
-                                    <div class="option-desc">Miễn phí, thời gian 7 ngày từ lúc nhận yêu cầu, 3 lần sửa</div>
-                                </div>
-                            </div>
-                        </label>
+                    <!-- Packaging Design Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Chọn cách thiết kế bao bì</h3>
                         
-                        <label class="design-option">
-                            <input type="radio" name="packaging_design" value="custom_file">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                        <polyline points="14,2 14,8 20,8"/>
-                                        <path d="M12 11v6M9 14l3-3 3 3"/>
-                                    </svg>
+                        <div class="packaging-design-options">
+                            <label class="design-option">
+                                <input type="radio" name="packaging_design" value="company_design">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Nhà máy hỗ trợ thiết kế decal/ túi đơn giản</div>
+                                        <div class="option-desc">Miễn phí, thời gian 7 ngày từ lúc nhận yêu cầu, 3 lần sửa</div>
+                                    </div>
                                 </div>
-                                <div class="option-text">
-                                    <div class="option-title">Theo file thiết kế của khách hàng</div>
+                            </label>
+                            
+                            <label class="design-option">
+                                <input type="radio" name="packaging_design" value="custom_file">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                            <polyline points="14,2 14,8 20,8"/>
+                                            <path d="M12 11v6M9 14l3-3 3 3"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Theo file thiết kế của khách hàng</div>
+                                    </div>
                                 </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Design Request Text Area -->
+                        <div class="design-request-section">
+                            <label for="design-request">Thêm yêu cầu đặc biệt về bao bì</label>
+                            <textarea 
+                                id="design-request" 
+                                name="design_request" 
+                                placeholder="Yêu cầu chóng ẩm, tay cầm, khóa kéo..."
+                                rows="4"
+                            ></textarea>
+                            <div class="note-warning">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 9v4M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                                </svg>
+                                Chúng tôi sẽ báo giá thêm dựa trên yêu cầu đặc biệt của khách hàng
                             </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Design Request Text Area -->
-                    <div class="design-request-section">
-                        <label for="design-request">Thêm yêu cầu đặc biệt về bao bì</label>
-                        <textarea 
-                            id="design-request" 
-                            name="design_request" 
-                            placeholder="Yêu cầu chóng ẩm, tay cầm, khóa kéo..."
-                            rows="4"
-                        ></textarea>
-                        <div class="note-warning">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 9v4M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
-                            </svg>
-                            Chúng tôi sẽ báo giá thêm dựa trên yêu cầu đặc biệt của khách hàng
                         </div>
                     </div>
-                </div>
-                
-                <!-- Delivery Timeline Section -->
-                <div class="form-section">
-                    <h3 class="section-title">Chọn thời gian nhận hàng mong muốn</h3>
                     
-                    <div class="timeline-options">
-                        <label class="timeline-option">
-                            <input type="radio" name="delivery_timeline" value="urgent">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <polyline points="12,6 12,12 16,14"/>
-                                    </svg>
-                                </div>
-                                <div class="option-text">
-                                    <div class="option-title">Gấp (dưới 15 ngày)</div>
-                                    <div class="option-desc">Đặt với đơn hàng sản xuất túi PA/PE đều tiện sở mát từ 20-25 ngày</div>
-                                </div>
-                            </div>
-                        </label>
+                    <!-- Delivery Timeline Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Chọn thời gian nhận hàng mong muốn</h3>
                         
-                        <label class="timeline-option">
-                            <input type="radio" name="delivery_timeline" value="normal">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <polyline points="12,6 12,12 16,14"/>
-                                    </svg>
+                        <div class="timeline-options">
+                            <label class="timeline-option">
+                                <input type="radio" name="delivery_timeline" value="urgent">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12,6 12,12 16,14"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Gấp (dưới 15 ngày)</div>
+                                        <div class="option-desc">Đặt với đơn hàng sản xuất túi PA/PE đều tiện sở mát từ 20-25 ngày</div>
+                                    </div>
                                 </div>
-                                <div class="option-text">
-                                    <div class="option-title">Trung bình (15 - 30 ngày)</div>
+                            </label>
+                            
+                            <label class="timeline-option">
+                                <input type="radio" name="delivery_timeline" value="normal">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12,6 12,12 16,14"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Trung bình (15 - 30 ngày)</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </label>
-                        
-                        <label class="timeline-option">
-                            <input type="radio" name="delivery_timeline" value="flexible">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <polyline points="12,6 12,12 16,14"/>
-                                    </svg>
+                            </label>
+                            
+                            <label class="timeline-option">
+                                <input type="radio" name="delivery_timeline" value="flexible">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12,6 12,12 16,14"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Linh hoạt (trên 30 ngày)</div>
+                                    </div>
                                 </div>
-                                <div class="option-text">
-                                    <div class="option-title">Linh hoạt (trên 30 ngày)</div>
-                                </div>
-                            </div>
-                        </label>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Shipping Method Section -->
-                <div class="form-section">
-                    <h3 class="section-title">Chọn cách vận chuyển</h3>
                     
-                    <div class="shipping-options">
-                        <label class="shipping-option">
-                            <input type="radio" name="shipping_method" value="road_transport">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="1" y="3" width="15" height="13"/>
-                                        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                                        <circle cx="5.5" cy="18.5" r="2.5"/>
-                                        <circle cx="18.5" cy="18.5" r="2.5"/>
-                                    </svg>
-                                </div>
-                                <div class="option-text">
-                                    <div class="option-title">Đường bộ (ô tô tải/container/tàu)</div>
-                                </div>
-                            </div>
-                        </label>
+                    <!-- Shipping Method Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Chọn cách vận chuyển</h3>
                         
-                        <label class="shipping-option">
-                            <input type="radio" name="shipping_method" value="sea_transport">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M2 20a2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1 2.4 2.4 0 0 1 4 0 2.4 2.4 0 0 0 4 0 2.4 2.4 0 0 1 4 0 2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1"/>
-                                        <path d="M8 19V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v12"/>
-                                    </svg>
+                        <div class="shipping-options">
+                            <label class="shipping-option">
+                                <input type="radio" name="shipping_method" value="road_transport">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="1" y="3" width="15" height="13"/>
+                                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                            <circle cx="5.5" cy="18.5" r="2.5"/>
+                                            <circle cx="18.5" cy="18.5" r="2.5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Đường bộ (ô tô tải/container/tàu)</div>
+                                    </div>
                                 </div>
-                                <div class="option-text">
-                                    <div class="option-title">Đường biển</div>
+                            </label>
+                            
+                            <label class="shipping-option">
+                                <input type="radio" name="shipping_method" value="sea_transport">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M2 20a2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1 2.4 2.4 0 0 1 4 0 2.4 2.4 0 0 0 4 0 2.4 2.4 0 0 1 4 0 2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1"/>
+                                            <path d="M8 19V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v12"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Đường biển</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </label>
-                        
-                        <label class="shipping-option">
-                            <input type="radio" name="shipping_method" value="air_transport">
-                            <div class="option-content">
-                                <div class="option-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
-                                    </svg>
+                            </label>
+                            
+                            <label class="shipping-option">
+                                <input type="radio" name="shipping_method" value="air_transport">
+                                <div class="option-content">
+                                    <div class="option-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="option-text">
+                                        <div class="option-title">Đường hàng không</div>
+                                    </div>
                                 </div>
-                                <div class="option-text">
-                                    <div class="option-title">Đường hàng không</div>
-                                </div>
-                            </div>
-                        </label>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Additional Support Section -->
-                <div class="form-section">
-                    <h3 class="section-title">Yêu cầu hỗ trợ khác</h3>
                     
-                    <textarea 
-                        id="additional-support" 
-                        name="additional_support" 
-                        placeholder="Nhập yêu cầu tư vấn kỹ thuật, hỗ trợ Marketing..."
-                        rows="6"
-                    ></textarea>
-                </div>
-                
-            </form>
+                    <!-- Additional Support Section -->
+                    <div class="form-section">
+                        <h3 class="section-title">Yêu cầu hỗ trợ khác</h3>
+                        
+                        <textarea 
+                            id="additional-support" 
+                            name="additional_support" 
+                            placeholder="Nhập yêu cầu tư vấn kỹ thuật, hỗ trợ Marketing..."
+                            rows="6"
+                        ></textarea>
+                    </div>
+                    
+                </form>
+            </div>
         </div>
     </div>
 </div>

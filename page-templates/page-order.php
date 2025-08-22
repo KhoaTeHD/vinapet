@@ -151,8 +151,8 @@ $packaging_options = [
                         <div class="variant-grid">
                             <?php foreach ($product_variants as $index => $variant): ?>
                                 <label class="variant-option <?php echo ($variant['id'] === $selected_variant) ? 'selected' : ''; ?>">
-                                    <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                     <div class="variant-content">
+                                        <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                         <div class="variant-image">
                                             <img src="<?php echo esc_url($variant['image']); ?>" alt="<?php echo esc_attr($variant['name']); ?>">
                                         </div>
@@ -171,8 +171,10 @@ $packaging_options = [
                             <div class="quantity-grid">
                                 <?php foreach ($quantity_options as $index => $option): ?>
                                     <label class="quantity-option <?php echo $index === 0 ? 'selected' : ''; ?>">
-                                        <input type="radio" name="quantity" value="<?php echo esc_attr($option['value']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
-                                        <span class="option-label"><?php echo esc_html($option['label']); ?></span>
+                                        <div class="option-content">
+                                            <input type="radio" name="quantity" value="<?php echo esc_attr($option['value']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
+                                            <span class="option-label"><?php echo esc_html($option['label']); ?></span>
+                                        </div>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
@@ -189,13 +191,15 @@ $packaging_options = [
                             <div class="packaging-options">
                                 <?php foreach ($packaging_options as $index => $option): ?>
                                     <label class="packaging-option <?php echo $index === 0 ? 'selected' : ''; ?>">
-                                        <input type="radio" name="packaging" value="<?php echo esc_attr($option['id']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
                                         <div class="option-content">
-                                            <div class="option-header">
-                                                <span class="option-name"><?php echo esc_html($option['name']); ?></span>
-                                                <span class="option-price">+<?php echo number_format($option['price'], 0, ',', '.'); ?> đ/kg</span>
+                                            <input type="radio" name="packaging" value="<?php echo esc_attr($option['id']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
+                                            <div class="option-text">
+                                                <div class="option-header">
+                                                    <span class="option-name"><?php echo esc_html($option['name']); ?></span>
+                                                    <span class="option-price">+<?php echo number_format($option['price'], 0, ',', '.'); ?> đ/kg</span>
+                                                </div>
+                                                <div class="option-description"><?php echo esc_html($option['description']); ?></div>
                                             </div>
-                                            <div class="option-description"><?php echo esc_html($option['description']); ?></div>
                                         </div>
                                     </label>
                                 <?php endforeach; ?>

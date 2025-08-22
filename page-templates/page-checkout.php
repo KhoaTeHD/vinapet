@@ -97,8 +97,8 @@ $breadcrumb_data = [
                         
                         <div class="packaging-design-options">
                             <label class="design-option">
-                                <input type="radio" name="packaging_design" value="company_design">
                                 <div class="option-content">
+                                    <input type="radio" name="packaging_design" value="company_design">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -113,8 +113,8 @@ $breadcrumb_data = [
                             </label>
                             
                             <label class="design-option">
-                                <input type="radio" name="packaging_design" value="custom_file">
                                 <div class="option-content">
+                                    <input type="radio" name="packaging_design" value="custom_file">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -153,8 +153,8 @@ $breadcrumb_data = [
                         
                         <div class="timeline-options">
                             <label class="timeline-option">
-                                <input type="radio" name="delivery_timeline" value="urgent">
                                 <div class="option-content">
+                                    <input type="radio" name="delivery_timeline" value="urgent">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <circle cx="12" cy="12" r="10"/>
@@ -169,8 +169,8 @@ $breadcrumb_data = [
                             </label>
                             
                             <label class="timeline-option">
-                                <input type="radio" name="delivery_timeline" value="normal">
                                 <div class="option-content">
+                                    <input type="radio" name="delivery_timeline" value="normal">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <circle cx="12" cy="12" r="10"/>
@@ -184,8 +184,8 @@ $breadcrumb_data = [
                             </label>
                             
                             <label class="timeline-option">
-                                <input type="radio" name="delivery_timeline" value="flexible">
                                 <div class="option-content">
+                                    <input type="radio" name="delivery_timeline" value="flexible">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <circle cx="12" cy="12" r="10"/>
@@ -206,8 +206,8 @@ $breadcrumb_data = [
                         
                         <div class="shipping-options">
                             <label class="shipping-option">
-                                <input type="radio" name="shipping_method" value="road_transport">
                                 <div class="option-content">
+                                    <input type="radio" name="shipping_method" value="road_transport">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <rect x="1" y="3" width="15" height="13"/>
@@ -223,8 +223,8 @@ $breadcrumb_data = [
                             </label>
                             
                             <label class="shipping-option">
-                                <input type="radio" name="shipping_method" value="sea_transport">
                                 <div class="option-content">
+                                    <input type="radio" name="shipping_method" value="sea_transport">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M2 20a2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1 2.4 2.4 0 0 1 4 0 2.4 2.4 0 0 0 4 0 2.4 2.4 0 0 1 4 0 2.4 2.4 0 0 0 2 1 2.4 2.4 0 0 0 2-1"/>
@@ -238,8 +238,8 @@ $breadcrumb_data = [
                             </label>
                             
                             <label class="shipping-option">
-                                <input type="radio" name="shipping_method" value="air_transport">
                                 <div class="option-content">
+                                    <input type="radio" name="shipping_method" value="air_transport">
                                     <div class="option-icon">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>

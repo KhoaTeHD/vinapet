@@ -337,10 +337,10 @@ jQuery(document).ready(function($) {
     // Cập nhật nút mix với hạt khác
     $('.mix-button').on('click', function(e) {
         e.preventDefault();
-        redirectToOrderPage();
+        redirectToMixPage();
     });
     
-    function redirectToOrderPage() {
+    function redirectToMixPage() {
         // Lấy variant được chọn từ data-variant attribute
         var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
         
@@ -348,10 +348,10 @@ jQuery(document).ready(function($) {
         var productCode = '<?php echo $product_code; ?>';
         
         // Redirect với parameters
-        var orderUrl = '<?php echo home_url("/mix-voi-hat-khac"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
-        
-        console.log('Redirecting to:', orderUrl);
-        window.location.href = orderUrl;
+        var mixUrl = '<?php echo home_url("/mix-voi-hat-khac"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
+
+        console.log('Redirecting to:', mixUrl);
+        window.location.href = mixUrl;
     }
     
 });

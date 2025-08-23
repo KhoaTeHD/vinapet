@@ -403,7 +403,6 @@
     align-items: center;
     gap: 12px;
     min-width: 120px;
-    border-right: none;
     position: relative;
 }
 

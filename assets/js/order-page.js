@@ -18,30 +18,51 @@
             'tui_jumbo': 105
         };
         
-       // Handle variant selection
+        // Handle variant selection - SKU với radio ẩn (như checkout page)
         $('.variant-option').on('click', function() {
-            $('.variant-option').removeClass('selected');
-            $(this).addClass('selected');
+            // Uncheck all other variants first
+            $('.variant-option input[type="radio"]').prop('checked', false);
+            // Check this variant
             $(this).find('input[type="radio"]').prop('checked', true);
             updateFooterSummary();
         });
-        
-        // Handle quantity selection
-        $('.quantity-option').on('click', function() {
-            $('.quantity-option').removeClass('selected');
-            $(this).addClass('selected');
-            $(this).find('input[type="radio"]').prop('checked', true);
+
+        // Handle quantity selection - Radio hiển thị ở bên trái
+        $('.quantity-option').on('click', function(e) {
+            // Nếu click vào radio button thì không cần xử lý gì thêm
+            if (e.target.type === 'radio') {
+                updatePriceTierHighlighting();
+                updateFooterSummary();
+                return;
+            }
             
-            // Update price tier highlighting
+            // Nếu click vào label/container thì check radio
+            $(this).find('input[type="radio"]').prop('checked', true);
             updatePriceTierHighlighting();
             updateFooterSummary();
         });
-        
-        // Handle packaging selection
-        $('.packaging-option').on('click', function() {
-            $('.packaging-option').removeClass('selected');
-            $(this).addClass('selected');
+
+        // Direct radio change handler for quantity
+        $('input[name="quantity"]').on('change', function() {
+            updatePriceTierHighlighting();
+            updateFooterSummary();
+        });
+
+        // Handle packaging selection - Radio hiển thị ở bên trái
+        $('.packaging-option').on('click', function(e) {
+            // Nếu click vào radio button thì không cần xử lý gì thêm
+            if (e.target.type === 'radio') {
+                updateFooterSummary();
+                return;
+            }
+            
+            // Nếu click vào label/container thì check radio
             $(this).find('input[type="radio"]').prop('checked', true);
+            updateFooterSummary();
+        });
+
+        // Direct radio change handler for packaging
+        $('input[name="packaging"]').on('change', function() {
             updateFooterSummary();
         });
         
@@ -79,14 +100,7 @@
             const pricePerKg = totalPrice / quantity;
             
             // Update footer display
-            let quantityText;
-            // if (quantity >= 1000) {
-            //     quantityText = (quantity / 1000) + ' tấn';
-            // } else {
-            //     quantityText = quantity + ' kg';
-            // }
-
-            quantityText = quantity + ' kg';
+            let quantityText = quantity + ' kg';
             
             // Format total price for display
             let formattedTotalPrice;
@@ -158,7 +172,6 @@
         // Handle "View bag details" link click
         $('.view-details-link').on('click', function(e) {
             e.preventDefault();
-            // You can implement a modal or new page to show bag illustrations
             alert('Tính năng xem minh họa các loại túi sẽ được cập nhật sớm.');
         });
         
@@ -166,9 +179,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const selectedVariant = urlParams.get('variant');
         if (selectedVariant) {
-            const targetVariant = $('.variant-option input[value="' + selectedVariant + '"]');
+            const targetVariant = $('input[name="variant"][value="' + selectedVariant + '"]');
             if (targetVariant.length) {
-                targetVariant.closest('.variant-option').click();
+                targetVariant.prop('checked', true);
+                updateFooterSummary();
             }
         }
         
@@ -187,9 +201,5 @@
         
         // Make options focusable for accessibility
         $('.variant-option, .quantity-option, .packaging-option').attr('tabindex', '0');
-        
-        // Remove click handler for price tiers (they are display only)
-        // $('.price-tier').on('click', function() { ... }); // Removed
     });
 })(jQuery);
-            

@@ -145,43 +145,41 @@ $packaging_options = [
         <div class="order-right-column">
             <div class="order-form-card">
                 <form id="order-form" class="order-form">
-                    <!-- SKU Selection -->
+                    <!-- SKU Selection - Hidden Radio (like checkout page) -->
                     <div class="form-section">
                         <h3 class="section-title">Chọn SKU (Mùi - Màu)</h3>
                         <div class="variant-grid">
                             <?php foreach ($product_variants as $index => $variant): ?>
-                                <label class="variant-option <?php echo ($variant['id'] === $selected_variant) ? 'selected' : ''; ?>">
+                                <div class="variant-option">
+                                    <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                     <div class="variant-content">
-                                        <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                         <div class="variant-image">
                                             <img src="<?php echo esc_url($variant['image']); ?>" alt="<?php echo esc_attr($variant['name']); ?>">
                                         </div>
                                         <div class="variant-label"><?php echo esc_html($variant['name']); ?></div>
                                     </div>
-                                </label>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
                     
-                    <!-- Quantity Selection -->
+                    <!-- Quantity Selection - Updated with Radio Buttons -->
                     <div class="form-section">
                         <h3 class="section-title">Chọn thông số đặt hàng</h3>
                         <div class="subsection">
                             <h4 class="subsection-title">Số lượng</h4>
                             <div class="quantity-grid">
                                 <?php foreach ($quantity_options as $index => $option): ?>
-                                    <label class="quantity-option <?php echo $index === 0 ? 'selected' : ''; ?>">
-                                        <div class="option-content">
-                                            <input type="radio" name="quantity" value="<?php echo esc_attr($option['value']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
-                                            <span class="option-label"><?php echo esc_html($option['label']); ?></span>
-                                        </div>
+                                    <label class="quantity-option">
+                                        <input type="radio" name="quantity" value="<?php echo esc_attr($option['value']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
+                                        <span class="option-label"><?php echo esc_html($option['label']); ?></span>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Packaging Selection -->
+                    <!-- Packaging Selection - Updated with Radio Buttons -->
                     <div class="form-section">
                         <div class="subsection">
                             <div class="subsection-header">
@@ -190,16 +188,14 @@ $packaging_options = [
                             </div>
                             <div class="packaging-options">
                                 <?php foreach ($packaging_options as $index => $option): ?>
-                                    <label class="packaging-option <?php echo $index === 0 ? 'selected' : ''; ?>">
+                                    <label class="packaging-option">
+                                        <input type="radio" name="packaging" value="<?php echo esc_attr($option['id']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
                                         <div class="option-content">
-                                            <input type="radio" name="packaging" value="<?php echo esc_attr($option['id']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
-                                            <div class="option-text">
-                                                <div class="option-header">
-                                                    <span class="option-name"><?php echo esc_html($option['name']); ?></span>
-                                                    <span class="option-price">+<?php echo number_format($option['price'], 0, ',', '.'); ?> đ/kg</span>
-                                                </div>
-                                                <div class="option-description"><?php echo esc_html($option['description']); ?></div>
+                                            <div class="option-header">
+                                                <span class="option-name"><?php echo esc_html($option['name']); ?></span>
+                                                <span class="option-price">+<?php echo number_format($option['price'], 0, ',', '.'); ?> đ/kg</span>
                                             </div>
+                                            <div class="option-description"><?php echo esc_html($option['description']); ?></div>
                                         </div>
                                     </label>
                                 <?php endforeach; ?>

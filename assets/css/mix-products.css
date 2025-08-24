@@ -87,15 +87,70 @@
     color: var(--primary-color);
 }
 
-/* Products Selection Section */
+/* Products Selection Section với Add Product Badge */
 .mix-products-section {
     margin-bottom: 40px;
 }
 
 .products-row {
     display: flex;
-    gap: 40px;
+    gap: 20px;
     align-items: flex-start;
+    position: relative;
+}
+
+/* Add Product Badge */
+.add-product-badge {
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color);
+    border: 3px solid var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--white);
+    font-weight: bold;
+    transition: var(--transition);
+    z-index: 10;
+    box-shadow: var(--shadow-light);
+}
+
+.add-product-badge:hover {
+    background: var(--secondary-color);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
+
+.add-product-badge.hidden {
+    display: none;
+}
+
+/* Third Product Card */
+.product-card.third-product {
+    display: none;
+}
+
+.product-card.third-product.visible {
+    display: block;
+    animation: slideInRight 0.5s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Product Cards */
@@ -251,7 +306,7 @@
     color: var(--text-secondary);
 }
 
-/* Progress Section - Hidden by default */
+/* Progress Section với Mix Sliders - Hidden by default */
 .progress-section {
     margin-bottom: 20px;
     display: none; /* Hide by default */
@@ -265,8 +320,66 @@
     font-size: 14px;
     color: var(--text-secondary);
     margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
+.progress-percentage {
+    font-weight: 700;
+    color: var(--highlight-color);
+}
+
+/* Mix Slider */
+.mix-slider-container {
+    margin-bottom: 12px;
+}
+
+.mix-slider {
+    width: 100%;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.mix-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--highlight-color);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--white);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.mix-slider::-webkit-slider-thumb:hover {
+    background: var(--primary-color);
+    transform: scale(1.2);
+}
+
+.mix-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--highlight-color);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--white);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.mix-slider::-moz-range-thumb:hover {
+    background: var(--primary-color);
+    transform: scale(1.2);
+}
+
+/* Progress Bar Visual */
 .progress-bar {
     width: 100%;
     height: 8px;
@@ -274,6 +387,7 @@
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 4px;
+    position: relative;
 }
 
 .progress-fill {
@@ -281,6 +395,7 @@
     background: var(--highlight-color);
     border-radius: 4px;
     transition: width 0.3s ease;
+    position: relative;
 }
 
 .progress-value {
@@ -288,34 +403,38 @@
     font-size: 18px;
     font-weight: 700;
     color: var(--highlight-color);
+    margin-top: 8px;
 }
 
-/* Add Button */
-.add-btn {
+/* Remove Product Button */
+.remove-product-btn {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: #EF4444;
     border: none;
     border-radius: 50%;
     color: var(--white);
-    font-size: 20px;
+    font-size: 14px;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
 }
 
-.secondary-product .add-btn {
-    background: var(--highlight-color);
+.product-card:hover .remove-product-btn {
+    opacity: 1;
+    transform: scale(1);
 }
 
-.add-btn:hover {
+.remove-product-btn:hover {
+    background: #DC2626;
     transform: scale(1.1);
-    box-shadow: var(--shadow-hover);
 }
 
 /* Mix Options Section */
@@ -403,6 +522,7 @@
     align-items: center;
     gap: 12px;
     min-width: 120px;
+    border-right: none;
     position: relative;
 }
 

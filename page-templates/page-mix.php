@@ -134,18 +134,19 @@ $packaging_options = [
                     <?php endforeach; ?>
                 </div>
                 
-                <!-- Progress Bar -->
+                <!-- Mix Percentage Control -->
                 <div class="progress-section">
-                    <div class="progress-label">Tỷ lệ thành phần tỷ %:</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 50%"></div>
+                    <div class="progress-label">
+                        <span>Tỷ lệ thành phần:</span>
+                        <span class="progress-percentage" id="product1-percentage">50%</span>
                     </div>
-                    <div class="progress-value">50%</div>
+                    <div class="mix-slider-container">
+                        <input type="range" class="mix-slider" id="product1-slider" min="10" max="90" value="50" data-product="1">
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="product1-fill" style="width: 50%"></div>
+                    </div>
                 </div>
-                
-                <button class="add-btn" data-product="1">
-                    <span class="plus-icon">+</span>
-                </button>
             </div>
             
             <!-- Product 2 (Dropdown Selection) -->
@@ -153,9 +154,9 @@ $packaging_options = [
                 <div class="product-header">
                     <div class="product-header-top">
                         <span class="product-label">Sản phẩm 2</span>
-                        <a href="#" class="change-product-link" id="change-product-link">Đổi sản phẩm</a>
+                        <a href="#" class="change-product-link" id="change-product-2">Đổi sản phẩm</a>
                     </div>
-                    <div class="product-dropdown-container">
+                    <div class="product-dropdown-container" id="dropdown-container-2">
                         <select class="product-dropdown" id="second-product-select">
                             <option value="">Bấm vào để chọn sản phẩm</option>
                             <?php foreach ($other_products as $product): ?>
@@ -184,19 +185,75 @@ $packaging_options = [
                         <?php endforeach; ?>
                     </div>
                     
-                    <!-- Progress Bar -->
+                    <!-- Mix Percentage Control -->
                     <div class="progress-section">
-                        <div class="progress-label">Tỷ lệ thành phần tỷ %:</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 50%"></div>
+                        <div class="progress-label">
+                            <span>Tỷ lệ thành phần:</span>
+                            <span class="progress-percentage" id="product2-percentage">50%</span>
                         </div>
-                        <div class="progress-value">50%</div>
+                        <div class="mix-slider-container">
+                            <input type="range" class="mix-slider" id="product2-slider" min="10" max="90" value="50" data-product="2">
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="product2-fill" style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Product Badge -->
+            <div class="add-product-badge" id="add-product-badge">+</div>
+            
+            <!-- Product 3 (Hidden initially) -->
+            <div class="product-card third-product" id="third-product-card">
+                <button class="remove-product-btn" id="remove-product-3">×</button>
+                <div class="product-header">
+                    <div class="product-header-top">
+                        <span class="product-label">Sản phẩm 3</span>
+                        <a href="#" class="change-product-link" id="change-product-3">Đổi sản phẩm</a>
+                    </div>
+                    <div class="product-dropdown-container" id="dropdown-container-3">
+                        <select class="product-dropdown" id="third-product-select">
+                            <option value="">Bấm vào để chọn sản phẩm</option>
+                            <?php foreach ($other_products as $product): ?>
+                                <option value="<?php echo esc_attr($product['item_code']); ?>" 
+                                        data-name="<?php echo esc_attr($product['item_name']); ?>"
+                                        data-description="<?php echo esc_attr($product['description']); ?>">
+                                    <?php echo esc_html($product['item_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <svg class="dropdown-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6,9 12,15 18,9"></polyline>
+                        </svg>
                     </div>
                 </div>
                 
-                <button class="add-btn" data-product="2" style="display: none;">
-                    <span class="plus-icon">+</span>
-                </button>
+                <!-- Will be populated when product is selected -->
+                <div class="third-product-content" style="display: none;">
+                    <div class="product-sizes">
+                        <?php foreach ($product_sizes as $size) : ?>
+                            <div class="size-option">
+                                <div class="size-name"><?php echo esc_html($size['name']); ?></div>
+                                <div class="size-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <!-- Mix Percentage Control -->
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Tỷ lệ thành phần:</span>
+                            <span class="progress-percentage" id="product3-percentage">0%</span>
+                        </div>
+                        <div class="mix-slider-container">
+                            <input type="range" class="mix-slider" id="product3-slider" min="10" max="80" value="0" data-product="3">
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="product3-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

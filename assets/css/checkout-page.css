@@ -496,3 +496,82 @@ textarea::placeholder {
         margin-bottom: 30px;
     }
 }
+
+/* Thêm vào cuối file checkout-page.css */
+
+/* Mix Order Specific Styles */
+.order-item.mix-item .item-quantity {
+    font-weight: 700;
+    color: var(--highlight-color, #0FBAB3);
+    font-size: 16px;
+}
+
+.order-item.mix-item .item-details {
+    margin-top: 8px;
+}
+
+.order-item.mix-item .item-detail {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 2px;
+}
+
+.order-item.mix-item .item-detail:last-child {
+    margin-bottom: 0;
+}
+
+/* Custom title for mix orders */
+.summary-title.mix-title {
+    color: var(--highlight-color, #0FBAB3);
+}
+
+/* Percentage display styling */
+.item-quantity.percentage {
+    background: rgba(15, 186, 179, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--highlight-color, #0FBAB3);
+}
+
+/* Enhanced item details for mix orders */
+.order-item.mix-item .item-details .item-detail::before {
+    content: "•";
+    color: var(--highlight-color, #0FBAB3);
+    font-weight: bold;
+    margin-right: 6px;
+}
+
+.order-item.mix-item .item-details .item-detail {
+    padding-left: 0;
+}
+
+/* Responsive adjustments for mix items */
+@media (max-width: 768px) {
+    .order-item.mix-item .item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .order-item.mix-item .item-quantity {
+        align-self: flex-end;
+    }
+    
+    .order-item.mix-item .item-detail {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-item.mix-item .item-details {
+        margin-top: 6px;
+    }
+    
+    .order-item.mix-item .item-detail {
+        font-size: 11px;
+        line-height: 1.3;
+    }
+}

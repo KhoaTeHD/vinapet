@@ -1,7 +1,9 @@
 (function($) {
     $(document).ready(function() {
         let orderData = {};
+        let mixData = {};
         let checkoutData = {};
+        let isFromMix = false;
         
         // Load order data from previous page
         loadOrderData();
@@ -13,12 +15,22 @@
         populateOrderSummary();
         
         /**
-         * Load order data from sessionStorage
+         * Load order data from sessionStorage - Xử lý cả mix và order thông thường
          */
         function loadOrderData() {
-            const storedData = sessionStorage.getItem('vinapet_order_data');
-            if (storedData) {
-                orderData = JSON.parse(storedData);
+            // Kiểm tra xem có dữ liệu mix không
+            const storedMixData = sessionStorage.getItem('vinapet_mix_data');
+            const storedOrderData = sessionStorage.getItem('vinapet_order_data');
+            
+            if (storedMixData) {
+                // Đây là mix order
+                mixData = JSON.parse(storedMixData);
+                isFromMix = true;
+                console.log('Loaded mix data:', mixData);
+            } else if (storedOrderData) {
+                // Đây là order thông thường
+                orderData = JSON.parse(storedOrderData);
+                isFromMix = false;
                 console.log('Loaded order data:', orderData);
             } else {
                 // Fallback data for testing
@@ -34,15 +46,21 @@
                     total_price: 171800000,
                     product_code: 'CAT-TRE-001'
                 };
+                isFromMix = false;
                 console.log('Using fallback order data');
             }
         }
         
         /**
-         * Populate order summary section
+         * Populate order summary section - Xử lý cả mix và order thông thường
          */
         function populateOrderSummary() {
-            const orderItems = generateOrderItemsHTML();
+            // Cập nhật title dựa trên loại đơn hàng
+            const titleText = isFromMix ? 'Đơn hàng tùy chỉnh' : 'Đơn hàng';
+            $('.summary-title').text(titleText);
+            
+            // Generate order items HTML
+            const orderItems = isFromMix ? generateMixOrderItemsHTML() : generateOrderItemsHTML();
             $('#order-items-list').html(orderItems);
             
             // Update totals
@@ -50,7 +68,69 @@
         }
         
         /**
-         * Generate HTML for order items
+         * Generate HTML for mix order items - Hiển thị theo tỷ lệ %
+         */
+        function generateMixOrderItemsHTML() {
+            const variantNames = {
+                'com': 'Cát tre: Mùi cốm - Màu xanh non',
+                'sua': 'Cát tre: Mùi sữa - Màu tự nhiên', 
+                'cafe': 'Cát tre: Mùi cà phê - Màu nâu',
+                'sen': 'Cát tre: Mùi sen - Màu hồng',
+                'vanilla': 'Cát tre: Mùi vanilla - Màu vàng'
+            };
+            
+            const colorNames = {
+                'xanh_non': 'Màu xanh non',
+                'hong_nhat': 'Màu hồng nhạt',
+                'vang_dat': 'Màu vàng đất',
+                'do_gach': 'Màu đỏ gạch',
+                'be_nhat': 'Màu be nhạt',
+                'den': 'Màu đen'
+            };
+            
+            const scentNames = {
+                'com': 'Mùi cốm',
+                'tro_xanh': 'Mùi trà xanh',
+                'ca_phe': 'Mùi cà phê',
+                'sen': 'Mùi sen',
+                'sua': 'Mùi sữa',
+                'chanh': 'Mùi chanh'
+            };
+            
+            const packagingNames = {
+                'tui_jumbo_500': 'Túi Jumbo 500 kg',
+                'tui_jumbo_1000': 'Túi Jumbo 1 tấn'
+            };
+            
+            let itemsHTML = '';
+            
+            // Hiển thị từng sản phẩm trong mix
+            const activeProducts = ['products.product1', 'products.product2', 'products.product3'];
+            
+            activeProducts.forEach(productPath => {
+                const product = getNestedProperty(mixData, productPath);
+                if (product && product.name) {
+                    itemsHTML += `
+                        <div class="order-item">
+                            <div class="item-header">
+                                <div class="item-name">${product.name}</div>
+                                <div class="item-quantity">${product.percentage}%</div>
+                            </div>
+                            <div class="item-details">
+                                <div class="item-detail">• ${colorNames[mixData.options.color] || 'Màu xanh non'}</div>
+                                <div class="item-detail">• ${scentNames[mixData.options.scent] || 'Mùi trà xanh'}</div>
+                                <div class="item-detail">• ${packagingNames[mixData.options.packaging] || 'Túi Jumbo 1 tấn'}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            return itemsHTML;
+        }
+        
+        /**
+         * Generate HTML for regular order items - Hiển thị theo số lượng
          */
         function generateOrderItemsHTML() {
             const variantNames = {
@@ -102,10 +182,45 @@
         }
         
         /**
-         * Update order totals display
+         * Helper function to get nested property safely
+         */
+        function getNestedProperty(obj, path) {
+            return path.split('.').reduce((current, key) => current && current[key], obj);
+        }
+        
+        /**
+         * Update order totals display - Xử lý cả mix và order thông thường
          */
         function updateOrderTotals() {
-            $('#summary-total-quantity').text('4000 kg');
+            if (isFromMix) {
+                // Hiển thị thông tin cho mix order
+                const totalQuantity = mixData.quantity_kg || 10000;
+                let quantityText = totalQuantity.toLocaleString('vi-VN') + ' kg';
+
+                $('#summary-total-quantity').text(quantityText);
+                
+                // Update total price
+                const totalPrice = mixData.total_price || 340000000;
+                let formattedTotalPrice;
+                if (totalPrice >= 1000000000) {
+                    formattedTotalPrice = Math.round(totalPrice / 1000000000) + ' tỷ';
+                } else if (totalPrice >= 1000000) {
+                    formattedTotalPrice = Math.round(totalPrice / 1000000) + ' triệu';
+                } else {
+                    formattedTotalPrice = formatPrice(totalPrice) + ' đ';
+                }
+                
+                const pricePerKg = (mixData.base_price_per_kg || 34000) + (mixData.packaging_price_per_kg || 0);
+                
+                $('#summary-total-price').text(formattedTotalPrice);
+                $('#summary-price-per-kg').text(formatPrice(pricePerKg) + ' đ/kg');
+                
+            } else {
+                // Hiển thị thông tin cho order thông thường
+                $('#summary-total-quantity').text('4000 kg');
+                $('#summary-total-price').text('171,800,000 đ');
+                $('#summary-price-per-kg').text('42,950 đ/kg');
+            }
             
             // Update packaging info
             const packagingText = checkoutData.packaging_design ? 
@@ -127,10 +242,6 @@
                 'Vui lòng chọn';
             $('#summary-shipping').text(shippingText);
             $('#summary-shipping').toggleClass('highlight-text', !checkoutData.shipping_method);
-            
-            // Update estimated price
-            $('#summary-total-price').text('171,800,000 đ');
-            $('#summary-price-per-kg').text('42,950 đ/kg');
         }
         
         /**
@@ -214,19 +325,17 @@
         }
         
         /**
-         * Handle add to cart action
+         * Handle add to cart action - Xử lý cả mix và order thông thường
          */
         function handleAddToCart() {
             if (!validateForm()) {
                 return;
             }
             
-            // Combine order data with checkout data
-            const cartData = {
-                ...orderData,
-                ...checkoutData,
-                action_type: 'add_to_cart'
-            };
+            // Combine data based on order type
+            const cartData = isFromMix ? 
+                { ...mixData, ...checkoutData, action_type: 'add_to_cart' } :
+                { ...orderData, ...checkoutData, action_type: 'add_to_cart' };
             
             // Store in sessionStorage for cart processing
             sessionStorage.setItem('vinapet_cart_item', JSON.stringify(cartData));
@@ -236,19 +345,17 @@
         }
         
         /**
-         * Handle submit request action
+         * Handle submit request action - Xử lý cả mix và order thông thường
          */
         function handleSubmitRequest() {
             if (!validateForm()) {
                 return;
             }
             
-            // Combine order data with checkout data
-            const requestData = {
-                ...orderData,
-                ...checkoutData,
-                action_type: 'submit_request'
-            };
+            // Combine data based on order type
+            const requestData = isFromMix ?
+                { ...mixData, ...checkoutData, action_type: 'submit_request' } :
+                { ...orderData, ...checkoutData, action_type: 'submit_request' };
             
             // Here you would typically send to server
             console.log('Submitting request:', requestData);
@@ -270,10 +377,18 @@
                     Gửi yêu cầu
                 `);
                 
-                showMessage('Yêu cầu đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.', 'success');
+                const successMessage = isFromMix ? 
+                    'Yêu cầu đơn hàng tùy chỉnh đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.' :
+                    'Yêu cầu đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.';
+                
+                showMessage(successMessage, 'success');
                 
                 // Clear form data
-                sessionStorage.removeItem('vinapet_order_data');
+                if (isFromMix) {
+                    sessionStorage.removeItem('vinapet_mix_data');
+                } else {
+                    sessionStorage.removeItem('vinapet_order_data');
+                }
             }, 2000);
         }
         
@@ -328,7 +443,7 @@
          * Format price with thousands separator
          */
         function formatPrice(price) {
-            return price.toLocaleString('vi-VN');
+            return Math.round(price).toLocaleString('vi-VN');
         }
         
         // Add CSS for message popup and animations

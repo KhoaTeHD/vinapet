@@ -404,3 +404,235 @@ function vinapet_excerpt_more($more) {
     return '...';
 }
 add_filter('excerpt_more', 'vinapet_excerpt_more');
+
+/**
+ * Helper functions for mix orders
+ */
+
+/**
+ * Get display name for mix variants/colors/scents
+ */
+function vinapet_get_mix_option_name($type, $value) {
+    $options = array(
+        'color' => array(
+            'xanh_non' => 'Màu xanh non',
+            'hong_nhat' => 'Màu hồng nhạt',
+            'vang_dat' => 'Màu vàng đất',
+            'do_gach' => 'Màu đỏ gạch',
+            'be_nhat' => 'Màu be nhạt',
+            'den' => 'Màu đen'
+        ),
+        'scent' => array(
+            'com' => 'Mùi cốm',
+            'tro_xanh' => 'Mùi trà xanh',
+            'ca_phe' => 'Mùi cà phê',
+            'sen' => 'Mùi sen',
+            'sua' => 'Mùi sữa',
+            'chanh' => 'Mùi chanh'
+        ),
+        'packaging' => array(
+            'tui_jumbo_500' => 'Túi Jumbo 500 kg',
+            'tui_jumbo_1000' => 'Túi Jumbo 1 tấn',
+            'pa_pe_thuong' => 'Túi 8 Biên PA / PE Hút Chân Không',
+            'pa_pe_khong' => 'Túi 8 Biên PA / PE Hút Chân Không',
+            'pa_pe_decal' => 'Túi PA / PE Trong + Decal',
+            'bao_dua' => 'Bao Tải Dừa + Lót 1 lớp PE',
+            'tui_jumbo' => 'Túi Jumbo'
+        )
+    );
+    
+    if (isset($options[$type]) && isset($options[$type][$value])) {
+        return $options[$type][$value];
+    }
+    
+    return $value; // Return original value if not found
+}
+
+/**
+ * Check if current checkout is from mix page
+ */
+function vinapet_is_mix_checkout() {
+    // Check session storage or other indicators
+    // This is primarily handled by JavaScript, but can be used for server-side logic
+    return isset($_SESSION['vinapet_is_mix_checkout']) && $_SESSION['vinapet_is_mix_checkout'];
+}
+
+/**
+ * AJAX handler for mix checkout requests
+ */
+function vinapet_submit_mix_checkout_request() {
+    check_ajax_referer('vinapet_nonce', 'nonce');
+    
+    if (!current_user_can('read')) {
+        wp_send_json_error('Bạn không có quyền thực hiện hành động này.');
+    }
+    
+    // Lấy dữ liệu mix từ POST
+    $mix_data = isset($_POST['mix_data']) ? json_decode(stripslashes($_POST['mix_data']), true) : array();
+    $checkout_data = isset($_POST['checkout_data']) ? json_decode(stripslashes($_POST['checkout_data']), true) : array();
+    
+    // Validate dữ liệu mix
+    if (empty($mix_data) || !isset($mix_data['type']) || $mix_data['type'] !== 'mix') {
+        wp_send_json_error('Dữ liệu mix không hợp lệ.');
+    }
+    
+    // Validate checkout data
+    if (empty($checkout_data)) {
+        wp_send_json_error('Dữ liệu checkout không hợp lệ.');
+    }
+    
+    // Kiểm tra các trường bắt buộc
+    $required_fields = ['packaging_design', 'delivery_timeline', 'shipping_method'];
+    foreach ($required_fields as $field) {
+        if (!isset($checkout_data[$field]) || empty($checkout_data[$field])) {
+            wp_send_json_error('Vui lòng điền đầy đủ thông tin bắt buộc.');
+        }
+    }
+    
+    // Validate mix products
+    if (empty($mix_data['products']) || !isset($mix_data['products']['product1']) || !isset($mix_data['products']['product2'])) {
+        wp_send_json_error('Cần ít nhất 2 sản phẩm để tạo đơn hàng mix.');
+    }
+    
+    // Tạo mix request data
+    $request_data = array_merge($mix_data, $checkout_data);
+    $request_data['request_type'] = 'mix_order';
+    $request_data['request_time'] = current_time('mysql');
+    $request_data['user_ip'] = $_SERVER['REMOTE_ADDR'];
+    
+    // Tính tổng tỷ lệ để validate
+    $total_percentage = 0;
+    foreach (['product1', 'product2', 'product3'] as $product_key) {
+        if (isset($mix_data['products'][$product_key]) && isset($mix_data['products'][$product_key]['percentage'])) {
+            $total_percentage += $mix_data['products'][$product_key]['percentage'];
+        }
+    }
+    
+    if (abs($total_percentage - 100) > 1) {
+        wp_send_json_error('Tổng tỷ lệ các sản phẩm phải bằng 100%.');
+    }
+    
+    // Log request for debugging
+    error_log('VinaPet Mix Checkout Request: ' . json_encode($request_data));
+    
+    // Ở đây có thể tích hợp với ERPNext API để tạo đơn hàng mix
+    // ...
+    
+    // Simulate processing time
+    sleep(1);
+    
+    wp_send_json_success(array(
+        'message' => 'Yêu cầu đơn hàng tùy chỉnh đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.',
+        'request_id' => 'MIX' . time(),
+        'mix_info' => array(
+            'products_count' => $mix_data['activeProductCount'],
+            'total_quantity' => $mix_data['quantity_kg'],
+            'estimated_price' => $mix_data['total_price']
+        )
+    ));
+}
+add_action('wp_ajax_submit_mix_checkout_request', 'vinapet_submit_mix_checkout_request');
+add_action('wp_ajax_nopriv_submit_mix_checkout_request', 'vinapet_submit_mix_checkout_request');
+
+/**
+ * Format mix percentage for display
+ */
+function vinapet_format_mix_percentage($percentage) {
+    return number_format($percentage, 0) . '%';
+}
+
+/**
+ * Generate mix order summary for emails/notifications
+ */
+function vinapet_generate_mix_order_summary($mix_data) {
+    if (!is_array($mix_data) || !isset($mix_data['products'])) {
+        return '';
+    }
+    
+    $summary = "=== ĐỚN HÀNG TÙY CHỈNH (MIX) ===\n\n";
+    
+    // Products information
+    $summary .= "Thành phần sản phẩm:\n";
+    foreach (['product1', 'product2', 'product3'] as $product_key) {
+        if (isset($mix_data['products'][$product_key]) && !empty($mix_data['products'][$product_key]['name'])) {
+            $product = $mix_data['products'][$product_key];
+            $summary .= "- {$product['name']}: {$product['percentage']}%\n";
+        }
+    }
+    
+    // Options information
+    if (isset($mix_data['options'])) {
+        $options = $mix_data['options'];
+        $summary .= "\nTùy chọn:\n";
+        $summary .= "- Màu: " . vinapet_get_mix_option_name('color', $options['color']) . "\n";
+        $summary .= "- Mùi: " . vinapet_get_mix_option_name('scent', $options['scent']) . "\n";
+        $summary .= "- Túi: " . vinapet_get_mix_option_name('packaging', $options['packaging']) . "\n";
+        
+        $quantity = isset($options['quantity']) && $options['quantity'] !== 'khac' ? 
+            $options['quantity'] : '10000';
+        $quantity_text = $quantity >= 1000 ? 
+            number_format($quantity / 1000, 0) . ' tấn' : 
+            number_format($quantity, 0) . ' kg';
+        $summary .= "- Số lượng: {$quantity_text}\n";
+    }
+    
+    // Price information
+    if (isset($mix_data['total_price'])) {
+        $summary .= "\nGiá dự kiến: " . number_format($mix_data['total_price'], 0, ',', '.') . " đ\n";
+        
+        if (isset($mix_data['base_price_per_kg']) && isset($mix_data['packaging_price_per_kg'])) {
+            $price_per_kg = $mix_data['base_price_per_kg'] + $mix_data['packaging_price_per_kg'];
+            $summary .= "Giá/kg: " . number_format($price_per_kg, 0, ',', '.') . " đ\n";
+        }
+    }
+    
+    return $summary;
+}
+
+/**
+ * Add body class for mix checkout pages
+ */
+function vinapet_add_mix_body_class($classes) {
+    if (is_page_template('page-templates/page-mix.php')) {
+        $classes[] = 'mix-products-page';
+    }
+    
+    // Check if checkout is from mix (via JavaScript flag or session)
+    if (is_page_template('page-templates/page-checkout.php')) {
+        $classes[] = 'checkout-page';
+        // Additional class will be added by JavaScript when mix data is detected
+    }
+    
+    return $classes;
+}
+add_filter('body_class', 'vinapet_add_mix_body_class');
+
+/**
+ * Enqueue scripts specifically for mix functionality
+ */
+function vinapet_mix_scripts_enhancement() {
+    if (is_page_template('page-templates/page-checkout.php')) {
+        // Add inline script to detect mix checkout and add body class
+        $script = "
+        jQuery(document).ready(function($) {
+            // Check if this is a mix checkout
+            const mixData = sessionStorage.getItem('vinapet_mix_data');
+            if (mixData) {
+                $('body').addClass('mix-checkout-page');
+                $('.summary-title').addClass('mix-title');
+                // Add mix-item class to order items
+                $('.order-item').addClass('mix-item');
+                // Style percentage displays
+                $('.order-item .item-quantity').each(function() {
+                    if ($(this).text().includes('%')) {
+                        $(this).addClass('percentage');
+                    }
+                });
+            }
+        });
+        ";
+        
+        wp_add_inline_script('vinapet-checkout-page', $script);
+    }
+}
+add_action('wp_enqueue_scripts', 'vinapet_mix_scripts_enhancement', 20);

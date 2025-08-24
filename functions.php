@@ -636,3 +636,10 @@ function vinapet_mix_scripts_enhancement() {
     }
 }
 add_action('wp_enqueue_scripts', 'vinapet_mix_scripts_enhancement', 20);
+
+// Header
+function vinapet_header_assets() {
+    wp_enqueue_style('vinapet-header', VINAPET_THEME_URI . '/assets/css/header.css', array(), VINAPET_VERSION);
+    wp_enqueue_script('vinapet-header', VINAPET_THEME_URI . '/assets/js/header.js', array('jquery'), VINAPET_VERSION, true);
+}
+add_action('wp_enqueue_scripts', 'vinapet_header_assets');

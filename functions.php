@@ -643,3 +643,18 @@ function vinapet_header_assets() {
     wp_enqueue_script('vinapet-header', VINAPET_THEME_URI . '/assets/js/header.js', array('jquery'), VINAPET_VERSION, true);
 }
 add_action('wp_enqueue_scripts', 'vinapet_header_assets');
+
+/**
+ * VinaPet Authentication Integration
+ */
+
+// Include auth files
+if (file_exists(VINAPET_THEME_DIR . '/includes/auth/class-auth-handlers.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/auth/class-auth-handlers.php';
+}
+
+if (file_exists(VINAPET_THEME_DIR . '/includes/auth/auth-integration.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/auth/auth-integration.php';
+}
+
+// Copy toàn bộ code từ artifact functions_auth_update vào đây

@@ -117,9 +117,9 @@
                                 <div class="item-quantity">${product.percentage}%</div>
                             </div>
                             <div class="item-details">
-                                <div class="item-detail">• ${colorNames[mixData.options.color] || 'Màu xanh non'}</div>
-                                <div class="item-detail">• ${scentNames[mixData.options.scent] || 'Mùi trà xanh'}</div>
-                                <div class="item-detail">• ${packagingNames[mixData.options.packaging] || 'Túi Jumbo 1 tấn'}</div>
+                                <div class="item-detail">${colorNames[mixData.options.color] || 'Màu xanh non'}</div>
+                                <div class="item-detail">${scentNames[mixData.options.scent] || 'Mùi trà xanh'}</div>
+                                <div class="item-detail">${packagingNames[mixData.options.packaging] || 'Túi Jumbo 1 tấn'}</div>
                             </div>
                         </div>
                     `;

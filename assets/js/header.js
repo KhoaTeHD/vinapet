@@ -194,21 +194,6 @@
         };
         
         // =============================================================================
-        // SEARCH FUNCTIONALITY
-        // =============================================================================
-        
-        const searchBtn = $('.search-btn');
-        
-        // Simple search functionality - redirect to products page with search
-        searchBtn.on('click', function(e) {
-            e.preventDefault();
-            const query = prompt('Tìm kiếm sản phẩm:');
-            if (query && query.trim()) {
-                window.location.href = '/san-pham?s=' + encodeURIComponent(query.trim());
-            }
-        });
-        
-        // =============================================================================
         // AJAX FUNCTIONALITY
         // =============================================================================
         

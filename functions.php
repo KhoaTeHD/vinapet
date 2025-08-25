@@ -549,7 +549,7 @@ function vinapet_generate_mix_order_summary($mix_data) {
         return '';
     }
     
-    $summary = "=== ĐỚN HÀNG TÙY CHỈNH (MIX) ===\n\n";
+    $summary = "=== ĐƠN HÀNG TÙY CHỈNH (MIX) ===\n\n";
     
     // Products information
     $summary .= "Thành phần sản phẩm:\n";
@@ -648,13 +648,58 @@ add_action('wp_enqueue_scripts', 'vinapet_header_assets');
  * VinaPet Authentication Integration
  */
 
-// Include auth files
-if (file_exists(VINAPET_THEME_DIR . '/includes/auth/class-auth-handlers.php')) {
-    require_once VINAPET_THEME_DIR . '/includes/auth/class-auth-handlers.php';
+
+// Include authentication integration class
+require_once VINAPET_THEME_DIR . '/includes/auth/auth-integration.php';
+
+// Initialize default ERPNext settings
+function vinapet_init_default_erpnext_settings() {
+    $default_settings = array(
+        'api_url' => '',
+        'api_key' => '',
+        'api_secret' => '',
+        'enabled' => false,
+        'sync_on_register' => true,
+        'sync_on_login' => true,
+        'customer_group' => 'All Customer Groups',
+        'territory' => 'All Territories',
+    );
+    
+    if (!get_option('vinapet_erpnext_settings')) {
+        add_option('vinapet_erpnext_settings', $default_settings);
+    }
+}
+add_action('init', 'vinapet_init_default_erpnext_settings', 5);
+
+// Add customer role on theme activation
+function vinapet_add_customer_role() {
+    if (!get_role('customer')) {
+        add_role('customer', 'Khách hàng', array(
+            'read' => true,
+            'edit_posts' => false,
+            'delete_posts' => false,
+        ));
+    }
+}
+add_action('after_switch_theme', 'vinapet_add_customer_role');
+
+// Prevent customers from accessing wp-admin
+function vinapet_restrict_admin_access() {
+    if (is_admin() && !current_user_can('edit_posts') && !defined('DOING_AJAX')) {
+        wp_redirect(home_url());
+        exit;
+    }
+}
+add_action('admin_init', 'vinapet_restrict_admin_access');
+
+// Utility functions
+function vinapet_is_erpnext_enabled() {
+    $settings = get_option('vinapet_erpnext_settings', array());
+    return !empty($settings['enabled']) && !empty($settings['api_url']) && !empty($settings['api_key']);
 }
 
-if (file_exists(VINAPET_THEME_DIR . '/includes/auth/auth-integration.php')) {
-    require_once VINAPET_THEME_DIR . '/includes/auth/auth-integration.php';
+function vinapet_get_erpnext_settings() {
+    return get_option('vinapet_erpnext_settings', array());
 }
 
 // Copy toàn bộ code từ artifact functions_auth_update vào đây

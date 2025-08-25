@@ -420,8 +420,12 @@
 
     function handleLogin(form) {
         const $form = $(form);
-        
-        if (!validateLoginForm($form)) {
+        const email = formData.get('user_email');
+        const password = formData.get('user_password');
+
+        // ✅ THÊM DÒNG NÀY:
+        if (!email || !password) {
+            showNotification('Vui lòng nhập đầy đủ thông tin', 'error');
             return;
         }
 

@@ -12,9 +12,9 @@ if (!defined('ABSPATH')) {
 /**
  * Định nghĩa các hằng số cho theme
  */
+define('VINAPET_VERSION', '1.0.0');
 define('VINAPET_THEME_DIR', get_template_directory());
 define('VINAPET_THEME_URI', get_template_directory_uri());
-define('VINAPET_VERSION', '1.0.0');
 
 /**
  * Các tính năng cơ bản của theme
@@ -651,6 +651,11 @@ add_action('wp_enqueue_scripts', 'vinapet_header_assets');
 
 // Include authentication integration class
 require_once VINAPET_THEME_DIR . '/includes/auth/auth-integration.php';
+
+function vinapet_init_auth_integration() {
+    new VinaPet_Auth_Integration();
+}
+add_action('init', 'vinapet_init_auth_integration', 1);
 
 // Initialize default ERPNext settings
 function vinapet_init_default_erpnext_settings() {

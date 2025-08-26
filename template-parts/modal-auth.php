@@ -135,6 +135,24 @@ if (!defined('ABSPATH')) {
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label" for="registerAddress">Địa chỉ</label>
+                        <textarea 
+                            class="form-input" 
+                            id="registerAddress"
+                            name="user_address" 
+                            placeholder="Nhập địa chỉ đầy đủ"
+                            required
+                            autocomplete="street-address"
+                            aria-describedby="registerAddressError"
+                            rows="3"
+                            style="resize: vertical; min-height: 80px;"
+                        ></textarea>
+                        <div class="error-message" id="registerAddressError" role="alert">
+                            ⚠ Vui lòng nhập địa chỉ
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label" for="registerEmail">Email</label>
                         <input 
                             type="email" 

@@ -270,6 +270,16 @@
                 }
                 break;
 
+            case 'user_address':
+                if (!value || value.length < 10) {
+                    message = 'Địa chỉ phải có ít nhất 10 ký tự';
+                    isValid = false;
+                } else if (value.length > 500) {
+                    message = 'Địa chỉ quá dài (tối đa 500 ký tự)';
+                    isValid = false;
+                }
+                break;
+
             case 'user_phone':
                 if (!value) {
                     message = 'Vui lòng nhập số điện thoại';
@@ -485,6 +495,7 @@
             action: 'vinapet_ajax_register',
             nonce: $form.find('input[name="vinapet_register_nonce"]').val(),
             user_name: $form.find('input[name="user_name"]').val().trim(),
+            user_address: $form.find('textarea[name="user_address"]').val().trim(),
             user_email: $form.find('input[name="user_email"]').val().trim(),
             user_phone: $form.find('input[name="user_phone"]').val().trim(),
             user_password: $form.find('input[name="user_password"]').val(),

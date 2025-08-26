@@ -229,6 +229,7 @@ class VinaPet_Auth_Integration {
         $name = sanitize_text_field($_POST['user_name']);
         $email = sanitize_email($_POST['user_email']);
         $phone = sanitize_text_field($_POST['user_phone']);
+        $address = sanitize_textarea_field($_POST['user_address']);
         $password = $_POST['user_password'];
         $agree_terms = isset($_POST['agree_terms']) && $_POST['agree_terms'] === 'true';
 
@@ -243,6 +244,14 @@ class VinaPet_Auth_Integration {
 
         if (strlen($password) < 6) {
             wp_send_json_error(array('message' => 'Mật khẩu phải có ít nhất 6 ký tự'));
+        }
+
+        if (strlen($address) < 10) {
+            wp_send_json_error(array('message' => 'Địa chỉ quá ngắn (tối thiểu 10 ký tự)'));
+        }
+
+        if (strlen($address) > 500) {
+            wp_send_json_error(array('message' => 'Địa chỉ quá dài (tối đa 500 ký tự)'));
         }
 
         if (!$agree_terms) {
@@ -278,6 +287,7 @@ class VinaPet_Auth_Integration {
 
         // Save additional user meta
         update_user_meta($user_id, 'phone_number', $phone);
+        update_user_meta($user_id, 'user_address', $address); 
         update_user_meta($user_id, 'registration_date', current_time('mysql'));
         update_user_meta($user_id, 'terms_agreed', true);
         update_user_meta($user_id, 'terms_agreed_date', current_time('mysql'));
@@ -404,7 +414,8 @@ class VinaPet_Auth_Integration {
             'email_id' => $user->user_email,
             'mobile_no' => get_user_meta($user_id, 'phone_number', true),
             'custom_wordpress_user_id' => $user_id,
-            'custom_registration_source' => 'Website'
+            'custom_registration_source' => 'Website',
+            'custom_address' => get_user_meta($user_id, 'user_address', true)
         );
 
         $this->send_to_erpnext('resource/Customer', $customer_data, 'POST');

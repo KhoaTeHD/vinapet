@@ -14,12 +14,12 @@
     --warning-color: #f59e0b;
     --info-color: #3b82f6;
     
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
+    --text-primary: #19457B;
+    --text-secondary: #666471;
     --text-muted: #9ca3af;
     
-    --bg-primary: #ffffff;
-    --bg-secondary: #f9fafb;
+    --bg-primary: #F3F3F4;
+    --bg-secondary: #fff;
     --bg-overlay: rgba(0, 0, 0, 0.5);
     
     --border-color: #e5e7eb;
@@ -70,7 +70,7 @@
 }
 
 .modal-container {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-xl);
     width: 100%;
@@ -158,18 +158,17 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     margin-bottom: 6px;
 }
 
 .form-input {
     width: 100%;
-    padding: 14px 16px;
+    padding: 8px 12px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 16px;
     font-family: var(--font-family);
-    color: var(--text-primary);
     background: var(--bg-primary);
     transition: all var(--transition-fast);
     box-sizing: border-box;
@@ -177,8 +176,8 @@
 
 .form-input:focus {
     outline: none;
-    border-color: var(--border-color-focus);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    /* border-color: var(--border-color-focus); */
+    /* box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); */
 }
 
 .form-input.error {
@@ -187,7 +186,7 @@
 
 .form-input.error:focus {
     border-color: var(--error-color);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    /* box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); */
 }
 
 .form-input::placeholder {
@@ -283,10 +282,11 @@
 }
 
 .forgot-password {
-    color: var(--primary-color);
+    color: var(--text-primary);
     text-decoration: none;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
+    text-decoration: underline;
     transition: color var(--transition-fast);
 }
 
@@ -430,10 +430,11 @@
 }
 
 .switch-link {
-    color: var(--primary-color);
+    color: var(--text-primary);
     text-decoration: none;
     font-weight: 600;
     margin-left: 4px;
+    text-decoration: underline;
     transition: color var(--transition-fast);
 }
 
@@ -670,7 +671,7 @@ body.modal-open {
 }
 
 /* Focus visible for better keyboard navigation */
-.modal-close:focus-visible,
+/* .modal-close:focus-visible,
 .form-input:focus-visible,
 .btn-primary:focus-visible,
 .btn-google:focus-visible,
@@ -678,7 +679,7 @@ body.modal-open {
 .switch-link:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: 2px;
-}
+} */
 
 /* Screen reader only content */
 .sr-only {

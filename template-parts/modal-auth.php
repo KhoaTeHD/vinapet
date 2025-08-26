@@ -23,7 +23,6 @@ if (!defined('ABSPATH')) {
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalTitle">Đăng nhập</h2>
-                <p class="modal-subtitle">Chào mừng bạn quay lại!</p>
             </div>
 
             <div class="modal-body">

@@ -30,6 +30,22 @@ function vinapet_setup() {
         'flex-height' => true,
         'flex-width'  => true,
     ));
+
+    // Support for Elementor
+    add_theme_support('elementor');
+    
+    // Support for Elementor Pro features
+    add_theme_support('elementor-pro');
+    
+    // Set Elementor page template support
+    add_post_type_support('page', 'elementor');
+
+    // Remove theme default CSS on Elementor pages
+    add_action('elementor/frontend/after_enqueue_styles', function() {
+        if (is_front_page() && get_page_template_slug() === 'elementor_header_footer') {
+            wp_dequeue_style('vinapet-style');
+        }
+    });
     
     // Thêm hỗ trợ cho thumbnails
     add_theme_support('post-thumbnails');
@@ -738,3 +754,5 @@ function load_custom_header() {
         include get_template_directory() . '/header-custom.php';
     }
 }
+
+add_filter('show_admin_bar', '__return_false');

@@ -77,8 +77,16 @@ $breadcrumb_data = [
                         Thêm vào giỏ
                     </button>
                     <button type="submit" class="btn btn-primary submit-request-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 16.92V19.92C22 20.4728 21.5523 20.92 21 20.92H18C8.059 20.92 0 12.861 0 2.92V2.92C0 1.36772 1.34772 0.02 3 0.02H6L8 4.02L6.5 5.52C7.5 7.52 9.48 9.5 11.48 10.5L13 9.02L17 11.02V14.02C17 15.5728 15.5523 17.02 14 17.02H13C12.4477 17.02 12 16.5728 12 16.02V14.52C10.34 13.85 8.15 12.17 7.48 10.51H6C5.44772 10.51 5 10.0628 5 9.51V8.02C5 7.46772 5.44772 7.02 6 7.02H7.5C8.88 4.64 11.12 3.02 14 3.02C16.21 3.02 18 4.81 18 7.02V8.52C18 9.07228 17.5523 9.52 17 9.52H15.5C14.83 11.18 13.15 12.86 11.49 13.53V15.02C11.49 15.5728 11.9377 16.02 12.49 16.02H14C15.5523 16.02 17 14.5728 17 13.02V11.02L22 16.92Z"/>
+
+                        <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Mặt trước -->
+                        <rect x="2" y="6" width="10" height="10" fill="#ddd" stroke="#666" stroke-width="1"/>
+                        
+                        <!-- Mặt trên -->
+                        <polygon points="2,6 4,4 14,4 12,6" fill="#fff" stroke="#666" stroke-width="1"/>
+                        
+                        <!-- Mặt bên -->
+                        <polygon points="12,6 14,4 14,14 12,16" fill="#bbb" stroke="#666" stroke-width="1"/>
                         </svg>
                         Gửi yêu cầu
                     </button>

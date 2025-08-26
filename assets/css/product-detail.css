@@ -466,51 +466,52 @@
 .product-card {
     position: relative;
     width: 100%;
-    height: 320px;
+    height: 360px;
     background: var(--white);
     border-radius: var(--border-radius);
-    border: 4px solid transparent;
+    border: 4px solid rgba(217, 216, 220, 1);
     overflow: hidden;
     cursor: pointer;
     transition: var(--transition);
     box-shadow: var(--shadow-light);
 }
 
-.product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--primary-color);
+.product-card:hover .arrow-icon {
+    opacity: 1; /* Hiện icon khi hover */
+    transform: translateX(0);
 }
 
-.product-card .product-image {
+.product-image {
     width: 100%;
-    height: 100%;
+    height: 360px;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
+    border-radius: 8px;
 }
 
-.product-card .product-overlay {
+.product-overlay {
     position: absolute;
-    bottom: 16px;
+    bottom: 4px;
     left: 12px;
     right: 12px;
-    width: calc(100% - 24px);
-    background: rgba(0, 0, 0, 0.85);
+    width: calc(100% - 60px);
+    height: 82px;
+    background: rgba(6, 29, 57, 0.8);
     border-radius: var(--border-radius);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid #FFFFFFCC;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     transition: background 0.3s ease;
 }
 
 .product-card:hover .product-overlay {
-    background: rgba(0, 0, 0, 1);
+    background: rgba(6, 29, 57, 1); /* Tăng opacity lên 100% khi hover */
 }
 
 .product-title-container {
@@ -529,13 +530,28 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #ffffff;
 }
 
+/* Arrow Icon */
 .arrow-icon {
-    display: flex;
+    position: absolute;
+    right: 16px;
+    transform: translateY(-50%) translateX(10px);
     opacity: 0;
-    transform: translateX(10px);
     transition: opacity 0.3s ease, transform 0.3s ease;
+    width: 24px;
+    height: 24px;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrow-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--white);
 }
 
 .product-card:hover .arrow-icon {

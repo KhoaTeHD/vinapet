@@ -22,6 +22,14 @@ define('VINAPET_THEME_URI', get_template_directory_uri());
 function vinapet_setup() {
     // Thêm hỗ trợ cho title tag động
     add_theme_support('title-tag');
+
+    // Thêm hỗ trợ cho logo tùy chỉnh
+    add_theme_support('custom-logo', array(
+        'height'      => 100,
+        'width'       => 300,
+        'flex-height' => true,
+        'flex-width'  => true,
+    ));
     
     // Thêm hỗ trợ cho thumbnails
     add_theme_support('post-thumbnails');
@@ -707,4 +715,26 @@ function vinapet_get_erpnext_settings() {
     return get_option('vinapet_erpnext_settings', array());
 }
 
-// Copy toàn bộ code từ artifact functions_auth_update vào đây
+// header
+
+function force_custom_header() {
+    // Vô hiệu hóa header của Elementor
+    remove_action('elementor/theme/before_render', 'elementor_theme_do_location');
+    
+    // Đảm bảo header custom luôn được load
+    add_action('wp_head', 'ensure_custom_header', 1);
+}
+add_action('init', 'force_custom_header');
+
+function ensure_custom_header() {
+    if (!is_admin()) {
+        // Force load header template
+        add_action('wp_body_open', 'load_custom_header', 1);
+    }
+}
+
+function load_custom_header() {
+    if (file_exists(get_template_directory() . '/header-custom.php')) {
+        include get_template_directory() . '/header-custom.php';
+    }
+}

@@ -143,9 +143,9 @@ $packaging_options = [
                     <div class="mix-slider-container">
                         <input type="range" class="mix-slider" id="product1-slider" min="10" max="90" value="50" data-product="1">
                     </div>
-                    <div class="progress-bar">
+                    <!-- <div class="progress-bar">
                         <div class="progress-fill" id="product1-fill" style="width: 50%"></div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             
@@ -194,9 +194,9 @@ $packaging_options = [
                         <div class="mix-slider-container">
                             <input type="range" class="mix-slider" id="product2-slider" min="10" max="90" value="50" data-product="2">
                         </div>
-                        <div class="progress-bar">
+                        <!-- <div class="progress-bar">
                             <div class="progress-fill" id="product2-fill" style="width: 50%"></div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -249,9 +249,9 @@ $packaging_options = [
                         <div class="mix-slider-container">
                             <input type="range" class="mix-slider" id="product3-slider" min="10" max="80" value="0" data-product="3">
                         </div>
-                        <div class="progress-bar">
+                        <!-- <div class="progress-bar">
                             <div class="progress-fill" id="product3-fill" style="width: 0%"></div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

@@ -53,27 +53,7 @@
                 <!-- Header Actions (17%) -->
                 <div class="nav-actions">
                     <!-- Login Button -->
-                    <?php if (is_user_logged_in()):
-                        $current_user = wp_get_current_user();
-                    ?>
-                        <div class="user-menu">
-                            <button class="user-menu-btn" onclick="toggleUserMenu()">
-                                <span class="user-name"><?php echo esc_html($current_user->display_name); ?></span>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" />
-                                </svg>
-                            </button>
-                            <div class="user-dropdown" id="userDropdown">
-                                <a href="<?php echo home_url('/tai-khoan'); ?>">Tài khoản</a>
-                                <a href="<?php echo home_url('/don-hang'); ?>">Đơn hàng</a>
-                                <a href="<?php echo wp_logout_url(home_url()); ?>">Đăng xuất</a>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <a href="#" class="login-btn" onclick="VinaPetAuth.open()">
-                            Đăng nhập
-                        </a>
-                    <?php endif; ?>
+                    <?php get_template_part('template-parts/header/user-actions'); ?>
                 </div>
         </nav>
 

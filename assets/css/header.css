@@ -206,11 +206,11 @@
 }
 
 /* =============================================================================
-   HEADER ACTIONS (17%)
+   HEADER ACTIONS (20%)
    ============================================================================= */
 
 .nav-actions {
-    flex: 0 0 17%;
+    flex: 0 0 20%;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -694,5 +694,106 @@ body {
     
     body {
         padding-top: 0;
+    }
+}
+
+/* Header User Actions Container */
+.header-user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Chỉ style cho nút giỏ hàng và tài khoản, KHÔNG thay đổi nút đăng nhập hiện có */
+.header-user-actions .cart-btn,
+.header-user-actions .account-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 25px;
+    background: #FFFFFF;
+    border: 1.2px solid #AFF0F7;
+    border-radius: 8px;
+    box-shadow: inset -3px -3px 8px 0px #79E9E4B2;
+    color: #19457B;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.header-user-actions .cart-btn:hover,
+.header-user-actions .account-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(25, 69, 123, 0.2);
+}
+
+.header-user-actions .cart-btn svg{
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    fill: currentColor;
+}
+
+/* Mobile responsive cho 2 nút mới */
+@media (max-width: 768px) {
+    .header-user-actions .cart-btn,
+    .header-user-actions .account-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+        border-radius: 5px;
+        min-height: 40px;
+    }
+    
+    .header-user-actions .cart-btn svg,
+    .header-user-actions .account-btn svg {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+    }
+    
+    .header-user-actions {
+        gap: 5px;
+    }
+}
+
+/* Hide cart button on mobile like in JSON */
+@media (max-width: 991px) {
+    .header-user-actions .cart-btn {
+        display: none;
+    }
+}
+
+.header-user-actions .user-action-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .header-user-actions .user-action-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+        border-radius: 5px;
+        min-height: 40px;
+    }
+    
+    .header-user-actions .user-action-btn svg {
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+    }
+    
+    .header-user-actions {
+        gap: 5px;
+    }
+}
+
+/* Hide cart button on mobile like in JSON */
+@media (max-width: 991px) {
+    .header-user-actions .cart-btn {
+        display: none;
     }
 }

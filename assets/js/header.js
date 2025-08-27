@@ -507,3 +507,150 @@ if (!document.getElementById('header-animation-styles')) {
     `;
     document.head.appendChild(animationStyles);
 }
+
+/**
+ * Thêm vào cuối file assets/js/header.js
+ * 
+ * Account Page Integration
+ */
+
+// =============================================================================
+// ACCOUNT PAGE FUNCTIONALITY
+// =============================================================================
+
+// Account button click handler
+$('.account-btn').on('click', function(e) {
+    // Check if account URL is available
+    if (typeof vinapet_account_url !== 'undefined') {
+        window.location.href = vinapet_account_url;
+    } else {
+        // Fallback URL
+        window.location.href = '/tai-khoan/';
+    }
+});
+
+// Update user actions for logged in users
+window.updateUserActions = function() {
+    // This function can be called after login/logout to update the header
+    location.reload(); // Simple refresh for now
+};
+
+// Login success callback - redirect to account page
+window.onLoginSuccess = function(response) {
+    if (response && response.success) {
+        showNotification('Đăng nhập thành công!', 'success');
+        
+        // Small delay before redirect
+        setTimeout(() => {
+            if (typeof vinapet_account_url !== 'undefined') {
+                window.location.href = vinapet_account_url;
+            } else {
+                window.location.href = '/tai-khoan/';
+            }
+        }, 1000);
+    }
+};
+
+// Notification helper function (if not already exists)
+if (typeof showNotification === 'undefined') {
+    window.showNotification = function(message, type = 'info') {
+        // Create notification element
+        const notification = $(`
+            <div class="notification notification-${type}">
+                <span class="notification-text">${message}</span>
+                <button class="notification-close">&times;</button>
+            </div>
+        `);
+        
+        // Add to page
+        $('body').append(notification);
+        
+        // Show with animation
+        setTimeout(() => {
+            notification.addClass('show');
+        }, 100);
+        
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            notification.removeClass('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+        
+        // Manual close
+        notification.find('.notification-close').on('click', () => {
+            notification.removeClass('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        });
+    };
+}
+
+// CSS for notifications (add to header.css)
+const notificationCSS = `
+<style>
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10001;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-success {
+    border-left: 4px solid #28a745;
+}
+
+.notification-error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.notification-text {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+</style>
+`;
+
+// Add notification CSS if not exists
+if (!$('#notification-css').length) {
+    $('head').append(notificationCSS);
+}

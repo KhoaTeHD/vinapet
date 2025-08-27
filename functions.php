@@ -720,13 +720,13 @@ function vinapet_add_customer_role() {
 add_action('after_switch_theme', 'vinapet_add_customer_role');
 
 // Prevent customers from accessing wp-admin
-function vinapet_restrict_admin_access() {
-    if (is_admin() && !current_user_can('edit_posts') && !defined('DOING_AJAX')) {
-        wp_redirect(home_url());
-        exit;
-    }
-}
-add_action('admin_init', 'vinapet_restrict_admin_access');
+// function vinapet_restrict_admin_access() {
+//     if (is_admin() && !current_user_can('edit_posts') && !defined('DOING_AJAX')) {
+//         wp_redirect(home_url());
+//         exit;
+//     }
+// }
+// add_action('admin_init', 'vinapet_restrict_admin_access');
 
 // Utility functions
 function vinapet_is_erpnext_enabled() {
@@ -763,3 +763,8 @@ function load_custom_header() {
 }
 
 add_filter('show_admin_bar', '__return_false');
+
+// Include Account Functions - Tích hợp trang tài khoản
+if (file_exists(VINAPET_THEME_DIR . '/includes/account-functions.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/account-functions.php';
+}

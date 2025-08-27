@@ -143,11 +143,51 @@ $current_user = wp_get_current_user();
                         </div>
                     </div>
 
-                    <!-- Orders Tab (placeholder for future) -->
+                    <!-- Orders Tab -->
                     <div class="tab-content" id="orders-tab">
-                        <div class="orders-placeholder">
-                            <h3>Đơn hàng của tôi</h3>
-                            <p>Tính năng đang được phát triển...</p>
+                        <div class="orders-section">
+                            <!-- Orders Tab Navigation -->
+                            <div class="orders-tabs">
+                                <div class="orders-tab-nav">
+                                    <button class="orders-tab-button active" data-target="creating-request">Đang tạo yêu cầu</button>
+                                    <button class="orders-tab-button" data-target="sent-request">Đã gửi yêu cầu</button>
+                                    <button class="orders-tab-button" data-target="vinapet-quote">Vinapet báo giá</button>
+                                    <button class="orders-tab-button" data-target="completed">Hoàn thành</button>
+                                    <button class="orders-tab-button" data-target="cancelled">Đã hủy</button>
+                                </div>
+
+                                <!-- Creating Request Tab Content -->
+                                <div class="orders-tab-pane active" id="creating-request">
+                                    <div class="orders-list" id="creating-request-orders">
+                                        <!-- Orders will be loaded here -->
+                                    </div>
+                                </div>
+
+                                <!-- Other tabs (placeholders) -->
+                                <div class="orders-tab-pane" id="sent-request">
+                                    <div class="empty-orders">
+                                        <p>Chưa có đơn hàng đã gửi yêu cầu</p>
+                                    </div>
+                                </div>
+
+                                <div class="orders-tab-pane" id="vinapet-quote">
+                                    <div class="empty-orders">
+                                        <p>Chưa có đơn hàng được báo giá</p>
+                                    </div>
+                                </div>
+
+                                <div class="orders-tab-pane" id="completed">
+                                    <div class="empty-orders">
+                                        <p>Chưa có đơn hàng hoàn thành</p>
+                                    </div>
+                                </div>
+
+                                <div class="orders-tab-pane" id="cancelled">
+                                    <div class="empty-orders">
+                                        <p>Chưa có đơn hàng bị hủy</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

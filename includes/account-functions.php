@@ -17,6 +17,13 @@ if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-account-helper.php'
 }
 
 /**
+ * Include sample orders data
+ */
+if (file_exists(VINAPET_THEME_DIR . '/includes/data/sample-orders.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/data/sample-orders.php';
+}
+
+/**
  * Include account AJAX handlers
  */
 if (file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-account.php')) {

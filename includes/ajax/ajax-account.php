@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Account AJAX Handlers
  * 
@@ -10,16 +9,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class VinaPet_Account_Ajax
-{
+class VinaPet_Account_Ajax {
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->init_hooks();
     }
 
-    private function init_hooks()
-    {
+    private function init_hooks() {
         // Update profile info
         add_action('wp_ajax_update_profile_info', array($this, 'update_profile_info'));
         add_action('wp_ajax_nopriv_update_profile_info', array($this, 'ajax_login_required'));
@@ -27,13 +23,24 @@ class VinaPet_Account_Ajax
         // Change password
         add_action('wp_ajax_change_user_password', array($this, 'change_user_password'));
         add_action('wp_ajax_nopriv_change_user_password', array($this, 'ajax_login_required'));
+
+        // Load orders
+        add_action('wp_ajax_load_user_orders', array($this, 'load_user_orders'));
+        add_action('wp_ajax_nopriv_load_user_orders', array($this, 'ajax_login_required'));
+
+        // Cancel order
+        add_action('wp_ajax_cancel_user_order', array($this, 'cancel_user_order'));
+        add_action('wp_ajax_nopriv_cancel_user_order', array($this, 'ajax_login_required'));
+
+        // Continue order
+        add_action('wp_ajax_continue_user_order', array($this, 'continue_user_order'));
+        add_action('wp_ajax_nopriv_continue_user_order', array($this, 'ajax_login_required'));
     }
 
     /**
      * Update user profile information
      */
-    public function update_profile_info()
-    {
+    public function update_profile_info() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['profile_info_nonce'], 'update_profile_info')) {
             wp_die(json_encode(array(
@@ -51,7 +58,7 @@ class VinaPet_Account_Ajax
         }
 
         $current_user_id = get_current_user_id();
-
+        
         // Sanitize input data
         $display_name = sanitize_text_field($_POST['display_name']);
         $user_phone = sanitize_text_field($_POST['user_phone']);
@@ -113,8 +120,7 @@ class VinaPet_Account_Ajax
     /**
      * Change user password
      */
-    public function change_user_password()
-    {
+    public function change_user_password() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['change_password_nonce'], 'change_password')) {
             wp_die(json_encode(array(
@@ -178,10 +184,10 @@ class VinaPet_Account_Ajax
     //     try {
     //         if (class_exists('VinaPet_ERP_API_Client')) {
     //             $erp_client = new VinaPet_ERP_API_Client();
-
+                
     //             // Get user's ERPNext customer ID
     //             $customer_id = get_user_meta($user_id, 'erpnext_customer_id', true);
-
+                
     //             if ($customer_id) {
     //                 // Update existing customer
     //                 $erp_client->update_customer($customer_id, $data);
@@ -201,12 +207,155 @@ class VinaPet_Account_Ajax
     /**
      * Handle AJAX requests from non-logged-in users
      */
-    public function ajax_login_required()
-    {
+    public function ajax_login_required() {
         wp_die(json_encode(array(
             'success' => false,
             'data' => 'Bạn cần đăng nhập để thực hiện chức năng này!',
             'login_required' => true
+        )));
+    }
+
+    /**
+     * Load user orders
+     */
+    public function load_user_orders() {
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'Bạn cần đăng nhập để xem đơn hàng!'
+            )));
+        }
+
+        $user_id = get_current_user_id();
+        $order_type = sanitize_text_field($_POST['order_type'] ?? 'creating_request');
+
+        // Include sample orders data
+        if (file_exists(VINAPET_THEME_DIR . '/includes/data/sample-orders.php')) {
+            require_once VINAPET_THEME_DIR . '/includes/data/sample-orders.php';
+        }
+
+        $orders = array();
+        
+        switch ($order_type) {
+            case 'creating_request':
+                $orders = function_exists('vinapet_get_user_creating_orders') 
+                    ? vinapet_get_user_creating_orders($user_id) 
+                    : array();
+                break;
+            // Add other order types later
+            default:
+                $orders = array();
+        }
+
+        wp_die(json_encode(array(
+            'success' => true,
+            'data' => $orders
+        )));
+    }
+
+    /**
+     * Cancel user order
+     */
+    public function cancel_user_order() {
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'Bạn cần đăng nhập để thực hiện chức năng này!'
+            )));
+        }
+
+        $user_id = get_current_user_id();
+        $order_id = sanitize_text_field($_POST['order_id'] ?? '');
+
+        if (empty($order_id)) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'ID đơn hàng không hợp lệ!'
+            )));
+        }
+
+        // Include sample orders data
+        if (file_exists(VINAPET_THEME_DIR . '/includes/data/sample-orders.php')) {
+            require_once VINAPET_THEME_DIR . '/includes/data/sample-orders.php';
+        }
+
+        // Check if user can manage this order
+        if (function_exists('vinapet_user_can_manage_order') && 
+            !vinapet_user_can_manage_order($order_id, $user_id)) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'Bạn không có quyền hủy đơn hàng này!'
+            )));
+        }
+
+        // Cancel the order
+        $result = function_exists('vinapet_cancel_user_order') 
+            ? vinapet_cancel_user_order($order_id, $user_id)
+            : new WP_Error('function_not_found', 'Chức năng chưa được tích hợp');
+
+        if (is_wp_error($result)) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => $result->get_error_message()
+            )));
+        }
+
+        wp_die(json_encode(array(
+            'success' => true,
+            'data' => 'Đơn hàng đã được hủy thành công!'
+        )));
+    }
+
+    /**
+     * Continue user order (redirect to checkout)
+     */
+    public function continue_user_order() {
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'Bạn cần đăng nhập để thực hiện chức năng này!'
+            )));
+        }
+
+        $user_id = get_current_user_id();
+        $order_id = sanitize_text_field($_POST['order_id'] ?? '');
+
+        if (empty($order_id)) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'ID đơn hàng không hợp lệ!'
+            )));
+        }
+
+        // Include sample orders data
+        if (file_exists(VINAPET_THEME_DIR . '/includes/data/sample-orders.php')) {
+            require_once VINAPET_THEME_DIR . '/includes/data/sample-orders.php';
+        }
+
+        // Get order data
+        $order = function_exists('vinapet_get_user_order_by_id') 
+            ? vinapet_get_user_order_by_id($order_id, $user_id)
+            : false;
+
+        if (!$order) {
+            wp_die(json_encode(array(
+                'success' => false,
+                'data' => 'Không tìm thấy đơn hàng!'
+            )));
+        }
+
+        // Generate checkout URL with order data
+        $checkout_url = home_url('/checkout/') . '?continue_order=' . $order_id;
+
+        wp_die(json_encode(array(
+            'success' => true,
+            'data' => array(
+                'message' => 'Chuyển hướng đến trang thanh toán...',
+                'redirect_url' => $checkout_url
+            )
         )));
     }
 }

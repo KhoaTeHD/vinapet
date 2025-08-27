@@ -756,15 +756,22 @@ function ensure_custom_header() {
     }
 }
 
-function load_custom_header() {
-    if (file_exists(get_template_directory() . '/header-custom.php')) {
-        include get_template_directory() . '/header-custom.php';
-    }
-}
 
 add_filter('show_admin_bar', '__return_false');
 
 // Include Account Functions - Tích hợp trang tài khoản
 if (file_exists(VINAPET_THEME_DIR . '/includes/account-functions.php')) {
     require_once VINAPET_THEME_DIR . '/includes/account-functions.php';
+}
+
+// footer
+
+// Include footer initialization
+if (file_exists(VINAPET_THEME_DIR . '/includes/footer-init.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/footer-init.php';
+}
+
+// Include footer admin (chỉ trong admin)
+if (is_admin() && file_exists(VINAPET_THEME_DIR . '/includes/admin/footer-admin.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/admin/footer-admin.php';
 }

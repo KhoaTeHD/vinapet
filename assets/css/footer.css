@@ -1,0 +1,417 @@
+/* VINAPET FOOTER STYLES */
+
+.vinapet-footer {
+    background: #F0FFF6;
+    font-family: 'SVN-Gilroy', Arial, sans-serif;
+    margin-top: 50px;
+}
+
+.vinapet-footer * {
+    box-sizing: border-box;
+}
+
+.vinapet-footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Footer Main */
+.footer-main {
+    padding: 40px 0;
+}
+
+/* Logo Section */
+.footer-logo-section {
+    margin-bottom: 30px;
+}
+
+.footer-logo img {
+    max-width: 180px;
+    height: auto;
+}
+
+/* Content Grid */
+.footer-content-grid {
+    display: grid;
+    grid-template-columns: 32% 20% 15% 33%; /* Giảm cột 2&3, tăng cột 4 */
+    gap: 40px; /* Giảm gap từ 80px xuống 40px */
+    align-items: flex-start;
+    width: 100%;
+}
+
+.footer-col {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+/* Company Info */
+.company-info .company-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #19457B;
+    text-transform: uppercase;
+    line-height: 1;
+    margin: 0 0 20px 0;
+}
+
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: #000000;
+}
+
+.contact-item .icon {
+    min-width: 16px;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+.contact-item .text {
+    flex: 1;
+}
+
+.contact-item a {
+    color: #000000;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.contact-item a:hover {
+    color: #19457B;
+}
+
+/* Footer Columns */
+.footer-col .footer-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #19457B;
+    text-transform: uppercase;
+    line-height: 1;
+    margin: 0 0 20px 0;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.footer-links li {
+    margin: 0;
+}
+
+.footer-links a {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1;
+    color: #000000;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #19457B;
+}
+
+.footer-links a:focus {
+    outline: 2px solid #19457B;
+    outline-offset: 2px;
+}
+
+/* Social Media */
+.social-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.fb-page {
+    width: 100%;
+    max-width: 280px;
+    min-height: 70px;
+    position: relative;
+}
+
+.fb-page iframe {
+    width: 100% !important;
+    max-width: 280px !important;
+    height: auto !important;
+    border: none !important;
+    display: block !important;
+}
+
+.fb-page .fb_iframe_widget {
+    width: 100% !important;
+    max-width: 280px !important;
+}
+
+.qr-code {
+    width: 100%;
+    text-align: left;
+}
+
+.qr-code img {
+    max-width: 70%;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+/* Copyright */
+.footer-copyright {
+    background: #193D69;
+    padding: 15px 0;
+}
+
+.copyright-content {
+    text-align: center;
+}
+
+.copyright-content p {
+    font-family: 'SVN-Gilroy', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+/* RESPONSIVE */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .footer-content-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px; /* Giảm gap trên tablet */
+    }
+    
+    .company-info {
+        grid-column: span 2;
+    }
+    
+    .footer-col {
+        max-width: 100%;
+    }
+    
+    /* Facebook trên tablet */
+    .fb-page {
+        max-width: 100%;
+    }
+    
+    .company-info .company-title,
+    .footer-col .footer-title {
+        font-size: 17.8px;
+        line-height: 1.2;
+    }
+    
+    .contact-item,
+    .footer-links a {
+        font-size: 15.04px;
+        line-height: 1.25;
+    }
+    
+    .copyright-content p {
+        font-size: 15.04px;
+        line-height: 1.42;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .vinapet-footer .container {
+        width: 90%;
+    }
+    
+    .footer-main {
+        padding: 40px 0;
+    }
+    
+    .footer-content-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 31px;
+        overflow: visible;
+    }
+    
+    .footer-col {
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .footer-logo img {
+        max-width: 60%;
+    }
+    
+    .company-info .company-title,
+    .footer-col .footer-title {
+        font-size: 18.8px;
+        line-height: 1.2;
+    }
+    
+    .contact-item {
+        font-size: 14.08px;
+        line-height: 1.2;
+    }
+    
+    .contact-item .text {
+        max-width: 90%;
+        word-wrap: break-word;
+    }
+    
+    .footer-links a {
+        font-size: 14.08px;
+        line-height: 1.2;
+    }
+    
+    /* Social Media Mobile */
+    .social-content {
+        width: 100%;
+    }
+    
+    .fb-page {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .fb-page iframe {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .social-content .qr-code {
+        width: 100%;
+        text-align: left;
+        margin-top: 10px;
+    }
+    
+    .social-content .qr-code img {
+        max-width: 116px;
+        width: 116px;
+        height: auto;
+    }
+    
+    .copyright-content p {
+        font-size: 14.08px;
+        line-height: 1.32;
+    }
+}
+
+/* Extra Small */
+@media (max-width: 480px) {
+    .footer-content-grid {
+        gap: 25px;
+    }
+    
+    .company-info .company-title,
+    .footer-col .footer-title {
+        font-size: 16px;
+    }
+    
+    .contact-item,
+    .footer-links a {
+        font-size: 13px;
+    }
+    
+    .contact-item .text {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Social Media Extra Small */
+    .social-content {
+        width: 100%;
+    }
+    
+    .fb-page {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .fb-page iframe {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .qr-code {
+        margin-top: 5px;
+    }
+    
+    .qr-code img {
+        max-width: 100px;
+        width: 100px;
+    }
+    
+    .copyright-content p {
+        font-size: 12px;
+        word-wrap: break-word;
+    }
+}
+
+/* Utilities */
+.vinapet-footer img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+}
+
+/* Facebook Plugin Specific Styles */
+.fb-page .fb_iframe_widget,
+.fb-page .fb_iframe_widget span {
+    width: 100% !important;
+    max-width: 280px !important;
+}
+
+.fb-page .fb_iframe_widget iframe {
+    width: 100% !important;
+    max-width: 280px !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Loading placeholder */
+.fb-page:empty::before {
+    content: "Loading Facebook Page...";
+    display: block;
+    padding: 20px;
+    text-align: center;
+    background: #f0f2f5;
+    color: #65676b;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+/* Print */
+@media print {
+    .vinapet-footer {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .footer-copyright {
+        background: white !important;
+    }
+    
+    .copyright-content p {
+        color: black !important;
+    }
+}

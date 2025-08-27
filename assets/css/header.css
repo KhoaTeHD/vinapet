@@ -433,6 +433,7 @@
 /* Body offset for fixed header */
 body {
     padding-top: var(--header-height);
+    margin: 0px !important;
 }
 
 /* Tablet (768px - 1024px) */

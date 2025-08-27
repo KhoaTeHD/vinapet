@@ -81,9 +81,9 @@
 }
 
 .menu-item.active {
-    background: #d4edda;
+    background: #F0FFF6;
     color: #2E86AB;
-    border-left: 4px solid #2E86AB;
+    border-bottom: 1px solid #0FBAB3;
 }
 
 .menu-item.logout {
@@ -127,8 +127,9 @@
 }
 
 .tab-button.active {
-    color: #2E86AB;
-    border-bottom-color: #2E86AB;
+    background: #F0FDFF;
+    color: #19457B;
+    border-bottom-color: #19457B;
 }
 
 .tab-button:hover {
@@ -198,10 +199,10 @@
     color: #19457B;
     padding: 12px 24px;
     border-radius: 8px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .btn-save:hover, .btn-change-password:hover {

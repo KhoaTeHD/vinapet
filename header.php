@@ -148,10 +148,12 @@
     }
 
     /**
-     * Custom Walker for Mega Menu support
+     * Custom Walker for Advanced Mega Menu support
      */
     class VinaPet_Walker_Nav_Menu extends Walker_Nav_Menu
     {
+        // Lưu trữ menu items để xử lý mega menu
+        private $mega_menu_items = array();
 
         function start_lvl(&$output, $depth = 0, $args = null)
         {
@@ -161,7 +163,7 @@
                 // Mega menu cho cấp đầu tiên
                 $output .= "\n$indent<div class=\"mega-menu\">\n";
             } else {
-                // Sub menu bình thường
+                // Sub menu bình thường cho cấp sâu hơn
                 $output .= "\n$indent<ul class=\"sub-menu\">\n";
             }
         }
@@ -184,9 +186,24 @@
             $classes = empty($item->classes) ? array() : (array) $item->classes;
             $classes[] = 'menu-item-' . $item->ID;
 
-            // Thêm class cho mega menu
-            if ($depth === 0 && in_array('menu-item-has-children', $classes)) {
+            // Kiểm tra xem item này có children không
+            $has_children = in_array('menu-item-has-children', $classes);
+
+            // Thêm class cho mega menu ở level 0 nếu có children
+            if ($depth === 0 && $has_children) {
                 $classes[] = 'has-mega-menu';
+            }
+
+            // Thêm class đặc biệt cho các menu items có nhiều sub items (>= 4 items)
+            if ($depth === 0 && $has_children) {
+                $sub_items_count = $this->count_sub_items($item->ID, $args);
+                if ($sub_items_count >= 4) {
+                    $classes[] = 'mega-menu-large';
+                } elseif ($sub_items_count >= 2) {
+                    $classes[] = 'mega-menu-medium';
+                } else {
+                    $classes[] = 'mega-menu-small';
+                }
             }
 
             $class_names = join(' ', apply_filters('nav_menu_css_class', array_filter($classes), $item, $args));
@@ -195,18 +212,69 @@
             $id = apply_filters('nav_menu_item_id', 'menu-item-' . $item->ID, $item, $args);
             $id = $id ? ' id="' . esc_attr($id) . '"' : '';
 
-            if ($depth === 0 && in_array('has-mega-menu', $classes)) {
-                // Mega menu item
-                $output .= $indent . '<li' . $id . $class_names . '>';
-                $output .= '<a href="' . esc_attr($item->url) . '">';
-                $output .= esc_html($item->title);
-                $output .= '<svg class="dropdown-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                $output .= '</a>';
+            // Xử lý link và attributes
+            $attributes = !empty($item->attr_title) ? ' title="' . esc_attr($item->attr_title) . '"' : '';
+            $attributes .= !empty($item->target) ? ' target="' . esc_attr($item->target) . '"' : '';
+            $attributes .= !empty($item->xfn) ? ' rel="' . esc_attr($item->xfn) . '"' : '';
+            $attributes .= !empty($item->url) ? ' href="' . esc_attr($item->url) . '"' : '';
+
+            if ($depth === 0) {
+                // Menu items cấp đầu tiên
+                $item_output = isset($args->before) ? $args->before : '';
+
+                if ($has_children) {
+                    // Menu item có children - thêm dropdown icon
+                    $item_output .= '<a' . $attributes . '>';
+                    $item_output .= (isset($args->link_before) ? $args->link_before : '') . apply_filters('the_title', $item->title, $item->ID) . (isset($args->link_after) ? $args->link_after : '');
+                    $item_output .= '<svg class="dropdown-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                    $item_output .= '</a>';
+                } else {
+                    // Menu item không có children
+                    $item_output .= '<a' . $attributes . '>';
+                    $item_output .= (isset($args->link_before) ? $args->link_before : '') . apply_filters('the_title', $item->title, $item->ID) . (isset($args->link_after) ? $args->link_after : '');
+                    $item_output .= '</a>';
+                }
+
+                $item_output .= isset($args->after) ? $args->after : '';
             } else {
-                // Menu item bình thường
-                $output .= $indent . '<li' . $id . $class_names . '>';
-                $output .= '<a href="' . esc_attr($item->url) . '">' . esc_html($item->title) . '</a>';
+                // Menu items trong mega menu hoặc sub menu
+                $item_output = isset($args->before) ? $args->before : '';
+                $item_output .= '<a' . $attributes . '>';
+                $item_output .= (isset($args->link_before) ? $args->link_before : '') . apply_filters('the_title', $item->title, $item->ID) . (isset($args->link_after) ? $args->link_after : '');
+                $item_output .= '</a>';
+                $item_output .= isset($args->after) ? $args->after : '';
             }
+
+            $output .= $indent . '<li' . $id . $class_names . '>';
+            $output .= apply_filters('walker_nav_menu_start_el', $item_output, $item, $depth, $args);
+        }
+
+        function end_el(&$output, $item, $depth = 0, $args = null)
+        {
+            $output .= "</li>\n";
+        }
+
+        /**
+         * Đếm số lượng sub items của một menu item
+         */
+        private function count_sub_items($parent_id, $args)
+        {
+            if (!isset($args->menu)) {
+                return 0;
+            }
+
+            $menu_items = wp_get_nav_menu_items($args->menu);
+            $count = 0;
+
+            if ($menu_items) {
+                foreach ($menu_items as $menu_item) {
+                    if ($menu_item->menu_item_parent == $parent_id) {
+                        $count++;
+                    }
+                }
+            }
+
+            return $count;
         }
     }
     ?>

@@ -157,8 +157,13 @@
 }
 
 /* =============================================================================
-   MEGA MENU
+   MEGA MENU - TOÀN DIỆN
    ============================================================================= */
+
+/* Base mega menu styles */
+.has-mega-menu {
+    position: relative;
+}
 
 .has-mega-menu .mega-menu {
     position: absolute;
@@ -169,40 +174,234 @@
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-heavy);
     border: 1px solid var(--border-color);
-    min-width: 600px;
-    padding: 30px;
+    padding: 25px;
     opacity: 0;
     visibility: hidden;
     transition: var(--transition);
-    margin-top: 10px;
+    margin-top: 15px;
+    z-index: 999;
+    min-width: 250px;
 }
 
 .has-mega-menu:hover .mega-menu {
     opacity: 1;
     visibility: visible;
-    margin-top: 0;
+    margin-top: 5px;
 }
 
-.mega-menu {
+/* Mega Menu Small (1-2 items) */
+.mega-menu-small .mega-menu {
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.mega-menu-small .mega-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Mega Menu Medium (2-3 items) */
+.mega-menu-medium .mega-menu {
+    min-width: 400px;
+    max-width: 600px;
+}
+
+.mega-menu-medium .mega-menu {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Mega Menu Large (4+ items) */
+.mega-menu-large .mega-menu {
+    min-width: 600px;
+    max-width: 900px;
+}
+
+.mega-menu-large .mega-menu {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
+    gap: 25px;
 }
 
+/* Mega menu items styling */
 .mega-menu .menu-item {
     border-bottom: none;
+    margin: 0;
 }
 
 .mega-menu .menu-item a {
-    padding: 8px 0;
+    display: block;
+    padding: 15px 20px;
     font-size: 15px;
-    color: var(--text-secondary);
-    border-bottom: 1px solid transparent;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    transition: var(--transition);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .mega-menu .menu-item a:hover {
+    color: var(--white);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.mega-menu .menu-item a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: var(--transition);
+}
+
+.mega-menu .menu-item a:hover::before {
+    left: 100%;
+}
+
+/* Remove default underline effect for mega menu items */
+.mega-menu .menu-item a::after {
+    display: none;
+}
+
+/* Icon styles for dropdown */
+.dropdown-icon {
+    color: var(--text-secondary);
+    transition: var(--transition);
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.has-mega-menu:hover .dropdown-icon {
+    transform: rotate(180deg);
     color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+}
+
+/* Special styling for different menu types */
+
+/* Menu có ít items - hiển thị dạng danh sách đơn giản */
+.mega-menu-small .mega-menu .menu-item a {
+    text-align: left;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    background: #fff;
+}
+
+.mega-menu-small .mega-menu .menu-item a:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    padding-left: 20px;
+}
+
+/* Menu có nhiều items - hiển thị dạng grid cards */
+.mega-menu-large .mega-menu .menu-item a {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* Responsive cho mega menu */
+@media (max-width: 1024px) {
+    .mega-menu-large .mega-menu {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .has-mega-menu .mega-menu {
+        position: static;
+        transform: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .mega-menu-medium .mega-menu,
+    .mega-menu-large .mega-menu {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .mega-menu .menu-item a {
+        border: none;
+        background: transparent;
+        text-align: left;
+        padding: 10px 20px;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+    }
+    
+    .mega-menu .menu-item a:hover {
+        background: var(--primary-color);
+        color: var(--white);
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* Animation cho mega menu */
+@keyframes megaMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.has-mega-menu:hover .mega-menu {
+    animation: megaMenuFadeIn 0.3s ease-out;
+}
+
+/* Accessibility improvements */
+.has-mega-menu:focus-within .mega-menu {
+    opacity: 1;
+    visibility: visible;
+    margin-top: 5px;
+}
+
+.mega-menu .menu-item a:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .mega-menu {
+        background: #2a2a2a !important;
+        border-color: #444 !important;
+    }
+    
+    .mega-menu .menu-item a {
+        background: linear-gradient(135deg, #333 0%, #2a2a2a 100%) !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+    
+    .mega-menu .menu-item a:hover {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    }
 }
 
 /* =============================================================================
@@ -796,5 +995,107 @@ body {
 @media (max-width: 991px) {
     .header-user-actions .cart-btn {
         display: none;
+    }
+}
+
+/* =============================================================================
+   MOBILE MEGA MENU STYLES
+   ============================================================================= */
+
+/* Mobile mega menu states */
+@media (max-width: 768px) {
+    .mobile-mega-open .mega-menu {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    .mobile-mega-open > a .dropdown-icon {
+        transform: rotate(180deg);
+        color: var(--primary-color);
+    }
+    
+    /* Mobile menu animation */
+    .mega-menu {
+        animation: mobileSlideDown 0.3s ease-out;
+    }
+    
+    @keyframes mobileSlideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        to {
+            opacity: 1;
+            max-height: 500px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+    }
+    
+    /* Mobile mega menu item styling */
+    .mega-menu .menu-item a {
+        padding: 15px 20px;
+        margin: 5px 0;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+    
+    .mega-menu .menu-item a:hover,
+    .mega-menu .menu-item a:active {
+        background: var(--primary-color);
+        color: var(--white);
+        border-color: var(--primary-color);
+        transform: translateX(5px);
+    }
+}
+
+/* Enhanced navigation for mobile */
+@media (max-width: 768px) {
+    .nav-list {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .nav-list li {
+        width: 100%;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .nav-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .nav-list a {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        font-size: 16px;
+    }
+    
+    .dropdown-icon {
+        transition: transform 0.3s ease;
+    }
+}
+
+/* Touch improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+    .mega-menu .menu-item a {
+        min-height: 48px; /* Touch target size */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .mega-menu .menu-item a:active {
+        transform: scale(0.98);
     }
 }

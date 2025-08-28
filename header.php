@@ -128,9 +128,10 @@
     function vinapet_fallback_menu()
     {
         echo '<ul class="nav-list">';
-        echo '<li><a href="' . home_url() . '">Trang chủ</a></li>';
         echo '<li><a href="' . home_url('/san-pham') . '">Sản phẩm</a></li>';
         echo '<li><a href="' . home_url('/gioi-thieu') . '">Giới thiệu</a></li>';
+        echo '<li><a href="' . home_url('/tin-tuc') . '">Tin tức</a></li>';
+        echo '<li><a href="' . home_url('/faq') . '">FAQ & Hướng dẫn</a></li>';
         echo '<li><a href="' . home_url('/lien-he') . '">Liên hệ</a></li>';
         echo '</ul>';
     }
@@ -138,9 +139,10 @@
     function vinapet_fallback_mobile_menu()
     {
         echo '<ul class="mobile-nav-list">';
-        echo '<li><a href="' . home_url() . '">Trang chủ</a></li>';
         echo '<li><a href="' . home_url('/san-pham') . '">Sản phẩm</a></li>';
         echo '<li><a href="' . home_url('/gioi-thieu') . '">Giới thiệu</a></li>';
+        echo '<li><a href="' . home_url('/tin-tuc') . '">Tin tức</a></li>';
+        echo '<li><a href="' . home_url('/faq') . '">FAQ & Hướng dẫn</a></li>';
         echo '<li><a href="' . home_url('/lien-he') . '">Liên hệ</a></li>';
         echo '</ul>';
     }

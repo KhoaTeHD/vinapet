@@ -144,6 +144,10 @@
     width: 100%;
 }
 
+.social-media{
+    max-width: fit-content !important;
+}
+
 .fb-page {
     width: 100%;
     max-width: 280px;

@@ -58,11 +58,11 @@
 }
 
 /* =============================================================================
-   LOGO SECTION (18%)
+   LOGO SECTION (20%)
    ============================================================================= */
 
 .site-branding {
-    flex: 0 0 18%;
+    flex: 0 0 20%;
     display: flex;
     align-items: center;
 }
@@ -157,11 +157,60 @@
 }
 
 /* =============================================================================
-   HEADER ACTIONS (22%)
+   MEGA MENU
+   ============================================================================= */
+
+.has-mega-menu .mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-heavy);
+    border: 1px solid var(--border-color);
+    min-width: 600px;
+    padding: 30px;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+.has-mega-menu:hover .mega-menu {
+    opacity: 1;
+    visibility: visible;
+    margin-top: 0;
+}
+
+.mega-menu {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.mega-menu .menu-item {
+    border-bottom: none;
+}
+
+.mega-menu .menu-item a {
+    padding: 8px 0;
+    font-size: 15px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid transparent;
+}
+
+.mega-menu .menu-item a:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* =============================================================================
+   HEADER ACTIONS (20%)
    ============================================================================= */
 
 .nav-actions {
-    flex: 0 0 22%;
+    flex: 0 0 20%;
     display: flex;
     align-items: center;
     justify-content: flex-end;

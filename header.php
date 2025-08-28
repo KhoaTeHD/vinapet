@@ -50,7 +50,7 @@
                     ?>
                 </div>
 
-                <!-- Header Actions (17%) -->
+                <!-- Header Actions (22%) -->
                 <div class="nav-actions">
                     <!-- Login Button -->
                     <?php get_template_part('template-parts/header/user-actions'); ?>
@@ -58,7 +58,7 @@
         </nav>
 
         <!-- Mobile Menu -->
-        <div class="mobile-menu" id="mobile-menu">
+        <!-- <div class="mobile-menu" id="mobile-menu">
             <div class="mobile-menu-header">
                 <div class="mobile-logo">
                     <a href="<?php echo home_url(); ?>">
@@ -115,10 +115,10 @@
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Mobile Menu Overlay -->
-        <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+        <!-- <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div> -->
     </header>
 
     <?php

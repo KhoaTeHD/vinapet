@@ -776,244 +776,79 @@ if (is_admin() && file_exists(VINAPET_THEME_DIR . '/includes/admin/footer-admin.
     require_once VINAPET_THEME_DIR . '/includes/admin/footer-admin.php';
 }
 
-/**
- * Enqueue Mega Menu JavaScript
- */
-function vinapet_enqueue_mega_menu_scripts() {
-    wp_enqueue_script(
-        'vinapet-mega-menu', 
-        VINAPET_THEME_URI . '/assets/js/mega-menu.js', 
-        array('jquery'), 
-        VINAPET_VERSION, 
-        true
-    );
-    
-    // Localize script for AJAX if needed
-    wp_localize_script('vinapet-mega-menu', 'vinapet_mega_menu', array(
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('vinapet_mega_menu_nonce'),
-        'mobile_breakpoint' => 768
-    ));
-}
-add_action('wp_enqueue_scripts', 'vinapet_enqueue_mega_menu_scripts');
 
 /**
- * Add menu support for mega menu classes
+ * VinaPet Simple Mega Menu - Functions.php
+ * Version đơn giản, không ERPNext sync
  */
-function vinapet_nav_menu_css_class($classes, $item, $args) {
-    // Only for primary menu
-    if ($args->theme_location !== 'primary') {
-        return $classes;
-    }
-    
-    // Count children for this menu item
-    $menu_items = wp_get_nav_menu_items($args->menu);
-    $child_count = 0;
-    
-    if ($menu_items) {
-        foreach ($menu_items as $menu_item) {
-            if ($menu_item->menu_item_parent == $item->ID) {
-                $child_count++;
-            }
-        }
-    }
-    
-    // Add specific classes based on child count
-    if ($child_count > 0) {
-        $classes[] = 'has-children';
-        
-        if ($child_count >= 6) {
-            $classes[] = 'mega-menu-xl';
-        } elseif ($child_count >= 4) {
-            $classes[] = 'mega-menu-large';
-        } elseif ($child_count >= 2) {
-            $classes[] = 'mega-menu-medium';
-        } else {
-            $classes[] = 'mega-menu-small';
-        }
-    }
-    
-    return $classes;
-}
-add_filter('nav_menu_css_class', 'vinapet_nav_menu_css_class', 10, 3);
+
+// =============================================================================
+// MEGA MENU SETUP
+// =============================================================================
 
 /**
- * Enable custom fields for menu items
+ * Enqueue mega menu assets
  */
-function vinapet_menu_item_custom_fields($item_id, $item, $depth, $args) {
-    ?>
-    <p class="field-mega-menu description description-wide">
-        <label for="edit-menu-item-mega-menu-<?php echo $item_id; ?>">
-            <?php _e('Mega Menu Type'); ?><br />
-            <select id="edit-menu-item-mega-menu-<?php echo $item_id; ?>" name="menu-item-mega-menu[<?php echo $item_id; ?>]">
-                <option value=""><?php _e('Default'); ?></option>
-                <option value="mega-simple" <?php selected(get_post_meta($item_id, '_menu_item_mega_menu', true), 'mega-simple'); ?>><?php _e('Simple Mega Menu'); ?></option>
-                <option value="mega-grid" <?php selected(get_post_meta($item_id, '_menu_item_mega_menu', true), 'mega-grid'); ?>><?php _e('Grid Mega Menu'); ?></option>
-                <option value="mega-featured" <?php selected(get_post_meta($item_id, '_menu_item_mega_menu', true), 'mega-featured'); ?>><?php _e('Featured Mega Menu'); ?></option>
-            </select>
-        </label>
-    </p>
-    
-    <p class="field-mega-menu-icon description description-wide">
-        <label for="edit-menu-item-mega-icon-<?php echo $item_id; ?>">
-            <?php _e('Menu Icon (Optional)'); ?><br />
-            <input type="text" id="edit-menu-item-mega-icon-<?php echo $item_id; ?>" name="menu-item-mega-icon[<?php echo $item_id; ?>]" value="<?php echo esc_attr(get_post_meta($item_id, '_menu_item_mega_icon', true)); ?>" placeholder="fa fa-home" />
-            <span class="description"><?php _e('FontAwesome class or emoji'); ?></span>
-        </label>
-    </p>
-    
-    <p class="field-mega-menu-description description description-wide">
-        <label for="edit-menu-item-mega-description-<?php echo $item_id; ?>">
-            <?php _e('Menu Description (Optional)'); ?><br />
-            <textarea id="edit-menu-item-mega-description-<?php echo $item_id; ?>" name="menu-item-mega-description[<?php echo $item_id; ?>]" rows="3" cols="20"><?php echo esc_textarea(get_post_meta($item_id, '_menu_item_mega_description', true)); ?></textarea>
-        </label>
-    </p>
-    <?php
+function vinapet_mega_menu_assets() {
+    wp_enqueue_style('vinapet-mega-menu', get_template_directory_uri() . '/assets/css/mega-menu.css', array(), '1.0');
+    wp_enqueue_script('vinapet-mega-menu', get_template_directory_uri() . '/assets/js/mega-menu.js', array('jquery'), '1.0', true);
 }
-add_action('wp_nav_menu_item_custom_fields', 'vinapet_menu_item_custom_fields', 10, 4);
+add_action('wp_enqueue_scripts', 'vinapet_mega_menu_assets');
 
 /**
- * Save custom menu fields
+ * Add mega menu classes to nav items
  */
-function vinapet_update_menu_item($menu_id, $menu_item_db_id, $args) {
-    // Save mega menu type
-    if (isset($_POST['menu-item-mega-menu'][$menu_item_db_id])) {
-        $mega_menu_value = sanitize_text_field($_POST['menu-item-mega-menu'][$menu_item_db_id]);
-        update_post_meta($menu_item_db_id, '_menu_item_mega_menu', $mega_menu_value);
-    } else {
-        delete_post_meta($menu_item_db_id, '_menu_item_mega_menu');
-    }
+function vinapet_mega_menu_classes($classes, $item, $args) {
+    if ($args->theme_location !== 'primary') return $classes;
     
-    // Save menu icon
-    if (isset($_POST['menu-item-mega-icon'][$menu_item_db_id])) {
-        $icon_value = sanitize_text_field($_POST['menu-item-mega-icon'][$menu_item_db_id]);
-        update_post_meta($menu_item_db_id, '_menu_item_mega_icon', $icon_value);
-    } else {
-        delete_post_meta($menu_item_db_id, '_menu_item_mega_icon');
-    }
-    
-    // Save menu description
-    if (isset($_POST['menu-item-mega-description'][$menu_item_db_id])) {
-        $description_value = sanitize_textarea_field($_POST['menu-item-mega-description'][$menu_item_db_id]);
-        update_post_meta($menu_item_db_id, '_menu_item_mega_description', $description_value);
-    } else {
-        delete_post_meta($menu_item_db_id, '_menu_item_mega_description');
-    }
-}
-add_action('wp_update_nav_menu_item', 'vinapet_update_menu_item', 10, 3);
-
-/**
- * Add admin styles for menu customizer
- */
-function vinapet_admin_menu_styles() {
-    ?>
-    <style>
-    .field-mega-menu,
-    .field-mega-menu-icon,
-    .field-mega-menu-description {
-        margin: 10px 0;
-    }
-    
-    .field-mega-menu select,
-    .field-mega-menu-icon input,
-    .field-mega-menu-description textarea {
-        width: 100%;
-        margin-top: 5px;
-    }
-    
-    .field-mega-menu-description .description {
-        font-size: 11px;
-        color: #666;
-        margin-top: 3px;
-    }
-    </style>
-    <?php
-}
-add_action('admin_head-nav-menus.php', 'vinapet_admin_menu_styles');
-
-/**
- * Helper function to get nav menu items by location
- */
-function get_nav_menu_items_by_location($location) {
-    $locations = get_nav_menu_locations();
-    
-    if (!isset($locations[$location])) {
-        return false;
-    }
-    
-    $menu = wp_get_nav_menu_object($locations[$location]);
-    
-    if (!$menu) {
-        return false;
-    }
-    
-    return wp_get_nav_menu_items($menu->term_id);
-}
-
-/**
- * Add body class for mega menu support
- */
-function vinapet_body_class_mega_menu($classes) {
-    if (has_nav_menu('primary')) {
-        $classes[] = 'has-mega-menu-support';
-    }
-    return $classes;
-}
-add_filter('body_class', 'vinapet_body_class_mega_menu');
-
-/**
- * Preload mega menu content for better performance
- */
-function vinapet_preload_mega_menu_content() {
-    if (has_nav_menu('primary')) {
-        $menu_items = get_nav_menu_items_by_location('primary');
-        
-        if ($menu_items) {
-            $preload_data = array();
-            
-            foreach ($menu_items as $item) {
-                if ($item->menu_item_parent == 0) {
-                    // Count children
-                    $children = array_filter($menu_items, function($child) use ($item) {
-                        return $child->menu_item_parent == $item->ID;
-                    });
-                    
-                    if (count($children) > 0) {
-                        $preload_data[$item->ID] = array(
-                            'title' => $item->title,
-                            'url' => $item->url,
-                            'children' => count($children),
-                            'type' => get_post_meta($item->ID, '_menu_item_mega_menu', true)
-                        );
-                    }
-                }
-            }
-            
-            // Output preload data for JavaScript
-            wp_localize_script('vinapet-mega-menu', 'vinapet_mega_menu_data', $preload_data);
-        }
-    }
-}
-add_action('wp_enqueue_scripts', 'vinapet_preload_mega_menu_content', 20);
-
-/**
- * Add mega menu support indicator to admin bar
- */
-function vinapet_admin_bar_mega_menu($wp_admin_bar) {
-    if (!current_user_can('manage_options')) {
-        return;
-    }
-    
-    $args = array(
-        'id' => 'vinapet-mega-menu',
-        'title' => 'Mega Menu: ON',
-        'href' => admin_url('nav-menus.php'),
-        'meta' => array(
-            'class' => 'vinapet-mega-menu-indicator',
-            'title' => 'Click to manage mega menus'
+    // Count children
+    $children = get_posts(array(
+        'post_type' => 'nav_menu_item',
+        'numberposts' => -1,
+        'meta_query' => array(
+            array(
+                'key' => '_menu_item_menu_item_parent',
+                'value' => $item->ID,
+            )
         )
-    );
+    ));
     
-    $wp_admin_bar->add_node($args);
+    if (count($children) > 0) {
+        $classes[] = 'has-dropdown';
+    }
+    
+    return $classes;
 }
-add_action('admin_bar_menu', 'vinapet_admin_bar_mega_menu', 100);
+add_filter('nav_menu_css_class', 'vinapet_mega_menu_classes', 10, 3);
+
+/**
+ * Simple Walker for dropdown menu
+ */
+class Simple_Walker_Nav_Menu extends Walker_Nav_Menu {
+    
+    function start_lvl(&$output, $depth = 0, $args = null) {
+        $output .= '<ul class="dropdown-menu">';
+    }
+    
+    function end_lvl(&$output, $depth = 0, $args = null) {
+        $output .= '</ul>';
+    }
+    
+    function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+        $classes = empty($item->classes) ? array() : (array) $item->classes;
+        $class_names = join(' ', apply_filters('nav_menu_css_class', array_filter($classes), $item, $args));
+        $class_names = $class_names ? ' class="' . esc_attr($class_names) . '"' : '';
+        
+        $output .= '<li' . $class_names . '>';
+        
+        $link = '<a href="' . esc_attr($item->url) . '">';
+        $link .= esc_html($item->title);
+        $link .= '</a>';
+        
+        $output .= apply_filters('walker_nav_menu_start_el', $link, $item, $depth, $args);
+    }
+    
+    function end_el(&$output, $item, $depth = 0, $args = null) {
+        $output .= '</li>';
+    }
+}

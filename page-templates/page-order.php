@@ -156,7 +156,7 @@ $packaging_options = [
                                         <div class="variant-image">
                                             <img src="<?php echo esc_url($variant['image']); ?>" alt="<?php echo esc_attr($variant['name']); ?>">
                                         </div>
-                                        <div class="variant-label"><?php echo esc_html($variant['name']); ?></div>
+                                        <!-- <div class="variant-label"><?php //echo esc_html($variant['name']); ?></div> -->
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -164,7 +164,7 @@ $packaging_options = [
                     </div>
                     
                     <!-- Quantity Selection - Updated with Radio Buttons -->
-                    <div class="form-section">
+                    <div class="form-section" style="border-top: 1px dashed #C6C5C9; padding-top: 20px;">
                         <h3 class="section-title">Chọn thông số đặt hàng</h3>
                         <div class="subsection">
                             <h4 class="subsection-title">Số lượng</h4>

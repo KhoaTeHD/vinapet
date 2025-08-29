@@ -34,8 +34,8 @@
 /* Content Grid */
 .footer-content-grid {
     display: grid;
-    grid-template-columns: 32% 20% 15% 33%; /* Giảm cột 2&3, tăng cột 4 */
-    gap: 40px; /* Giảm gap từ 80px xuống 40px */
+    grid-template-columns: 32% 18% 12% auto; 
+    gap: 40px; 
     align-items: flex-start;
     width: 100%;
 }
@@ -144,20 +144,20 @@
     width: 100%;
 }
 
-.social-media{
+/* .social-media{
     max-width: fit-content !important;
-}
+} */
 
 .fb-page {
     width: 100%;
-    max-width: 280px;
+    max-width: 300px;
     min-height: 70px;
     position: relative;
 }
 
 .fb-page iframe {
     width: 100% !important;
-    max-width: 280px !important;
+    max-width: 300px !important;
     height: auto !important;
     border: none !important;
     display: block !important;
@@ -165,7 +165,7 @@
 
 .fb-page .fb_iframe_widget {
     width: 100% !important;
-    max-width: 280px !important;
+    max-width: 300px !important;
 }
 
 .qr-code {
@@ -174,7 +174,7 @@
 }
 
 .qr-code img {
-    max-width: 70%;
+    max-width: 30% !important;
     width: auto;
     height: auto;
     display: block;
@@ -200,6 +200,12 @@
 }
 
 /* RESPONSIVE */
+
+@media (max-width: 1400px) {
+    .social-media{
+        max-width: fit-content !important;
+    }
+}
 
 /* Tablet */
 @media (max-width: 1024px) {

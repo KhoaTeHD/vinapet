@@ -96,14 +96,14 @@ $company_info = get_option('vinapet_company_info', array());
                         <div class="fb-page" 
                              data-href="<?php echo esc_url($company_info['facebook_url'] ?? 'https://www.facebook.com/p/Vinapet-100094599485921/'); ?>" 
                              data-tabs="" 
-                             data-width="280" 
+                             data-width="300" 
                              data-height="50" 
                              data-small-header="false" 
                              data-adapt-container-width="true">
                         </div>
                         
                         <div class="qr-code">
-                            <img src="<?php echo VINAPET_THEME_URI; ?>/assets/images/qr-code.png" 
+                            <img src="<?php echo VINAPET_THEME_URI; ?>/assets/images/logoCCDV.png" 
                                  alt="QR Code" loading="lazy">
                         </div>
                     </div>

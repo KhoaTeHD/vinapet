@@ -117,18 +117,18 @@
     text-decoration: none;
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 16px;
     padding: 8px 16px;
     border-radius: var(--border-radius);
-    transition: var(--transition);
+    /* transition: var(--transition); */
     position: relative;
 }
 
-.nav-list a:hover,
+/* .nav-list a:hover,
 .nav-list a:focus {
     color: #1F1F1F;
     background: rgba(46, 134, 171, 0.05);
-}
+} */
 
 .nav-list .current-menu-item > a,
 .nav-list .current_page_item > a {
@@ -137,39 +137,15 @@
 }
 
 /* =============================================================================
-   NAV ACTIONS (22%)
+   NAV ACTIONS (28%)
    ============================================================================= */
 
 .nav-actions {
-    flex: 0 0 30%;
+    /* flex: 0 0 28%; */
     display: flex;
     justify-content: flex-end;
     align-items: center;
     gap: 16px;
-}
-
-/* Search Button */
-.search-btn {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    cursor: pointer;
-    padding: 12px;
-    border-radius: 50%;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-btn:hover {
-    background: rgba(46, 134, 171, 0.1);
-    color: var(--primary-color);
-}
-
-.search-btn svg {
-    width: 20px;
-    height: 20px;
 }
 
 /* Cart Button */
@@ -384,93 +360,6 @@
 }
 
 /* =============================================================================
-   SEARCH OVERLAY
-   ============================================================================= */
-
-.search-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: var(--transition);
-}
-
-.search-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.search-container {
-    background: var(--white);
-    border-radius: var(--border-radius);
-    padding: 40px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-}
-
-.search-form {
-    display: flex;
-    gap: 10px;
-}
-
-.search-input {
-    flex: 1;
-    padding: 16px 20px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 16px;
-    transition: var(--transition);
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
-}
-
-.search-submit {
-    padding: 16px 24px;
-    background: var(--primary-color);
-    color: var(--white);
-    border: none;
-    border-radius: var(--border-radius);
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.search-submit:hover {
-    background: var(--secondary-color);
-}
-
-.search-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: var(--transition);
-}
-
-.search-close:hover {
-    color: var(--text-primary);
-}
-
-/* =============================================================================
    HEADER USER ACTIONS
    ============================================================================= */
 
@@ -535,18 +424,25 @@ body {
     }
 }
 
+/* fix bugs two row */
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .nav-list a {
+        padding: 0px 8px;
+    }
+}
+
 /* Tablet (769px - 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
     .nav-container {
         padding: 0 16px;
     }
-    
+
     .nav-list {
-        gap: 24px;
+        gap: 6px;
     }
     
     .nav-list a {
-        font-size: 16px;
+        padding: 0 4px;
     }
     
     .login-btn {
@@ -610,12 +506,6 @@ body {
         gap: 8px;
     }
     
-    /* .search-btn,
-    .cart-btn {
-        width: 40px;
-        height: 40px;
-    } */
-    
     /* User Actions Mobile Styles */
     .header-user-actions {
         gap: 5px;
@@ -660,20 +550,6 @@ body {
     .mobile-menu {
         width: 280px;
     }
-    
-    .search-container {
-        margin: 0 15px;
-    }
-    
-    .search-input {
-        padding: 16px;
-        font-size: 16px;
-    }
-    
-    .search-submit {
-        width: 50px;
-        height: 50px;
-    }
 }
 
 /* =============================================================================
@@ -714,10 +590,6 @@ body {
     z-index: -1;
 }
 
-.nav-list li:hover::before {
-    left: 100%;
-}
-
 /* Mobile menu slide animation */
 @keyframes slideInRight {
     from {
@@ -732,15 +604,7 @@ body {
     animation: slideInRight 0.3s ease-out;
 }
 
-/* Search overlay animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+
 
 @keyframes scaleIn {
     from {
@@ -753,31 +617,9 @@ body {
     }
 }
 
-.search-overlay.active {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.search-overlay.active .search-container {
-    animation: scaleIn 0.3s ease-out 0.1s both;
-}
-
 /* =============================================================================
    ACCESSIBILITY & FOCUS STATES
    ============================================================================= */
-
-.nav-list a:focus,
-.search-btn:focus,
-.cart-btn:focus,
-.login-btn:focus,
-.mobile-menu-toggle:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-.search-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.2);
-}
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
@@ -815,7 +657,6 @@ body {
     
     .nav-actions,
     .mobile-menu-toggle,
-    .search-overlay,
     .mobile-menu {
         display: none;
     }
@@ -845,7 +686,6 @@ body {
     align-items: center;
     justify-content: center;
     padding: 12px 16px;
-    background: #FFFFFF;
     border-radius: 8px;
     color: #19457B;
     font-size: 14px;

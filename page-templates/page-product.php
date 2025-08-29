@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template Name: Product Listing Page
  * Description: Trang hiển thị danh sách sản phẩm từ dữ liệu mẫu
@@ -37,7 +38,7 @@ $breadcrumb_data = [
 <div class="container">
     <!-- Breadcrumb -->
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
-    
+
     <!-- Page Header with Search and Filter - nằm cùng một hàng -->
     <div class="page-header-container">
         <div class="page-title-container">
@@ -49,16 +50,15 @@ $breadcrumb_data = [
         <div class="search-filter-bar">
             <div class="search-container">
                 <!-- <i class="search-icon">🔍</i> -->
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    placeholder="🔍 Tìm theo tên, mẫu, mã hàng..." 
+                <input
+                    type="text"
+                    class="search-input"
+                    placeholder="🔍 Tìm theo tên, mẫu, mã hàng..."
                     value="<?php echo esc_attr($search_query); ?>"
-                    id="product-search"
-                >
-                
+                    id="product-search">
+
             </div>
-            
+
             <select class="sort-dropdown" id="sort-select">
                 <option value="default" <?php selected($sort_by, 'default'); ?>>Thứ tự mặc định</option>
                 <option value="name-asc" <?php selected($sort_by, 'name-asc'); ?>>Tên A → Z</option>
@@ -73,14 +73,14 @@ $breadcrumb_data = [
     <!-- Products Grid -->
     <?php if (!empty($products)): ?>
         <div class="products-grid" id="products-container">
-            <?php foreach ($products as $product): 
+            <?php foreach ($products as $product):
                 // Lấy thông tin sản phẩm
                 $product_name = isset($product['item_name']) ? $product['item_name'] : '';
                 $product_desc = isset($product['description']) ? $product['description'] : '';
                 $product_image = isset($product['image']) ? $product['image'] : '';
                 $product_code = isset($product['item_code']) ? $product['item_code'] : '';
                 $product_url = home_url('/san-pham/' . sanitize_title($product_code));
-                
+
                 // Nếu không có hình ảnh, sử dụng hình mặc định
                 if (empty($product_image)) {
                     $product_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
@@ -94,9 +94,9 @@ $breadcrumb_data = [
                                     <span class="title-text"><?php echo esc_html($product_name); ?></span>
                                 </h3>
                                 <div class="arrow-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                                            <polyline points="12 5 19 12 12 19"></polyline>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                                        <path d="M5 12h14" />
+                                        <path d="m12 5 7 7-7 7" />
                                     </svg>
                                 </div>
                             </div>
@@ -124,25 +124,25 @@ $breadcrumb_data = [
                     updateURLParam('s', searchValue);
                 }
             });
-            
+
             // Xử lý sắp xếp
             $('#sort-select').on('change', function() {
                 let sortValue = $(this).val();
                 updateURLParam('sort', sortValue);
             });
-            
+
             // Hàm cập nhật URL
             function updateURLParam(param, value) {
                 let url = new URL(window.location.href);
                 let params = new URLSearchParams(url.search);
-                
+
                 // Cập nhật tham số
                 if (value && value !== '') {
                     params.set(param, value);
                 } else {
                     params.delete(param);
                 }
-                
+
                 // Chuyển hướng đến URL mới
                 url.search = params.toString();
                 window.location.href = url.toString();

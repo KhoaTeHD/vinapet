@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
+@font-face {
+  font-family: 'SVN-Gilroy';
+  src: url('../font/SVN-Gilroy\ SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
     --primary-color: #2E86AB;
     --secondary-color: #19457B;
@@ -15,6 +23,47 @@
     --transition: all 0.3s ease;
     --header-height: 80px;
     --header-height-mobile: 60px;
+}
+
+/* Breadcrumbs */
+.breadcrumbs-bar {
+    padding: 20px 0;
+}
+
+.breadcrumbs-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.breadcrumb-item a {
+    color: #0C0C0C;
+    text-decoration: underline;
+    transition: var(--transition);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--secondary-color);
+}
+
+.breadcrumb-separator {
+    margin: 0 8px;
+    color: var(--border-color);
+    font-weight: 900;
+}
+
+.breadcrumb-item:last-child {
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
 /* =============================================================================

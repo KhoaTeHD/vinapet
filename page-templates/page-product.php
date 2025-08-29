@@ -49,7 +49,7 @@ $breadcrumb_data = [
         <!-- Search and Filter Bar -->
         <div class="search-filter-bar">
             <div class="search-container">
-                <!-- <i class="search-icon">🔍</i> -->
+                <div class="search-label"> Tìm kiếm sản phẩm</div>
                 <input
                     type="text"
                     class="search-input"
@@ -59,7 +59,9 @@ $breadcrumb_data = [
 
             </div>
 
-            <select class="sort-dropdown" id="sort-select">
+            <div class="sort-container">
+                <div class="sort-label">Sắp xếp theo</div>
+                <select class="sort-dropdown" id="sort-select">
                 <option value="default" <?php selected($sort_by, 'default'); ?>>Thứ tự mặc định</option>
                 <option value="name-asc" <?php selected($sort_by, 'name-asc'); ?>>Tên A → Z</option>
                 <option value="name-desc" <?php selected($sort_by, 'name-desc'); ?>>Tên Z → A</option>
@@ -67,6 +69,7 @@ $breadcrumb_data = [
                 <option value="price-desc" <?php selected($sort_by, 'price-desc'); ?>>Giá cao → thấp</option>
                 <option value="newest" <?php selected($sort_by, 'newest'); ?>>Mới nhất</option>
             </select>
+            </div>
         </div>
     </div>
 

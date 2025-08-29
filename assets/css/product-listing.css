@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
 
+
 :root {
     --primary-color: #2E86AB;
     --secondary-color: #A23B72;
@@ -20,47 +21,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-}
-
-/* Breadcrumbs */
-.breadcrumbs-bar {
-    padding: 20px 0;
-}
-
-.breadcrumbs-list {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-wrap: wrap;
-}
-
-.breadcrumb-item {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
-.breadcrumb-item a {
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.breadcrumb-item a:hover {
-    color: var(--secondary-color);
-}
-
-.breadcrumb-separator {
-    margin: 0 8px;
-    color: var(--border-color);
-    font-weight: 900;
-}
-
-.breadcrumb-item:last-child {
-    color: var(--text-primary);
-    font-weight: 500;
+    font-family: 'SVN-Gilroy', sans-serif;
 }
 
 /* Page Header - REVISED */
@@ -115,11 +76,13 @@
     font-size: 14px;
     transition: var(--transition);
     outline: none;
+    font-family: 'SVN-Gilroy', sans-serif;
 }
 
 .search-input::placeholder {
-    color: var(--text-secondary);
-    font-weight: 400;
+    font-family: 'SVN-Gilroy', sans-serif;
+    color: #B3B1B8;
+    font-weight: 600;
 }
 
 .search-icon {
@@ -140,17 +103,27 @@
     border: 2px solid #F3F3F4;
     border-radius: var(--border-radius);
     font-size: 14px;
-    background: #F3F3F4 url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="%23666"><path d="M4 6l4 4 4-4z"/></svg>') no-repeat right 15px center;
+    background: #F3F3F4 url('data:image/svg+xml;charset=US-ASCII,<svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/></svg>') no-repeat right 15px center;
     background-size: 12px;
     appearance: none;
     cursor: pointer;
     transition: var(--transition);
     outline: none;
+    font-family: 'SVN-Gilroy', sans-serif;
+    font-weight: 600;
 }
 
 .sort-dropdown:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
+}
+
+.search-label, .sort-label {
+    font-family: 'SVN-Gilroy', sans-serif;
+    font-size: 12px;
+    color: #8C8A94;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 /* Products Grid */
@@ -175,11 +148,6 @@
     box-shadow: var(--shadow-light);
 }
 
-/* .product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--primary-color);
-} */
 
 .product-card:hover .product-overlay {
     background: rgba(6, 29, 57, 1); /* Tăng opacity lên 100% khi hover */

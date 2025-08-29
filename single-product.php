@@ -231,7 +231,7 @@ $product_specs = [
             
             <!-- Product Variants (Colors) -->
             <div class="product-variants">
-                <div class="variant-label">SKU (Màu - Mùi)</div>
+                <div class="variant-label">SKU (Mùi - Màu)</div>
                 <div class="variant-options">
                     <?php foreach ($product_variants as $index => $variant) : ?>
                         <div class="variant-option" data-variant="<?php echo $index === 0 ? 'com' : ($index === 1 ? 'sua' : ($index === 2 ? 'cafe' : 'sen')); ?>">
@@ -269,7 +269,7 @@ $product_specs = [
     if (isset($related_products['data']) && !empty($related_products['data'])): 
     ?>
         <div class="related-products">
-            <h2 class="section-title">Sản phẩm liên quan</h2>
+            <h2 class="section-title">Sản phẩm khác của vinapet</h2>
             
             <div class="products-grid">
                 <?php foreach ($related_products['data'] as $related_product): 

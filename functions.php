@@ -776,3 +776,13 @@ if (is_admin() && file_exists(VINAPET_THEME_DIR . '/includes/admin/footer-admin.
     require_once VINAPET_THEME_DIR . '/includes/admin/footer-admin.php';
 }
 
+/**
+ * Add responsive viewport meta tag
+ */
+function vinapet_responsive_meta() {
+    if (is_page_template('page-templates/page-product.php')) {
+        echo '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">' . "\n";
+        echo '<meta name="format-detection" content="telephone=no">' . "\n";
+    }
+}
+add_action('wp_head', 'vinapet_responsive_meta', 1);

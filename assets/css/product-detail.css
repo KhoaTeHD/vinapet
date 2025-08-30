@@ -474,7 +474,6 @@
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
-    border-radius: 8px;
 }
 
 .product-overlay {
@@ -607,10 +606,6 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
-    
-    .product-card {
-        height: 280px;
-    }
 
     .product-gallery {
         flex-direction: column;
@@ -661,10 +656,6 @@
     .products-grid {
         grid-template-columns: 1fr;
         gap: 16px;
-    }
-    
-    .product-card {
-        height: 250px;
     }
 
     .product-main-image {

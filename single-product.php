@@ -305,11 +305,6 @@ $product_specs = [
             </div>
         </div>
     <?php endif; ?>
-
-
-
-
-    
 </div>
 
 <script>
@@ -356,7 +351,6 @@ jQuery(document).ready(function($) {
     
 });
 </script>
-
 
 
 <?php get_footer(); ?>

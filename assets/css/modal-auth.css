@@ -74,12 +74,13 @@
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-xl);
     width: 100%;
-    max-width: 440px;
+    max-width: 640px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
     transform: scale(0.9) translateY(20px);
     transition: transform var(--transition-normal);
+    font-family: 'SVN-Gilroy', sans-serif;
 }
 
 .modal-overlay.active .modal-container {
@@ -88,11 +89,11 @@
 
 .modal-close {
     position: absolute;
-    top: 16px;
+    top: 28px;
     right: 16px;
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: #19457B;
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
@@ -104,13 +105,7 @@
 }
 
 .modal-close:hover {
-    background: var(--bg-secondary);
     color: var(--text-primary);
-}
-
-.modal-close:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
 }
 
 .modal-content {
@@ -234,7 +229,7 @@
 .checkbox-input {
     width: 18px;
     height: 18px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     appearance: none;
     background: var(--bg-primary);
@@ -245,8 +240,7 @@
 }
 
 .checkbox-input:checked {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: #19457B;
 }
 
 .checkbox-input:checked::after {
@@ -257,11 +251,6 @@
     display: block;
     text-align: center;
     line-height: 14px;
-}
-
-.checkbox-input:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
 }
 
 .checkbox-label {
@@ -302,7 +291,7 @@
 .btn-primary {
     width: 100%;
     padding: 16px 24px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(90deg, #19457B 0%, #0F6B87 100%);
     color: white;
     border: none;
     border-radius: var(--border-radius);
@@ -347,13 +336,11 @@
 .btn-google {
     width: 100%;
     padding: 14px 24px;
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 16px;
     font-weight: 600;
-    font-family: var(--font-family);
-    color: var(--text-primary);
     cursor: pointer;
     transition: all var(--transition-fast);
     display: flex;
@@ -415,6 +402,7 @@
 }
 
 .social-login-container {
+    margin-top: 24px;
     margin-bottom: 24px;
 }
 
@@ -425,7 +413,7 @@
 .auth-switch {
     text-align: center;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #19457B;
     margin-top: 24px;
 }
 

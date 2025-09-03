@@ -536,7 +536,6 @@
 .arrow-icon svg {
     width: 24px;
     height: 24px;
-    fill: var(--white);
 }
 
 .product-card:hover .arrow-icon {

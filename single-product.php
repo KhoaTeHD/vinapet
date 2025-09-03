@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template for displaying single product
  *
@@ -119,13 +120,13 @@ $product_specs = [
 <div class="container">
     <!-- Breadcrumb -->
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
-    
+
     <div class="product-detail-container">
         <!-- Left column: Product Gallery & Description (60%) -->
         <div class="product-left-column">
             <!-- Product Gallery with Thumbnails -->
             <div class="product-gallery">
-                 <!-- Thumbnails Column - Bên trái -->
+                <!-- Thumbnails Column - Bên trái -->
                 <div class="product-thumbnails">
                     <?php foreach ($product_gallery as $index => $gallery_image) : ?>
                         <div class="thumbnail <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>">
@@ -133,7 +134,7 @@ $product_specs = [
                         </div>
                     <?php endforeach; ?>
                 </div>
-                
+
                 <!-- Main Image - Bên phải -->
                 <div class="product-main-image">
                     <div class="product-slider">
@@ -147,7 +148,7 @@ $product_specs = [
                     <button class="slider-nav next-slide">›</button>
                 </div>
             </div>
-            
+
             <!-- Product Description -->
             <div class="product-description-section">
                 <h2 class="section-title">Mô tả</h2>
@@ -163,17 +164,17 @@ $product_specs = [
                     </ul>
                 </div>
             </div>
-            
+
             <!-- Product Specifications -->
             <div class="product-specs-section">
                 <h2 class="section-title">Thông tin sản phẩm</h2>
-                
+
                 <!-- Tabs -->
                 <div class="specs-tabs">
                     <button class="tab-btn active" data-tab="tab-1">Nguyên bản</button>
                     <button class="tab-btn" data-tab="tab-2">Có hạt SAP</button>
                 </div>
-                
+
                 <!-- Tab content -->
                 <div class="tab-content active" id="tab-1">
                     <table class="specs-table">
@@ -187,7 +188,7 @@ $product_specs = [
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div class="tab-content" id="tab-2">
                     <table class="specs-table">
                         <tbody>
@@ -210,15 +211,15 @@ $product_specs = [
                 </div>
             </div>
         </div>
-        
+
         <!-- Right column: Product Info & Actions (40%) -->
         <div class="product-right-column">
             <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
-            
+
             <div class="product-short-desc">
                 <p>Siêu Khử Mùi & Khống Chế Mùi Tự Ưu, Siêu Nhẹ & Thấm Hút Mạnh Mẽ</p>
             </div>
-            
+
             <!-- Product Sizes -->
             <div class="product-sizes">
                 <?php foreach ($product_sizes as $size) : ?>
@@ -228,7 +229,7 @@ $product_specs = [
                     </div>
                 <?php endforeach; ?>
             </div>
-            
+
             <!-- Product Variants (Colors) -->
             <div class="product-variants">
                 <div class="variant-label">SKU (Mùi - Màu)</div>
@@ -243,21 +244,27 @@ $product_specs = [
                     <?php endforeach; ?>
                 </div>
             </div>
-            
+
             <!-- Product Actions -->
             <div class="product-actions">
                 <button class="primary-button add-to-cart-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
                     Đặt hàng
                 </button>
                 <button class="secondary-button mix-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
                     Mix với hạt khác
                 </button>
             </div>
         </div>
     </div>
-    
+
     <?php
     // Lấy sản phẩm liên quan
     $related_products = $product_provider->get_products([
@@ -265,20 +272,20 @@ $product_specs = [
         'limit' => 4,
         'exclude' => $product_code
     ]);
-    
-    if (isset($related_products['data']) && !empty($related_products['data'])): 
+
+    if (isset($related_products['data']) && !empty($related_products['data'])):
     ?>
         <div class="related-products">
             <h2 class="section-title">Sản phẩm khác của vinapet</h2>
-            
+
             <div class="products-grid">
-                <?php foreach ($related_products['data'] as $related_product): 
+                <?php foreach ($related_products['data'] as $related_product):
                     $related_name = isset($related_product['item_name']) ? $related_product['item_name'] : '';
                     $related_desc = isset($related_product['description']) ? $related_product['description'] : '';
                     $related_image = isset($related_product['image']) ? $related_product['image'] : '';
                     $related_code = isset($related_product['item_code']) ? $related_product['item_code'] : '';
                     $related_url = home_url('/san-pham/' . sanitize_title($related_code));
-                    
+
                     if (empty($related_image)) {
                         $related_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
                     }
@@ -290,8 +297,8 @@ $product_specs = [
                                     <h3 class="product-title">
                                         <span class="title-text"><?php echo esc_html($related_name); ?></span>
                                     </h3>
-                                        <div class="arrow-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                                    <div class="arrow-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
                                             <path d="M5 12h14" />
                                             <path d="m12 5 7 7-7 7" />
                                         </svg>
@@ -308,48 +315,48 @@ $product_specs = [
 </div>
 
 <script>
-jQuery(document).ready(function($) {
-    // Cập nhật nút đặt hàng
-    $('.add-to-cart-btn').on('click', function(e) {
-        e.preventDefault();
-        redirectToOrderPage();
-    });
-    
-    function redirectToOrderPage() {
-        // Lấy variant được chọn từ data-variant attribute
-        var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
-        
-        // Lấy product code
-        var productCode = '<?php echo $product_code; ?>';
-        
-        // Redirect với parameters
-        var orderUrl = '<?php echo home_url("/dat-hang"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
-        
-        console.log('Redirecting to:', orderUrl);
-        window.location.href = orderUrl;
-    }
+    jQuery(document).ready(function($) {
+        // Cập nhật nút đặt hàng
+        $('.add-to-cart-btn').on('click', function(e) {
+            e.preventDefault();
+            redirectToOrderPage();
+        });
 
-    // Cập nhật nút mix với hạt khác
-    $('.mix-button').on('click', function(e) {
-        e.preventDefault();
-        redirectToMixPage();
-    });
-    
-    function redirectToMixPage() {
-        // Lấy variant được chọn từ data-variant attribute
-        var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
-        
-        // Lấy product code
-        var productCode = '<?php echo $product_code; ?>';
-        
-        // Redirect với parameters
-        var mixUrl = '<?php echo home_url("/mix-voi-hat-khac"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
+        function redirectToOrderPage() {
+            // Lấy variant được chọn từ data-variant attribute
+            var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
 
-        console.log('Redirecting to:', mixUrl);
-        window.location.href = mixUrl;
-    }
-    
-});
+            // Lấy product code
+            var productCode = '<?php echo $product_code; ?>';
+
+            // Redirect với parameters
+            var orderUrl = '<?php echo home_url("/dat-hang"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
+
+            console.log('Redirecting to:', orderUrl);
+            window.location.href = orderUrl;
+        }
+
+        // Cập nhật nút mix với hạt khác
+        $('.mix-button').on('click', function(e) {
+            e.preventDefault();
+            redirectToMixPage();
+        });
+
+        function redirectToMixPage() {
+            // Lấy variant được chọn từ data-variant attribute
+            var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
+
+            // Lấy product code
+            var productCode = '<?php echo $product_code; ?>';
+
+            // Redirect với parameters
+            var mixUrl = '<?php echo home_url("/mix-voi-hat-khac"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
+
+            console.log('Redirecting to:', mixUrl);
+            window.location.href = mixUrl;
+        }
+
+    });
 </script>
 
 

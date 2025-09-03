@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 <div class="modal-overlay" id="authModalOverlay">
     <div class="modal-container" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
         <button class="modal-close" id="modalClose" aria-label="Đóng modal">
-            <svg id="modalClose" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <svg id="modalClose" width="30" height="30" viewBox="0 0 24 24" fill="none">
                 <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
         </button>
@@ -83,15 +83,20 @@ if (!defined('ABSPATH')) {
                         </div>
                     </button>
 
+                    <div class="auth-switch">
+                        <span>Bạn chưa có tài khoản?</span>
+                        <a href="#" class="switch-link" id="switchToRegister">Đăng ký ngay!</a>
+                    </div>
+
                     <?php
                     // Kiểm tra Nextend Social Login
                     $has_nextend = class_exists('NextendSocialLogin') || shortcode_exists('nextend_social_login');
                     if ($has_nextend):
                     ?>
                         <!-- Social Login Divider -->
-                        <div class="social-login-divider">
+                        <!-- <div class="social-login-divider">
                             <div class="divider"><span>hoặc</span></div>
-                        </div>
+                        </div> -->
                         
                         <!-- Google Login Button -->
                         <div class="social-login-container">
@@ -102,15 +107,12 @@ if (!defined('ABSPATH')) {
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                                 </svg>
-                                <span>Đăng nhập với Google</span>
+                                <span>Đăng nhập bằng Google</span>
                             </button>
                         </div>
                     <?php endif; ?>
 
-                    <div class="auth-switch">
-                        <span>Chưa có tài khoản?</span>
-                        <a href="#" class="switch-link" id="switchToRegister">Đăng ký ngay!</a>
-                    </div>
+                    
                 </form>
 
                 <!-- Register Form -->

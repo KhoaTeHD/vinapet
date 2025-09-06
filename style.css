@@ -12,6 +12,10 @@ Text Domain: vinapet
 
 /* Header & Footer Styles for ViNaPet Theme */
 
+*{
+    font-family: 'SVN-Gilroy', sans-serif !important;
+}
+
 /* ===== HEADER STYLES ===== */
 
 /* ===== INDEX.PHP STYLES ===== */
@@ -377,4 +381,18 @@ Text Domain: vinapet
         padding: 0 10px;
         font-size: 0.9rem;
     }
+}
+
+/* Fix cho Elementor */
+.entry-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.elementor-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
 }

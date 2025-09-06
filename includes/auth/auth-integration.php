@@ -32,11 +32,6 @@ class VinaPet_Auth_Integration {
         // Theme setup
         add_action('after_switch_theme', array($this, 'setup_customer_role'));
         
-        // Nextend Social Login integration
-        add_action('init', array($this, 'setup_nextend_integration'));
-        add_action('nsl_login', array($this, 'handle_social_login'), 10, 2);
-        add_action('nsl_register_new_user', array($this, 'handle_social_register'), 10, 2);
-        
         // Menu modifications
         add_filter('wp_nav_menu_items', array($this, 'modify_login_menu_item'), 10, 2);
         
@@ -103,7 +98,6 @@ class VinaPet_Auth_Integration {
 
         // Add Nextend Social Login URLs if available
         if ($this->has_nextend_social_login()) {
-            $auth_data['google_login_url'] = $this->get_nextend_google_url();
             $auth_data['social_login_providers'] = $this->get_available_social_providers();
         }
 
@@ -140,21 +134,6 @@ class VinaPet_Auth_Integration {
      */
     private function has_nextend_social_login() {
         return class_exists('NextendSocialLogin') || function_exists('NextendSocialLogin');
-    }
-
-    /**
-     * Get Nextend Google login URL
-     */
-    private function get_nextend_google_url() {
-        if (!$this->has_nextend_social_login()) {
-            return '';
-        }
-
-        $redirect_url = home_url('/tai-khoan');
-        return add_query_arg(array(
-            'loginSocial' => 'google',
-            'redirect' => urlencode($redirect_url)
-        ), wp_login_url());
     }
 
     /**
@@ -311,55 +290,6 @@ class VinaPet_Auth_Integration {
             'redirect_url' => home_url('/tai-khoan')
         ));
     }
-
-    /**
-     * Setup Nextend Social Login integration
-     */
-    public function setup_nextend_integration() {
-        if (!$this->has_nextend_social_login()) {
-            return;
-        }
-
-        // Set redirect URL after social login
-        add_filter('nsl_login_redirect_url', array($this, 'set_social_login_redirect'));
-        add_filter('nsl_register_redirect_url', array($this, 'set_social_login_redirect'));
-    }
-
-    /**
-     * Handle social login callback
-     */
-    public function handle_social_login($user_id, $provider) {
-        // Update user meta with social provider info
-        update_user_meta($user_id, 'social_login_provider', $provider);
-        update_user_meta($user_id, 'last_social_login', current_time('mysql'));
-        
-        // Update ERPNext
-        $this->update_user_login_erpnext('', get_user_by('ID', $user_id));
-    }
-
-    /**
-     * Handle social registration
-     */
-    public function handle_social_register($user_id, $provider) {
-        // Set user role to customer
-        $user = new WP_User($user_id);
-        $user->set_role('customer');
-        
-        // Update user meta
-        update_user_meta($user_id, 'social_registration_provider', $provider);
-        update_user_meta($user_id, 'registration_date', current_time('mysql'));
-        
-        // Send welcome email
-        $this->send_welcome_email($user_id);
-    }
-
-    /**
-     * Set social login redirect URL
-     */
-    public function set_social_login_redirect($redirect_url) {
-        return home_url('/tai-khoan');
-    }
-
     /**
      * Modify login menu item
      */

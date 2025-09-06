@@ -786,3 +786,6 @@ function vinapet_responsive_meta() {
     }
 }
 add_action('wp_head', 'vinapet_responsive_meta', 1);
+
+// Cho phép đăng ký user mới
+add_filter('option_users_can_register', '__return_true');

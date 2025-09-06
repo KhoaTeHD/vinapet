@@ -789,3 +789,8 @@ add_action('wp_head', 'vinapet_responsive_meta', 1);
 
 // Cho phép đăng ký user mới
 add_filter('option_users_can_register', '__return_true');
+
+// Include Products Admin - Class riêng cho quản lý sản phẩm
+if (file_exists(VINAPET_THEME_DIR . '/includes/admin/class-products-admin.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/admin/class-products-admin.php';
+}

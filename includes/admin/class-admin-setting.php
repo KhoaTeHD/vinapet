@@ -17,15 +17,6 @@ class VinaPet_Admin_Settings {
             'dashicons-pets',
             6
         );
-        add_menu_page(
-            'Product Settings',
-            'Sản phẩm',
-            'manage_options',
-            'vinapet-product-settings',
-            array($this, 'product_settings_page'),
-            'dashicons-archive',
-            27
-        );
     }
 
     public function register_settings() {
@@ -129,15 +120,6 @@ class VinaPet_Admin_Settings {
                     });
                 });
             </script>
-        </div>
-        <?php
-    }
-
-    public function product_settings_page() {
-        ?>
-        <div class="wrap">
-            <h1>Sản phẩm</h1>
-            <p>Trang cài đặt sản phẩm sẽ được phát triển sau.</p>
         </div>
         <?php
     }

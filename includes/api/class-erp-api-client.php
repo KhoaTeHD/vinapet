@@ -1,81 +1,121 @@
 <?php
-// File: includes/api/class-erp-api-client.php
+/**
+ * ERP API Client - FINAL CLEAN VERSION
+ * File: includes/api/class-erp-api-client.php
+ */
 
 class ERP_API_Client {
     private $api_url;
     private $api_key;
     private $api_secret;
-    private $cache_time = 3600; // 1 giờ
+    private $cache_time = 3600;
+    
+    // ============================================================================
+    // ENDPOINTS CONFIGURATION - DỄ DÀNG THAY ĐỔI TẠI ĐÂY
+    // ============================================================================
+    const ENDPOINTS = [
+        'products_list'     => '/api/method/vinapet.api.item.item.get_products',
+        'product_detail'    => '/api/method/vinapet.api.item.item.get_item_detail',  // Sẽ thêm item_code vào sau
+        'categories'        => '/api/resource/Item Group',
+        // Thêm endpoints khác ở đây khi cần
+    ];
+    
+    // ============================================================================
+    // CACHE CONFIGURATION - DỄ DÀNG THAY ĐỔI THỜI GIAN CACHE
+    // ============================================================================
+    const CACHE_TIMES = [
+        'products_list' => 3600,    // 1 giờ
+        'product_detail' => 3600,   // 1 giờ  
+        'categories' => 21600,      // 6 giờ
+    ];
 
     public function __construct() {
         $this->api_url = get_option('erp_api_url');
         $this->api_key = get_option('erp_api_key');
         $this->api_secret = get_option('erp_api_secret');
     }
+    
+    /**
+     * Check if API is configured
+     */
+    public function is_configured() {
+        return !empty($this->api_url);
+    }
+    
+    /**
+     * Check if authentication is required
+     */
+    private function has_authentication() {
+        return !empty($this->api_key) && !empty($this->api_secret);
+    }
+    
+    /**
+     * Get endpoint URL
+     */
+    private function get_endpoint($endpoint_key, $param = '') {
+        if (!isset(self::ENDPOINTS[$endpoint_key])) {
+            return '/api/resource/Item'; // fallback
+        }
+        
+        $endpoint = self::ENDPOINTS[$endpoint_key];
+        
+        if (!empty($param)) {
+            $endpoint .= urlencode($param);
+        }
+        
+        return $endpoint;
+    }
+    
+    /**
+     * Get cache time for endpoint
+     */
+    private function get_cache_time($endpoint_key) {
+        if (!isset(self::CACHE_TIMES[$endpoint_key])) {
+            return $this->cache_time;
+        }
+        
+        return self::CACHE_TIMES[$endpoint_key];
+    }
 
     /**
-     * Lấy danh sách sản phẩm từ ERPNext
+     * Lấy danh sách sản phẩm từ API
      */
     public function get_products($params = []) {
+        if (!$this->is_configured()) {
+            return false;
+        }
+        
         $cache_key = 'erp_products_' . md5(serialize($params));
         $products = get_transient($cache_key);
 
         if (false === $products) {
-            $endpoint = '/api/resource/Item';
-            $query_params = [
-                'fields' => '["name", "item_name", "description", "image", "item_code", "item_group", "standard_rate"]',
-                'limit' => isset($params['limit']) ? $params['limit'] : 20,
-                'order_by' => 'item_name asc'
-            ];
-
-            // Thêm tìm kiếm nếu có
-            if (!empty($params['search'])) {
-                $query_params['filters'] = json_encode([
-                    ['Item', 'item_name', 'like', '%' . $params['search'] . '%']
-                ]);
+            $endpoint = $this->get_endpoint('products_list');
+            
+            $query_params = [];
+            
+            if (isset($params['limit'])) {
+                $query_params['limit'] = $params['limit'];
             }
-
-            // Thêm lọc theo nhóm sản phẩm nếu có
-            if (!empty($params['category'])) {
-                $query_params['filters'] = json_encode([
-                    ['Item', 'item_group', '=', $params['category']]
-                ]);
-            }
-
-            // Thêm sắp xếp
-            if (!empty($params['sort'])) {
-                switch ($params['sort']) {
-                    case 'name-asc':
-                        $query_params['order_by'] = 'item_name asc';
-                        break;
-                    case 'name-desc':
-                        $query_params['order_by'] = 'item_name desc';
-                        break;
-                    case 'price-asc':
-                        $query_params['order_by'] = 'standard_rate asc';
-                        break;
-                    case 'price-desc':
-                        $query_params['order_by'] = 'standard_rate desc';
-                        break;
-                    case 'newest':
-                        $query_params['order_by'] = 'creation desc';
-                        break;
-                }
-            }
-
-            // Thêm phân trang
-            if (isset($params['page']) && $params['page'] > 1) {
-                $query_params['start'] = ($params['page'] - 1) * $query_params['limit'];
+            
+            if (isset($params['page']) && $params['page'] > 1 && isset($params['limit'])) {
+                $query_params['start'] = ($params['page'] - 1) * $params['limit'];
             }
 
             $response = $this->make_request('GET', $endpoint, $query_params);
 
             if (!is_wp_error($response)) {
-                $products = json_decode(wp_remote_retrieve_body($response), true);
-                set_transient($cache_key, $products, $this->cache_time);
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                
+                if (isset($data['message']['success']) && $data['message']['success'] && isset($data['message']['data'])) {
+                    $products = $data['message']['data'];
+                } else {
+                    $products = [];
+                }
+                
+                $cache_time = $this->get_cache_time('products_list');
+                set_transient($cache_key, $products, $cache_time);
             } else {
-                // Xử lý lỗi
-                error_log('ERPNext API Error: ' . $response->get_error_message());
                 return false;
             }
         }
@@ -87,19 +127,38 @@ class ERP_API_Client {
      * Lấy chi tiết một sản phẩm
      */
     public function get_product($item_code) {
+        if (!$this->is_configured()) {
+            return false;
+        }
+        
         $cache_key = 'erp_product_' . $item_code;
         $product = get_transient($cache_key);
 
         if (false === $product) {
-            $endpoint = '/api/resource/Item/' . urlencode($item_code);
-            $response = $this->make_request('GET', $endpoint);
+            $endpoint = $this->get_endpoint('product_detail');
+            
+            // Thêm product_id vào query parameters
+            $query_params = [
+                'product_id' => $item_code
+            ];
+            
+            $response = $this->make_request('GET', $endpoint, $query_params);
 
             if (!is_wp_error($response)) {
-                $product = json_decode(wp_remote_retrieve_body($response), true);
-                set_transient($cache_key, $product, $this->cache_time);
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                
+                if (isset($data['message']['success']) && $data['message']['success'] && isset($data['message']['data'])) {
+                    $product = $data['message']['data'];
+                } else {
+                    $product = null;
+                }
+                
+                if ($product) {
+                    $cache_time = $this->get_cache_time('product_detail');
+                    set_transient($cache_key, $product, $cache_time);
+                }
             } else {
-                // Xử lý lỗi
-                error_log('ERPNext API Error: ' . $response->get_error_message());
                 return false;
             }
         }
@@ -111,24 +170,30 @@ class ERP_API_Client {
      * Lấy danh sách nhóm sản phẩm
      */
     public function get_product_categories() {
+        if (!$this->is_configured()) {
+            return false;
+        }
+        
         $cache_key = 'erp_product_categories';
         $categories = get_transient($cache_key);
 
         if (false === $categories) {
-            $endpoint = '/api/resource/Item Group';
-            $query_params = [
-                'fields' => '["name", "parent_item_group"]',
-                'limit' => 50
-            ];
-
-            $response = $this->make_request('GET', $endpoint, $query_params);
+            $endpoint = $this->get_endpoint('categories');
+            $response = $this->make_request('GET', $endpoint);
 
             if (!is_wp_error($response)) {
-                $categories = json_decode(wp_remote_retrieve_body($response), true);
-                set_transient($cache_key, $categories, $this->cache_time * 6); // 6 giờ
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                
+                if (isset($data['message']['success']) && $data['message']['success'] && isset($data['message']['data'])) {
+                    $categories = $data['message']['data'];
+                } else {
+                    $categories = [];
+                }
+                
+                $cache_time = $this->get_cache_time('categories');
+                set_transient($cache_key, $categories, $cache_time);
             } else {
-                // Xử lý lỗi
-                error_log('ERPNext API Error: ' . $response->get_error_message());
                 return false;
             }
         }
@@ -137,9 +202,13 @@ class ERP_API_Client {
     }
 
     /**
-     * Thực hiện HTTP request đến ERPNext API
+     * Thực hiện HTTP request đến API
      */
-    private function make_request($method, $endpoint, $params = []) {
+    public function make_request($method, $endpoint, $params = []) {
+        if (!$this->is_configured()) {
+            return new WP_Error('not_configured', 'ERPNext API URL chưa được cấu hình');
+        }
+        
         $url = trailingslashit($this->api_url) . ltrim($endpoint, '/');
         
         if (!empty($params) && $method == 'GET') {
@@ -150,16 +219,33 @@ class ERP_API_Client {
             'method' => $method,
             'timeout' => 30,
             'headers' => [
-                'Authorization' => 'token ' . $this->api_key . ':' . $this->api_secret,
                 'Content-Type' => 'application/json'
             ]
         ];
+        
+        if ($this->has_authentication()) {
+            $args['headers']['Authorization'] = 'token ' . $this->api_key . ':' . $this->api_secret;
+        }
 
         if ($method != 'GET' && !empty($params)) {
             $args['body'] = json_encode($params);
         }
 
-        return wp_remote_request($url, $args);
+        $response = wp_remote_request($url, $args);
+        
+        if (is_wp_error($response)) {
+            return $response;
+        }
+        
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code >= 400) {
+            $body = wp_remote_retrieve_body($response);
+            $error_data = json_decode($body, true);
+            $error_message = isset($error_data['message']) ? $error_data['message'] : "HTTP {$status_code} Error";
+            return new WP_Error('api_error', $error_message);
+        }
+
+        return $response;
     }
 
     /**

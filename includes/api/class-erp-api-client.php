@@ -148,8 +148,8 @@ class ERP_API_Client {
                 $body = wp_remote_retrieve_body($response);
                 $data = json_decode($body, true);
                 
-                if (isset($data['message']['success']) && $data['message']['success'] && isset($data['message']['data'])) {
-                    $product = $data['message']['data'];
+                if (isset($data['message'])) {
+                    $product = $data['message'];
                 } else {
                     $product = null;
                 }

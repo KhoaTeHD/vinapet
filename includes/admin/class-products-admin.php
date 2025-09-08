@@ -21,7 +21,7 @@ class VinaPet_Products_Admin {
     public function add_products_menu() {
         add_menu_page(
             'Quản lý Sản phẩm ERP',
-            'Sản phẩm ERP',
+            'Sản phẩm',
             'manage_options',
             'vinapet-products-erp',
             array($this, 'products_page'),
@@ -170,11 +170,11 @@ class VinaPet_Products_Admin {
                 } else {
                     pageProducts.forEach(function(product) {
                         html += '<tr>';
-                        html += '<td><code>' + (product.item_code || '') + '</code></td>';
-                        html += '<td><strong>' + (product.item_name || '') + '</strong></td>';
+                        html += '<td><code>' + (product.ProductID || '') + '</code></td>';
+                        html += '<td><strong>' + (product.Ten_SP || '') + '</strong></td>';
                         html += '<td>' + (product.item_group || '') + '</td>';
-                        html += '<td>' + formatPrice(product.standard_rate) + '</td>';
-                        html += '<td>' + truncate(product.description || '', 80) + '</td>';
+                        html += '<td>' + formatPrice(product.Gia_ban_le) + '</td>';
+                        html += '<td>' + truncate(product.Mo_ta_ngan || '', 80) + '</td>';
                         html += '</tr>';
                     });
                 }
@@ -241,7 +241,7 @@ class VinaPet_Products_Admin {
             }
             
             function formatPrice(price) {
-                if (!price || price === 0) return '';
+                if (!price || price === 0) return '0 ₫';
                 return new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
             }
             

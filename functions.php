@@ -678,12 +678,15 @@ add_action('wp_enqueue_scripts', 'vinapet_header_assets');
  * VinaPet Authentication Integration
  */
 
-
-// Include authentication integration class
-require_once VINAPET_THEME_DIR . '/includes/auth/auth-integration.php';
+// Include authentication integration class if exists
+if (file_exists(VINAPET_THEME_DIR . '/includes/auth/auth-integration.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/auth/auth-integration.php';
+}
 
 function vinapet_init_auth_integration() {
-    new VinaPet_Auth_Integration();
+    if (class_exists('VinaPet_Auth_Integration')) {
+        new VinaPet_Auth_Integration();
+    }
 }
 add_action('init', 'vinapet_init_auth_integration', 1);
 
@@ -747,7 +750,7 @@ function ensure_custom_header() {
 }
 
 
-//add_filter('show_admin_bar', '__return_false');
+add_filter('show_admin_bar', '__return_false');
 
 // Include Account Functions - Tích hợp trang tài khoản
 if (file_exists(VINAPET_THEME_DIR . '/includes/account-functions.php')) {
@@ -783,4 +786,14 @@ add_filter('option_users_can_register', '__return_true');
 // Include Products Admin - Class riêng cho quản lý sản phẩm
 if (file_exists(VINAPET_THEME_DIR . '/includes/admin/class-products-admin.php')) {
     require_once VINAPET_THEME_DIR . '/includes/admin/class-products-admin.php';
+}
+
+// Include Product Data Manager
+if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-product-data-manager.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/helpers/class-product-data-manager.php';
+}
+
+// Include AJAX Handlers  
+if (file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-product-handlers.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/ajax/ajax-product-handlers.php';
 }

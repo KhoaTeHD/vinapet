@@ -605,9 +605,8 @@
         font-size: 18px;
     }
     
-    .variant-grid,
     .quantity-grid {
-        grid-template-columns: 1fr;
+        display: grid;
     }
     
     .subsection-header {

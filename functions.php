@@ -107,7 +107,6 @@ function vinapet_scripts() {
     
     // JavaScript chung
     wp_enqueue_script('jquery');
-    wp_enqueue_script('vinapet-navigation', VINAPET_THEME_URI . '/assets/js/navigation.js', array('jquery'), VINAPET_VERSION, true);
     
     // JavaScript riêng cho trang sản phẩm
     if (is_page_template('page-templates/page-product.php')) {
@@ -719,15 +718,6 @@ function vinapet_add_customer_role() {
 }
 add_action('after_switch_theme', 'vinapet_add_customer_role');
 
-// Prevent customers from accessing wp-admin
-// function vinapet_restrict_admin_access() {
-//     if (is_admin() && !current_user_can('edit_posts') && !defined('DOING_AJAX')) {
-//         wp_redirect(home_url());
-//         exit;
-//     }
-// }
-// add_action('admin_init', 'vinapet_restrict_admin_access');
-
 // Utility functions
 function vinapet_is_erpnext_enabled() {
     $settings = get_option('vinapet_erpnext_settings', array());
@@ -757,7 +747,7 @@ function ensure_custom_header() {
 }
 
 
-add_filter('show_admin_bar', '__return_false');
+//add_filter('show_admin_bar', '__return_false');
 
 // Include Account Functions - Tích hợp trang tài khoản
 if (file_exists(VINAPET_THEME_DIR . '/includes/account-functions.php')) {

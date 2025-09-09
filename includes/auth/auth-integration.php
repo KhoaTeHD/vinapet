@@ -38,6 +38,10 @@ class VinaPet_Auth_Integration {
         // ERPNext integration
         add_action('user_register', array($this, 'sync_user_to_erpnext'), 10, 1);
         add_action('wp_login', array($this, 'update_user_login_erpnext'), 10, 2);
+        add_filter('nsl_register_redirect_url', array($this, 'force_register_redirect'), 10, 2);
+    }
+    public function force_register_redirect($redirect_url, $provider) {
+        return home_url('/tai-khoan');
     }
 
     /**
@@ -55,16 +59,6 @@ class VinaPet_Auth_Integration {
             array(),
             VINAPET_VERSION
         );
-
-        // CSS for social login (if needed)
-        if ($this->has_nextend_social_login()) {
-            wp_enqueue_style(
-                'vinapet-social-login',
-                VINAPET_THEME_URI . '/assets/css/social-login.css',
-                array('vinapet-auth-modal'),
-                VINAPET_VERSION
-            );
-        }
 
         // JavaScript for auth modal
         wp_enqueue_script(

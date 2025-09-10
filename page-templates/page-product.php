@@ -6,87 +6,31 @@
 
 get_header();
 
-// =============================================================================
-// DEBUG: In ra tất cả parameters để xem
-// =============================================================================
-if (current_user_can('manage_options')) {
-    echo '<div style="background: red; color: white; padding: 10px; margin: 10px 0;">';
-    echo '<strong>DEBUG URL PARAMS:</strong><br>';
-    echo 'Current URL: ' . $_SERVER['REQUEST_URI'] . '<br>';
-    echo '$_GET: ' . print_r($_GET, true) . '<br>';
-    echo 'search_query: "' . (isset($_GET['s']) ? $_GET['s'] : 'EMPTY') . '"<br>';
-    echo 'sort_by: "' . (isset($_GET['sort']) ? $_GET['sort'] : 'EMPTY') . '"<br>';
-    echo '</div>';
-}
-
-// =============================================================================
-// LOGIC LẤY DỮ LIỆU
-// =============================================================================
-
-// Lấy parameters từ URL
-$search_query = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+// Lấy parameters từ URL - Đổi từ 's' sang 'search' để tránh conflict với WordPress
+$search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
 $sort_by = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'default';
-
-// DEBUG: Log params
-if (current_user_can('manage_options')) {
-    echo '<div style="background: blue; color: white; padding: 10px; margin: 10px 0;">';
-    echo '<strong>PROCESSED PARAMS:</strong><br>';
-    echo 'search_query after sanitize: "' . $search_query . '"<br>';
-    echo 'sort_by after sanitize: "' . $sort_by . '"<br>';
-    echo '</div>';
-}
 
 // Sử dụng Product Data Manager
 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
 $product_manager = new Product_Data_Manager();
 
-// Validate params - TRUYỀN ĐÚNG FORMAT
+// Prepare params
 $params = [
-    'search' => $search_query,  // Pass cả khi empty
-    'sort' => $sort_by,        // Pass cả khi default
+    'search' => $search_query,
+    'sort' => $sort_by,
+    'limit' => 50,
+    'page' => 1
 ];
-
-// Không cần validate vì đã sanitize rồi
-// $params = $product_manager->validate_params($params);
-
-// DEBUG: Log validated params
-if (current_user_can('manage_options')) {
-    echo '<div style="background: green; color: white; padding: 10px; margin: 10px 0;">';
-    echo '<strong>VALIDATED PARAMS PASSED TO get_products():</strong><br>';
-    echo print_r($params, true);
-    echo '</div>';
-}
 
 // Lấy dữ liệu
 $products_result = $product_manager->get_products($params);
 
-// DEBUG: Log what get_products actually received
-if (current_user_can('manage_options')) {
-    echo '<div style="background: orange; color: white; padding: 10px; margin: 10px 0;">';
-    echo '<strong>WHAT get_products() RECEIVED:</strong><br>';
-    echo 'Search param: ' . (isset($params['search']) ? '"' . $params['search'] . '"' : 'NOT SET') . '<br>';
-    echo 'Sort param: ' . (isset($params['sort']) ? '"' . $params['sort'] . '"' : 'NOT SET') . '<br>';
-    echo 'All params: ' . print_r($params, true);
-    echo '</div>';
-}
+// Extract data
 $products = isset($products_result['products']) ? $products_result['products'] : [];
 $total_products = isset($products_result['total']) ? $products_result['total'] : 0;
 $data_source = isset($products_result['source']) ? $products_result['source'] : 'none';
 $is_cached = isset($products_result['is_cached']) ? $products_result['is_cached'] : false;
 $error_message = isset($products_result['error']) ? $products_result['error'] : '';
-
-// DEBUG: Log results
-if (current_user_can('manage_options')) {
-    echo '<div style="background: purple; color: white; padding: 10px; margin: 10px 0;">';
-    echo '<strong>PRODUCTS RESULT:</strong><br>';
-    echo 'Total products: ' . count($products) . '<br>';
-    echo 'Data source: ' . $data_source . '<br>';
-    echo 'First product: ' . (isset($products[0]['item_name']) ? $products[0]['item_name'] : 'NONE') . '<br>';
-    if (!empty($products) && count($products) > 1) {
-        echo 'Second product: ' . (isset($products[1]['item_name']) ? $products[1]['item_name'] : 'NONE') . '<br>';
-    }
-    echo '</div>';
-}
 
 // Breadcrumb data
 global $breadcrumb_data;
@@ -100,29 +44,21 @@ $breadcrumb_data = [
     <!-- Admin Debug Panel -->
     <?php if (current_user_can('manage_options')): ?>
         <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9em;">
-            <strong>🔧 Debug Info:</strong>
-            <span style="margin-left: 10px;">
-                Source: 
-                <?php if ($data_source === 'erp'): ?>
-                    <span style="color: #28a745; font-weight: bold;">ERPNext API</span>
-                <?php elseif ($data_source === 'sample'): ?>
-                    <span style="color: #ffc107; font-weight: bold;">Sample Data</span>
-                <?php else: ?>
-                    <span style="color: #dc3545; font-weight: bold;">No Data</span>
-                <?php endif; ?>
-            </span>
-            <?php if ($is_cached): ?>
-                <span style="margin-left: 10px; color: #17a2b8;">📋 Cached</span>
+            <strong>🔧 Debug:</strong>
+            Source: 
+            <?php if ($data_source === 'erp'): ?>
+                <span style="color: #28a745; font-weight: bold;">ERPNext API</span>
+            <?php elseif ($data_source === 'sample'): ?>
+                <span style="color: #ffc107; font-weight: bold;">Sample Data</span>
+            <?php else: ?>
+                <span style="color: #dc3545; font-weight: bold;">No Data</span>
             <?php endif; ?>
-            <button onclick="clearCache()" style="float: right; padding: 4px 8px; font-size: 0.8em;">Clear Cache</button>
-        </div>
-        
-        <div style="background: orange; color: white; padding: 10px; margin: 10px 0;">
-            <strong>CURRENT STATE:</strong><br>
-            Search: "<?php echo esc_html($search_query); ?>"<br>
-            Sort: "<?php echo esc_html($sort_by); ?>"<br>
-            Products count: <?php echo count($products); ?><br>
-            URL: <?php echo $_SERVER['REQUEST_URI']; ?>
+            
+            <?php if ($is_cached): ?>
+                | <span style="color: #17a2b8;">Cached</span>
+            <?php endif; ?>
+            
+            <button onclick="clearCache()" style="float: right; padding: 4px 8px; font-size: 0.8em; background: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Clear Cache</button>
         </div>
     <?php endif; ?>
 
@@ -166,21 +102,23 @@ $breadcrumb_data = [
     <?php if (!empty($products)): ?>
         <div class="products-grid" id="products-container">
             <?php foreach ($products as $index => $product):
-                $product_name = isset($product['item_name']) ? $product['item_name'] : '';
-                $product_desc = isset($product['description']) ? $product['description'] : '';
-                $product_image = isset($product['image']) ? $product['image'] : '';
-                $product_code = isset($product['item_code']) ? $product['item_code'] : '';
+                // Dùng trực tiếp ERPNext fields, fallback to old fields để tương thích
+                $product_name = $product['Ten_SP'] ?? $product['item_name'] ?? '';
+                $product_desc = strip_tags($product['Mo_ta_ngan'] ?? $product['description'] ?? '');
+                $product_image = $product['Thumbnail_File'] ?? $product['image'] ?? '';
+                $product_code = $product['Ma_SP'] ?? $product['ProductID'] ?? $product['item_code'] ?? '';
+                $product_price = floatval($product['Gia_ban_le'] ?? $product['standard_rate'] ?? 0);
                 $product_url = home_url('/san-pham/' . sanitize_title($product_code));
 
+                // Handle image
                 if (empty($product_image)) {
                     $product_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
-                }
-                
-                // DEBUG: Show first few products
-                if (current_user_can('manage_options') && $index < 3) {
-                    echo '<div style="background: yellow; padding: 5px; margin: 5px 0;">';
-                    echo 'Product #' . ($index + 1) . ': ' . esc_html($product_name) . ' (Code: ' . esc_html($product_code) . ')';
-                    echo '</div>';
+                } elseif (strpos($product_image, 'http') !== 0) {
+                    // Nếu là relative URL, add ERPNext domain
+                    $erp_url = get_option('erp_api_url');
+                    if (!empty($erp_url)) {
+                        $product_image = trailingslashit($erp_url) . ltrim($product_image, '/');
+                    }
                 }
             ?>
                 <div class="product-card" onclick="window.location.href='<?php echo esc_url($product_url); ?>'">
@@ -205,6 +143,12 @@ $breadcrumb_data = [
                                 </div>
                             </div>
                             <p class="product-description"><?php echo esc_html(wp_trim_words($product_desc, 12, '...')); ?></p>
+                            
+                            <?php if ($product_price > 0): ?>
+                                <div class="product-price">
+                                    <?php echo number_format($product_price, 0, ',', '.'); ?> đ
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -218,131 +162,127 @@ $breadcrumb_data = [
                     Không thể tải dữ liệu từ hệ thống. Vui lòng kiểm tra cấu hình API.
                 <?php elseif (!empty($search_query)): ?>
                     Không tìm thấy sản phẩm với từ khóa "<?php echo esc_html($search_query); ?>"
+                <?php elseif (!empty($error_message)): ?>
+                    Lỗi: <?php echo esc_html($error_message); ?>
                 <?php else: ?>
                     Hiện tại chưa có sản phẩm nào.
                 <?php endif; ?>
             </p>
+            
+            <?php if (current_user_can('manage_options') && !empty($error_message)): ?>
+                <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; border-radius: 4px; margin-top: 10px; font-size: 0.9em;">
+                    <strong>Debug Error:</strong> <?php echo esc_html($error_message); ?>
+                </div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>
 
 <script>
-// =============================================================================
-// SEARCH & SORT - DEBUG VERSION
-// =============================================================================
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔧 Page loaded, current URL:', window.location.href);
-    
     // Lấy elements
     const searchInput = document.getElementById('product-search');
     const sortSelect = document.getElementById('sort-select');
     
-    console.log('🔧 Elements found:', {
-        searchInput: !!searchInput,
-        sortSelect: !!sortSelect
+    if (!searchInput || !sortSelect) {
+        console.error('Required elements not found!');
+        return;
+    }
+    
+    let searchTimeout;
+    
+    // Search functionality
+    function handleSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchValue = searchInput.value.trim();
+            updateURL({ search: searchValue }); // Dùng 'search' thay vì 's'
+        }, 500);
+    }
+    
+    // Search events
+    searchInput.addEventListener('input', handleSearch);
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(searchTimeout);
+            const searchValue = searchInput.value.trim();
+            updateURL({ search: searchValue }); // Dùng 'search' thay vì 's'
+        }
     });
     
-    // Search function with debug
-    function doSearch() {
-        const searchValue = searchInput.value.trim();
-        console.log('🔍 doSearch called with value:', searchValue);
-        
-        const url = new URL(window.location.href);
-        console.log('🔍 Current URL before change:', url.toString());
-        
-        if (searchValue) {
-            url.searchParams.set('s', searchValue);
-        } else {
-            url.searchParams.delete('s');
-        }
-        
-        url.searchParams.delete('page');
-        console.log('🔍 New URL will be:', url.toString());
-        
-        window.location.href = url.toString();
-    }
-    
-    // Sort function with debug
-    function doSort() {
+    // Sort functionality
+    function handleSort() {
         const sortValue = sortSelect.value;
-        console.log('📊 doSort called with value:', sortValue);
-        
-        const url = new URL(window.location.href);
-        console.log('📊 Current URL before change:', url.toString());
-        
-        if (sortValue && sortValue !== 'default') {
-            url.searchParams.set('sort', sortValue);
-        } else {
-            url.searchParams.delete('sort');
-        }
-        
-        url.searchParams.delete('page');
-        console.log('📊 New URL will be:', url.toString());
-        
-        window.location.href = url.toString();
+        updateURL({ sort: sortValue });
     }
     
-    // Event listeners with debug
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            console.log('🔍 Keypress detected:', e.key, e.keyCode);
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault();
-                console.log('🔍 Enter pressed, calling doSearch');
-                doSearch();
+    sortSelect.addEventListener('change', handleSort);
+    
+    // URL update function
+    function updateURL(params) {
+        const url = new URL(window.location);
+        
+        Object.keys(params).forEach(key => {
+            if (params[key] && params[key] !== '' && params[key] !== 'default') {
+                url.searchParams.set(key, params[key]);
+            } else {
+                url.searchParams.delete(key);
             }
         });
+        
+        window.location.href = url.toString();
     }
     
-    if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
-            console.log('📊 Sort change detected, new value:', this.value);
-            doSort();
+    // Debug functions (admin only)
+    <?php if (current_user_can('manage_options')): ?>
+    
+    window.testSearch = function(keyword) {
+        searchInput.value = keyword;
+        handleSearch();
+    };
+    
+    window.testSort = function(sortValue) {
+        sortSelect.value = sortValue;
+        handleSort();
+    };
+    
+    window.clearCache = function() {
+        if (!confirm('Xóa cache sản phẩm?')) return;
+        
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'clear_product_cache',
+                nonce: '<?php echo wp_create_nonce('clear_product_cache'); ?>'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Cache đã được xóa thành công!');
+                location.reload();
+            } else {
+                alert('Lỗi: ' + (data.data || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Lỗi kết nối: ' + error.message);
         });
-    }
-    
-    // Test functions
-    window.testSearch = function(query) {
-        console.log('🧪 testSearch called with:', query);
-        if (searchInput) {
-            searchInput.value = query || 'test';
-            doSearch();
-        }
     };
     
-    window.testSort = function(sort) {
-        console.log('🧪 testSort called with:', sort);
-        if (sortSelect) {
-            sortSelect.value = sort || 'name-asc';
-            doSort();
-        }
-    };
+    console.log('💡 Debug commands: testSearch("keyword"), testSort("name-asc"), clearCache()');
+    
+    <?php endif; ?>
 });
 
-// Admin functions
-<?php if (current_user_can('manage_options')): ?>
-function clearCache() {
-    fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'action=clear_product_cache&nonce=<?php echo wp_create_nonce('clear_product_cache'); ?>'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Cache cleared!');
-            location.reload();
-        } else {
-            alert('Error: ' + (data.data || 'Unknown'));
-        }
-    });
-}
-
-console.log('💡 Debug commands: testSearch("keyword"), testSort("name-asc"), clearCache()');
-console.log('💡 Current search:', '<?php echo esc_js($search_query); ?>');
-console.log('💡 Current sort:', '<?php echo esc_js($sort_by); ?>');
-<?php endif; ?>
+// Handle browser back/forward buttons
+window.addEventListener('popstate', function(event) {
+    location.reload();
+});
 </script>
 
 <?php get_footer(); ?>

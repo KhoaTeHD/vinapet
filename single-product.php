@@ -18,32 +18,32 @@ if (empty($product_code)) {
 
 $product_code = strtoupper($product_code);
 
-// Nhúng class cung cấp dữ liệu mẫu
-require_once get_template_directory() . '/includes/api/class-sample-product-provider.php';
+// Nhúng class Product Data Manager
+require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
 
-// Khởi tạo provider
-$product_provider = new Sample_Product_Provider();
+// Khởi tạo manager
+$data_manager = new Product_Data_Manager();
 
 // Lấy thông tin sản phẩm
-$product_response = $product_provider->get_product($product_code);
+$product_response = $data_manager->get_product($product_code);
 
 
 // Kiểm tra sản phẩm có tồn tại không
-if (!isset($product_response['success']) || !$product_response['success']) {
+if (!isset($product_response['product']) || !$product_response['product']) {
     echo "$product_code";
     get_template_part('template-parts/content', 'none');
     get_footer();
     return;
 }
 
-$product = $product_response['data'];
+$product = $product_response['product'];
 
 // Lấy thông tin sản phẩm
-$product_name = isset($product['item_name']) ? $product['item_name'] : '';
-$product_desc = isset($product['description']) ? $product['description'] : '';
-$product_image = isset($product['image']) ? $product['image'] : '';
+$product_name = isset($product['product_name']) ? $product['product_name'] : '';
+$product_desc = isset($product['short_description']) ? $product['short_description'] : '';
+$product_image = isset($product['thumbnail']) ? $product['thumbnail'] : '';
 $product_price = isset($product['standard_rate']) ? $product['standard_rate'] : 0;
-$product_code = isset($product['item_code']) ? $product['item_code'] : '';
+$product_code = isset($product['product_code']) ? $product['product_code'] : '';
 $product_category = isset($product['item_group']) ? $product['item_group'] : '';
 
 // Nếu không có hình ảnh, sử dụng hình mặc định
@@ -54,9 +54,9 @@ if (empty($product_image)) {
 // Lấy thông tin tên danh mục
 $category_info = [];
 if (!empty($product_category)) {
-    $categories_response = $product_provider->get_product_categories();
-    if (isset($categories_response['data'])) {
-        foreach ($categories_response['data'] as $cat) {
+    $categories_response = $data_manager->get_categories();
+    if (isset($categories_response['categories'])) {
+        foreach ($categories_response['categories'] as $cat) {
             if ($cat['name'] === $product_category) {
                 $category_info = $cat;
                 break;
@@ -81,21 +81,24 @@ if (!empty($category_info)) {
 
 $breadcrumb_data[] = ['name' => $product_name, 'url' => ''];
 
-// Thêm hình ảnh sản phẩm demo
-$product_gallery = [
-    $product_image,
-    get_template_directory_uri() . '/assets/images/products/cat-tre-2.jpg',
-    get_template_directory_uri() . '/assets/images/products/cat-tre-3.jpg',
-    get_template_directory_uri() . '/assets/images/products/cat-tre-4.jpg',
-    get_template_directory_uri() . '/assets/images/products/cat-tre-5.jpg',
-];
+// Thêm hình ảnh sản phẩm
+$product_gallery = isset($product['gallery']) && !empty($product['gallery']) ? $product['gallery'] : [];
+if (empty($product_gallery)) {
+    $product_gallery = [
+        $product_image,
+        get_template_directory_uri() . '/assets/images/products/cat-tre-2.jpg',
+        get_template_directory_uri() . '/assets/images/products/cat-tre-3.jpg',
+        get_template_directory_uri() . '/assets/images/products/cat-tre-4.jpg',
+        get_template_directory_uri() . '/assets/images/products/cat-tre-5.jpg',
+    ];
+}
 
-// Biến thể sản phẩm (màu sắc)
-$product_variants = [
-    ['name' => 'Cốm - Màu xanh non', 'image' => get_template_directory_uri() . '/assets/images/variants/green.jpg'],
-    ['name' => 'Sữa - Màu tự nhiên', 'image' => get_template_directory_uri() . '/assets/images/variants/white.jpg'],
-    ['name' => 'Cà phê - Màu nâu', 'image' => get_template_directory_uri() . '/assets/images/variants/brown.jpg'],
-    ['name' => 'Sen - Màu hồng', 'image' => get_template_directory_uri() . '/assets/images/variants/pink.jpg'],
+// Biến thể sản phẩm
+$product_variants = isset($product['variants']) && !empty($product['variants']) ? $product['variants'] : [
+    ['variant_name' => 'Cốm - Màu xanh non', 'thumbnail' => get_template_directory_uri() . '/assets/images/variants/green.jpg'],
+    ['variant_name' => 'Sữa - Màu tự nhiên', 'thumbnail' => get_template_directory_uri() . '/assets/images/variants/white.jpg'],
+    ['variant_name' => 'Cà phê - Màu nâu', 'thumbnail' => get_template_directory_uri() . '/assets/images/variants/brown.jpg'],
+    ['variant_name' => 'Sen - Màu hồng', 'thumbnail' => get_template_directory_uri() . '/assets/images/variants/pink.jpg'],
 ];
 
 // Các quy cách đóng gói
@@ -106,15 +109,18 @@ $product_sizes = [
 ];
 
 // Thông số kỹ thuật
-$product_specs = [
-    ['name' => 'Độ bụi', 'value' => 'dưới 0.5%'],
-    ['name' => 'Thời gian vón cục', 'value' => 'dưới 10 giây'],
-    ['name' => 'Khả năng thấm hút', 'value' => '210 - 250%'],
-    ['name' => 'Thời gian rã trong nước', 'value' => 'dưới 3 giây'],
-    ['name' => 'Kháng khuẩn, nấm mốc', 'value' => 'trên 14 ngày'],
-    ['name' => 'Khử mùi', 'value' => 'trên 3 ngày'],
-    ['name' => 'Tỉ trọng', 'value' => '0.45 - 0.5 g/ml'],
+$product_specs = isset($product['specifications']['original']) ? $product['specifications']['original'] : [
+    ['specification' => 'Độ bụi', 'value' => 'dưới 0.5%'],
+    ['specification' => 'Thời gian vón cục', 'value' => 'dưới 10 giây'],
+    ['specification' => 'Khả năng thấm hút', 'value' => '210 - 250%'],
+    ['specification' => 'Thời gian rã trong nước', 'value' => 'dưới 3 giây'],
+    ['specification' => 'Kháng khuẩn, nấm mốc', 'value' => 'trên 14 ngày'],
+    ['specification' => 'Khử mùi', 'value' => 'trên 3 ngày'],
+    ['specification' => 'Tỉ trọng', 'value' => '0.45 - 0.5 g/ml'],
 ];
+
+// Thông số kỹ thuật SAP
+$product_specs_sap = isset($product['specifications']['sap']) ? $product['specifications']['sap'] : [];
 ?>
 
 <div class="container">
@@ -144,32 +150,26 @@ $product_specs = [
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button class="slider-nav prev-slide">‹</button>
-                    <button class="slider-nav next-slide">›</button>
+                    
+                    <!-- Navigation arrows -->
+                    <button class="nav-arrow prev" aria-label="Previous image">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button class="nav-arrow next" aria-label="Next image">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
-            <!-- Product Description -->
-            <div class="product-description-section">
-                <h2 class="section-title">Mô tả</h2>
-                <div class="product-description-content">
-                    <p>Tre, nguyên liệu của sự kiện cường và tinh thần Việt Nam, nay được chuyển hóa thành một sản phẩm đầy ý nghĩa – cát vệ sinh cho mèo từ nguồn nguyên liệu phụ phẩm nông nghiệp Việt Nam. Sản phẩm này không những được chế tạc từ tre, mà còn gắn liền với những giá trị chuyên về thiên nhiên và con người Việt, được thu mua từ các hộ tác xã và bà con nông dân địa phương. Từng hạt cát tre là kết tinh của sự chăm chỉ, sự khéo léo, và lòng yêu thương dành cho thú cưng.</p>
-                    <p>Cát tre Vinapet sở hữu các đặc tính ưu việt:</p>
-                    <ul>
-                        <li><strong>Siêu khử mùi:</strong> Loại bỏ hoàn toàn mùi hôi từ chất thải của mèo.</li>
-                        <li><strong>Khống chế mùi tự nhiên:</strong> Không cần thêm hương liệu hóa học.</li>
-                        <li><strong>Siêu nhẹ:</strong> Trọng lượng chỉ bằng 1/3 cát thông thường.</li>
-                        <li><strong>Thấm hút mạnh mẽ:</strong> Khả năng hút nước gấp 2.5 lần trọng lượng.</li>
-                        <li><strong>Vón cục nhanh:</strong> Dễ dàng loại bỏ chất thải mà không lãng phí.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Product Specifications -->
+            <!-- Product Details -->
             <div class="product-specs-section">
-                <h2 class="section-title">Thông tin sản phẩm</h2>
-
-                <!-- Tabs -->
+                <h2 class="section-title">thông số kỹ thuật</h2>
+                
+                <!-- Tab buttons -->
                 <div class="specs-tabs">
                     <button class="tab-btn active" data-tab="tab-1">Nguyên bản</button>
                     <button class="tab-btn" data-tab="tab-2">Có hạt SAP</button>
@@ -181,7 +181,7 @@ $product_specs = [
                         <tbody>
                             <?php foreach ($product_specs as $spec) : ?>
                                 <tr>
-                                    <th><?php echo esc_html($spec['name']); ?></th>
+                                    <th><?php echo esc_html($spec['specification']); ?></th>
                                     <td><?php echo esc_html($spec['value']); ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -192,12 +192,17 @@ $product_specs = [
                 <div class="tab-content" id="tab-2">
                     <table class="specs-table">
                         <tbody>
-                            <?php foreach ($product_specs as $spec) : ?>
+                            <?php 
+                            // Nếu có specs SAP thì dùng, không thì dùng specs original + thêm info SAP
+                            $specs_to_show = !empty($product_specs_sap) ? $product_specs_sap : $product_specs;
+                            foreach ($specs_to_show as $spec) : 
+                            ?>
                                 <tr>
-                                    <th><?php echo esc_html($spec['name']); ?></th>
+                                    <th><?php echo esc_html($spec['specification']); ?></th>
                                     <td><?php echo esc_html($spec['value']); ?></td>
                                 </tr>
                             <?php endforeach; ?>
+                            <?php if (empty($product_specs_sap)) : ?>
                             <tr>
                                 <th>Tỷ lệ SAP</th>
                                 <td>8-12%</td>
@@ -206,6 +211,7 @@ $product_specs = [
                                 <th>Độ bền SAP</th>
                                 <td>Trên 30 ngày</td>
                             </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -217,7 +223,11 @@ $product_specs = [
             <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
 
             <div class="product-short-desc">
-                <p>Siêu Khử Mùi & Khống Chế Mùi Tự Ưu, Siêu Nhẹ & Thấm Hút Mạnh Mẽ</p>
+                <?php if (!empty($product_desc)) : ?>
+                    <?php echo wp_kses_post($product_desc); ?>
+                <?php else : ?>
+                    <p>Siêu Khử Mùi & Khống Chế Mùi Tự Ưu, Siêu Nhẹ & Thấm Hút Mạnh Mẽ</p>
+                <?php endif; ?>
             </div>
 
             <!-- Product Sizes -->
@@ -237,9 +247,9 @@ $product_specs = [
                     <?php foreach ($product_variants as $index => $variant) : ?>
                         <div class="variant-option" data-variant="<?php echo $index === 0 ? 'com' : ($index === 1 ? 'sua' : ($index === 2 ? 'cafe' : 'sen')); ?>">
                             <div class="variant-image-wrap">
-                                <img src="<?php echo esc_url($variant['image']); ?>" alt="<?php echo esc_attr($variant['name']); ?>">
+                                <img src="<?php echo esc_url(isset($variant['thumbnail']) ? $variant['thumbnail'] : get_template_directory_uri() . '/assets/images/variants/default.jpg'); ?>" alt="<?php echo esc_attr($variant['variant_name']); ?>">
                             </div>
-                            <div class="variant-name"><?php echo esc_html($variant['name']); ?></div>
+                            <div class="variant-name"><?php echo esc_html($variant['variant_name']); ?></div>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -267,23 +277,30 @@ $product_specs = [
 
     <?php
     // Lấy sản phẩm liên quan
-    $related_products = $product_provider->get_products([
-        'category' => $product_category,
-        'limit' => 4,
-        'exclude' => $product_code
+    $related_products_response = $data_manager->get_products([
+        'limit' => 4
     ]);
+    
+    $related_products = [];
+    if (isset($related_products_response['products']) && !empty($related_products_response['products'])) {
+        foreach ($related_products_response['products'] as $related) {
+            if (isset($related['product_code']) && $related['product_code'] !== $product_code && count($related_products) < 4) {
+                $related_products[] = $related;
+            }
+        }
+    }
 
-    if (isset($related_products['data']) && !empty($related_products['data'])):
+    if (!empty($related_products)):
     ?>
         <div class="related-products">
             <h2 class="section-title">Sản phẩm khác của vinapet</h2>
 
             <div class="products-grid">
-                <?php foreach ($related_products['data'] as $related_product):
-                    $related_name = isset($related_product['item_name']) ? $related_product['item_name'] : '';
-                    $related_desc = isset($related_product['description']) ? $related_product['description'] : '';
-                    $related_image = isset($related_product['image']) ? $related_product['image'] : '';
-                    $related_code = isset($related_product['item_code']) ? $related_product['item_code'] : '';
+                <?php foreach ($related_products as $related_product):
+                    $related_name = isset($related_product['product_name']) ? $related_product['product_name'] : '';
+                    $related_desc = isset($related_product['short_description']) ? strip_tags($related_product['short_description']) : '';
+                    $related_image = isset($related_product['thumbnail']) ? $related_product['thumbnail'] : '';
+                    $related_code = isset($related_product['product_code']) ? $related_product['product_code'] : '';
                     $related_url = home_url('/san-pham/' . sanitize_title($related_code));
 
                     if (empty($related_image)) {

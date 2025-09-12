@@ -144,11 +144,6 @@ $breadcrumb_data = [
                             </div>
                             <p class="product-description"><?php echo esc_html(wp_trim_words($product_desc, 12, '...')); ?></p>
                             
-                            <?php if ($product_price > 0): ?>
-                                <div class="product-price">
-                                    <?php echo number_format($product_price, 0, ',', '.'); ?> đ
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

@@ -52,37 +52,24 @@
 
                 <!-- Header Actions (22%) -->
                 <div class="nav-actions">
+                    <!-- Mobile Menu Toggle -->
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+
                     <!-- Login Button -->
                     <?php get_template_part('template-parts/header/user-actions'); ?>
                 </div>
+            </div>
         </nav>
 
-        <!-- Mobile Menu -->
-        <!-- <div class="mobile-menu" id="mobile-menu">
-            <div class="mobile-menu-header">
-                <div class="mobile-logo">
-                    <a href="<?php echo home_url(); ?>">
-                        <?php
-                        $custom_logo_id = get_theme_mod('custom_logo');
-                        if ($custom_logo_id) {
-                            $logo_url = wp_get_attachment_image_src($custom_logo_id, 'full')[0];
-                            echo '<img src="' . esc_url($logo_url) . '" alt="' . get_bloginfo('name') . '">';
-                        } else {
-                            bloginfo('name');
-                        }
-                        ?>
-                    </a>
-                </div>
-                <button class="mobile-menu-close" id="mobile-menu-close">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
-            </div>
-
+        <!-- Mobile Menu - Đơn giản, sổ từ trên xuống -->
+        <div class="mobile-menu" id="mobile-menu">
             <div class="mobile-menu-content">
                 <?php
-                // Menu mobile có thể chỉnh sửa từ WordPress Admin
+                // Menu mobile đơn giản - chỉ có navigation menu
                 if (has_nav_menu('primary')) {
                     wp_nav_menu(array(
                         'theme_location' => 'primary',
@@ -94,31 +81,8 @@
                     vinapet_fallback_mobile_menu();
                 }
                 ?>
-
-                <div class="mobile-menu-actions">
-                    <?php if (is_user_logged_in()): ?>
-                        <a href="<?php echo home_url('/tai-khoan'); ?>" class="mobile-login-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" />
-                                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" />
-                            </svg>
-                            Tài khoản
-                        </a>
-                    <?php else: ?>
-                        <a href="#" class="mobile-login-btn" onclick="VinaPetAuth.open()">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" />
-                                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" />
-                            </svg>
-                            Đăng nhập
-                        </a>
-                    <?php endif; ?>
-                </div>
             </div>
-        </div> -->
-
-        <!-- Mobile Menu Overlay -->
-        <!-- <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div> -->
+        </div>
     </header>
 
     <?php
@@ -128,6 +92,7 @@
     function vinapet_fallback_menu()
     {
         echo '<ul class="nav-list">';
+        echo '<li><a href="' . home_url() . '">Trang chủ</a></li>';
         echo '<li><a href="' . home_url('/san-pham') . '">Sản phẩm</a></li>';
         echo '<li><a href="' . home_url('/gioi-thieu') . '">Giới thiệu</a></li>';
         echo '<li><a href="' . home_url('/tin-tuc') . '">Tin tức</a></li>';
@@ -198,15 +163,29 @@
             if ($depth === 0 && in_array('has-mega-menu', $classes)) {
                 // Mega menu item
                 $output .= $indent . '<li' . $id . $class_names . '>';
-                $output .= '<a href="' . esc_attr($item->url) . '">';
-                $output .= esc_html($item->title);
-                $output .= '<svg class="dropdown-icon" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                $output .= '</a>';
+                $output .= '<a href="' . esc_attr($item->url) . '">' . apply_filters('the_title', $item->title, $item->ID) . '</a>';
             } else {
                 // Menu item bình thường
                 $output .= $indent . '<li' . $id . $class_names . '>';
-                $output .= '<a href="' . esc_attr($item->url) . '">' . esc_html($item->title) . '</a>';
+
+                $attributes = ! empty($item->attr_title) ? ' title="'  . esc_attr($item->attr_title) .'"' : '';
+                $attributes .= ! empty($item->target)     ? ' target="' . esc_attr($item->target     ) .'"' : '';
+                $attributes .= ! empty($item->xfn)        ? ' rel="'    . esc_attr($item->xfn        ) .'"' : '';
+                $attributes .= ! empty($item->url)        ? ' href="'   . esc_attr($item->url        ) .'"' : '';
+
+                $item_output = isset($args->before) ? $args->before : '';
+                $item_output .= '<a' . $attributes . '>';
+                $item_output .= (isset($args->link_before) ? $args->link_before : '') . apply_filters('the_title', $item->title, $item->ID) . (isset($args->link_after) ? $args->link_after : '');
+                $item_output .= '</a>';
+                $item_output .= isset($args->after) ? $args->after : '';
+
+                $output .= apply_filters('walker_nav_menu_start_el', $item_output, $item, $depth, $args);
             }
+        }
+
+        function end_el(&$output, $item, $depth = 0, $args = null)
+        {
+            $output .= "</li>\n";
         }
     }
     ?>

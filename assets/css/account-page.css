@@ -11,33 +11,9 @@
     padding: 0 20px;
 }
 
-/* Breadcrumb */
-.breadcrumb {
-    margin-bottom: 30px;
-    font-size: 14px;
-}
-
-.breadcrumb a {
-    color: #666;
-    text-decoration: none;
-}
-
-.breadcrumb a:hover {
-    color: #2E86AB;
-}
-
-.breadcrumb .separator {
-    margin: 0 8px;
-    color: #999;
-}
-
-.breadcrumb .current {
-    color: #333;
-    font-weight: 500;
-}
-
 /* Account Header */
 .account-header {
+    margin-top: 20px;
     margin-bottom: 30px;
 }
 

@@ -9,8 +9,16 @@ $is_logged_in = is_user_logged_in();
 <div class="header-user-actions">
     <!-- Language Switcher - hiển thị cho cả logged in và chưa logged in -->
     <div class="language-switcher">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+                <rect width="48" height="48" fill="white" fill-opacity="0.01"></rect>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" stroke="#19457B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M6 18H42" stroke="#19457B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M6 30H42" stroke="#19457B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 44C28.4183 44 32 35.0457 32 24C32 12.9543 28.4183 4 24 4C19.5817 4 16 12.9543 16 24C16 35.0457 19.5817 44 24 44Z" stroke="#19457B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
         </svg>
         <span class="lang-text-full">Tiếng Việt</span>
         <span class="lang-text-short">VI</span>

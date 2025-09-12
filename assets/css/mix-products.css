@@ -775,6 +775,7 @@
     align-items: center;
     gap: 8px;
     box-shadow: inset -3px -3px 8px 0px #79E9E4B2;
+    justify-content: center;
 }
 
 .next-step-btn:hover {

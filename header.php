@@ -52,8 +52,8 @@
 
                 <!-- Header Actions (22%) -->
                 <div class="nav-actions">
-                    <!-- Mobile Menu Toggle -->
-                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <!-- Hamburger Button - Thay thế mobile-menu-toggle cũ -->
+                    <button class="hamburger-btn" id="mobile-menu-toggle">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -65,7 +65,7 @@
             </div>
         </nav>
 
-        <!-- Mobile Menu - Đơn giản, sổ từ trên xuống -->
+        <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobile-menu">
             <div class="mobile-menu-content">
                 <?php

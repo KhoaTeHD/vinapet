@@ -253,56 +253,62 @@
 }
 
 /* =============================================================================
-   MOBILE MENU TOGGLE
+   HAMBURGER BUTTON (MOBILE ONLY) - THAY THẾ CODE CŨ
    ============================================================================= */
 
+/* Ẩn mobile-menu-toggle cũ nếu có */
 .mobile-menu-toggle {
+    display: none !important;
+}
+
+/* Hamburger Button - Ẩn mặc định */
+.hamburger-btn {
     display: none;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px;
+    padding: 8px;
+    gap: 4px;
+    margin-right: 6px; /* Khoảng cách với language switcher */
+    margin-left: 6px; /* Khoảng cách với logo */
 }
 
-.mobile-menu-toggle span {
-    width: 20px;
+.hamburger-btn span {
+    width: 22px;
     height: 2px;
-    background: var(--text-primary);
-    margin: 2px 0;
-    transition: var(--transition);
+    background: var(--text-primary, #2c3e50);
+    transition: all 0.3s ease;
     border-radius: 2px;
 }
 
-.mobile-menu-toggle.active span:nth-child(1) {
-    transform: rotate(-45deg) translate(-4px, 4px);
+/* Animation khi hamburger active */
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(4px, 2px);
 }
 
-.mobile-menu-toggle.active span:nth-child(2) {
+.hamburger-btn.active span:nth-child(2) {
     opacity: 0;
 }
 
-.mobile-menu-toggle.active span:nth-child(3) {
-    transform: rotate(45deg) translate(-4px, -4px);
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -5px);
 }
 
 /* =============================================================================
-   MOBILE MENU
+   MOBILE MENU - CẬP NHẬT
    ============================================================================= */
 
+/* Mobile Menu - Cập nhật từ code cũ */
 .mobile-menu {
     display: none;
     position: absolute;
     top: 100%;
     left: 0;
     width: 100%;
-    background: var(--white);
-    box-shadow: var(--shadow-light);
-    border-top: 1px solid var(--border-color);
+    background: var(--white, #ffffff);
+    box-shadow: var(--shadow-light, 0 2px 10px rgba(0,0,0,0.1));
+    border-top: 1px solid var(--border-color, #e9ecef);
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
@@ -310,39 +316,7 @@
 }
 
 .mobile-menu.active {
-    display: block;
     max-height: 500px;
-}
-
-.mobile-menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.mobile-logo img {
-    max-height: 40px;
-}
-
-.mobile-menu-close {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    cursor: pointer;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
-.mobile-menu-close:hover {
-    background: rgba(46, 134, 171, 0.1);
-    color: var(--primary-color);
 }
 
 .mobile-menu-content {
@@ -356,7 +330,7 @@
 }
 
 .mobile-nav-list li {
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .mobile-nav-list li:last-child {
@@ -365,24 +339,90 @@
 
 .mobile-nav-list a {
     display: block;
-    padding: 16px 0;
-    color: var(--text-primary);
+    padding: 15px 0;
+    color: #19457B;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    transition: var(--transition, all 0.3s ease);
     font-size: 16px;
-    transition: var(--transition);
 }
 
 .mobile-nav-list a:hover {
-    color: var(--primary-color);
+    color: var(--primary-color, #19457B);
     padding-left: 10px;
 }
 
-.mobile-menu-actions {
-    margin-top: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+/* =============================================================================
+   RESPONSIVE - MOBILE STYLES - CẬP NHẬT
+   ============================================================================= */
+
+@media (max-width: 768px) {
+    /* Ẩn desktop menu */
+    .nav-menu {
+        display: none !important;
+    }
+    
+    /* Hiển thị hamburger button */
+    .hamburger-btn {
+        display: flex;
+    }
+    
+    /* Hiển thị mobile menu container */
+    .mobile-menu {
+        display: block;
+    }
+    
+    /* Điều chỉnh nav-actions để hamburger nằm đầu */
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Language switcher và các element khác */
+    .header-user-actions {
+        order: 1;
+    }
+}
+
+/* Tablet - Vẫn hiển thị desktop menu */
+@media (min-width: 769px) {
+    .hamburger-btn,
+    .mobile-menu {
+        display: none !important;
+    }
+}
+
+/* =============================================================================
+   ACCESSIBILITY - THÊM MỚI
+   ============================================================================= */
+
+/* Focus styles cho hamburger button */
+.hamburger-btn:focus {
+    outline: 2px solid #19457B;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Focus styles cho mobile menu links */
+.mobile-nav-list a:focus {
+    outline: 2px solid #19457B;
+    outline-offset: 2px;
+    background: rgba(46, 134, 171, 0.1);
+}
+
+/* Screen reader text */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
 }
 
 /* =============================================================================
@@ -517,16 +557,6 @@ body {
         max-height: 35px;
     }
     
-    /* Hide desktop menu */
-    .nav-menu {
-        display: none;
-    }
-    
-    /* Show mobile menu toggle */
-    .mobile-menu-toggle {
-        display: flex;
-    }
-    
     .nav-actions {
         flex: 0 0 auto;
         gap: 8px;
@@ -572,10 +602,6 @@ body {
     .nav-container {
         padding: 0 12px;
     }
-    
-    .mobile-menu {
-        width: 280px;
-    }
 }
 
 /* =============================================================================
@@ -615,22 +641,6 @@ body {
     transition: left 0.5s ease;
     z-index: -1;
 }
-
-/* Mobile menu slide animation */
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-    }
-    to {
-        transform: translateX(0);
-    }
-}
-
-.mobile-menu.active {
-    animation: slideInRight 0.3s ease-out;
-}
-
-
 
 @keyframes scaleIn {
     from {
@@ -681,9 +691,7 @@ body {
         border-bottom: 1px solid var(--border-color);
     }
     
-    .nav-actions,
-    .mobile-menu-toggle,
-    .mobile-menu {
+    .nav-actions {
         display: none;
     }
     
@@ -729,7 +737,6 @@ body {
     width: 18px;
     height: 18px;
     margin-right: 6px;
-    fill: currentColor;
 }
 
 /* Language text control */

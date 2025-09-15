@@ -797,3 +797,13 @@ if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-product-data-manage
 if (file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-product-handlers.php')) {
     require_once VINAPET_THEME_DIR . '/includes/ajax/ajax-product-handlers.php';
 }
+
+// Include Lead AJAX Handler
+if (file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-lead.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/ajax/ajax-lead.php';
+}
+
+// Include Lead Form Shortcode
+if (file_exists(VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-lead-form.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-lead-form.php';
+}

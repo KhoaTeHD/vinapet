@@ -131,7 +131,13 @@ class VinaPet_Lead_Ajax
             $api_response = $this->create_lead_via_api($form_data);
 
             // 5. Process success
-            $this->handle_success($form_data, $api_response);
+            if($api_response['status'] === 'success'){
+                $this->handle_success($form_data, $api_response);
+            }
+            else{
+                $this->handle_error(new VinaPet_Lead_Exception('Yêu cầu bị trùng hoặc có lỗi xảy ra, vui lòng thử lại sau.', 'api'));
+            }
+            
         } catch (VinaPet_Lead_Exception $e) {
             $this->handle_error($e);
         } catch (Exception $e) {

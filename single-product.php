@@ -152,16 +152,24 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
                     </div>
                     
                     <!-- Navigation arrows -->
-                    <button class="nav-arrow prev" aria-label="Previous image">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor"/>
-                        </svg>
-                    </button>
-                    <button class="nav-arrow next" aria-label="Next image">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
-                        </svg>
-                    </button>
+                    <button class="slider-nav prev-slide">‹</button>
+                    <button class="slider-nav next-slide">›</button>
+                </div>
+            </div>
+
+             <!-- Product Description -->
+            <div class="product-description-section">
+                <h2 class="section-title">Mô tả</h2>
+                <div class="product-description-content">
+                    <p>Tre, nguyên liệu của sự kiện cường và tinh thần Việt Nam, nay được chuyển hóa thành một sản phẩm đầy ý nghĩa – cát vệ sinh cho mèo từ nguồn nguyên liệu phụ phẩm nông nghiệp Việt Nam. Sản phẩm này không những được chế tạc từ tre, mà còn gắn liền với những giá trị chuyên về thiên nhiên và con người Việt, được thu mua từ các hộ tác xã và bà con nông dân địa phương. Từng hạt cát tre là kết tinh của sự chăm chỉ, sự khéo léo, và lòng yêu thương dành cho thú cưng.</p>
+                    <p>Cát tre Vinapet sở hữu các đặc tính ưu việt:</p>
+                    <ul>
+                        <li><strong>Siêu khử mùi:</strong> Loại bỏ hoàn toàn mùi hôi từ chất thải của mèo.</li>
+                        <li><strong>Khống chế mùi tự nhiên:</strong> Không cần thêm hương liệu hóa học.</li>
+                        <li><strong>Siêu nhẹ:</strong> Trọng lượng chỉ bằng 1/3 cát thông thường.</li>
+                        <li><strong>Thấm hút mạnh mẽ:</strong> Khả năng hút nước gấp 2.5 lần trọng lượng.</li>
+                        <li><strong>Vón cục nhanh:</strong> Dễ dàng loại bỏ chất thải mà không lãng phí.</li>
+                    </ul>
                 </div>
             </div>
 
@@ -215,6 +223,16 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Product About Us -->
+            <div class="product-about-us gallery-vinapet">
+                <h2 class="section-title">Về Vinapet</h2>
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image1.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image2.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image3.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image4.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image5.png" alt="Vinapet">
             </div>
         </div>
 

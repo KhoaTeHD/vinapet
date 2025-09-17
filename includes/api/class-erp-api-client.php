@@ -22,7 +22,7 @@ class ERP_API_Client {
     const ENDPOINTS = [
         // Product endpoints
         'products_list'     => 'method/vinapet.api.item.item.get_products',
-        'product_detail'    => 'method/vinapet.api.item.item.get_item_detail',
+        'product_detail'    => 'method/vinapet.api.item.item.get_item_detail?product_id=SPBAMBOO1',
         'categories'        => 'resource/Item Group',
         
         // Lead endpoints  

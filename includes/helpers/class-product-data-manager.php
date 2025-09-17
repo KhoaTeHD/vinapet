@@ -1,6 +1,6 @@
 <?php
 /**
- * Product Data Manager - WORKING VERSION
+ * Product Data Manager
  * File: includes/helpers/class-product-data-manager.php
  */
 
@@ -26,7 +26,7 @@ class Product_Data_Manager {
     }
     
     /**
-     * Lấy danh sách sản phẩm - WORKING VERSION
+     * Lấy danh sách sản phẩm -
      */
     public function get_products($params = []) {
         // Clean params
@@ -189,7 +189,7 @@ class Product_Data_Manager {
         // Try ERP first
         if ($this->erp_client && $this->erp_client->is_configured()) {
             try {
-                $erp_response = $this->erp_client->get_product($item_code);
+                $erp_response = $this->erp_client->get_product_detail($item_code);
                 if ($erp_response !== false) {
                     $result['product'] = $erp_response;
                     $result['source'] = 'erp';

@@ -195,7 +195,6 @@
     flex: 1;
     min-width: 100px;
     padding: 12px;
-    text-align: center;
     background-color: var(--white);
     transition: var(--transition);
 }
@@ -426,6 +425,11 @@
 .specs-table td {
     text-align: end;
     color: var(--text-secondary);
+}
+
+.gallery-vinapet img {  
+    width: 100%;    
+    height: auto;
 }
 
 /* Related Products */

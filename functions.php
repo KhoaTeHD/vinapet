@@ -807,3 +807,70 @@ if (file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-lead.php')) {
 if (file_exists(VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-lead-form.php')) {
     require_once VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-lead-form.php';
 }
+
+// ============================================================================
+// THÊM VÀO functions.php - ERP CUSTOMER INTEGRATION
+// ============================================================================
+
+/**
+ * Load Customer Sync Helper
+ */
+if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-customer-sync-helper.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/helpers/class-customer-sync-helper.php';
+}
+
+/**
+ * AJAX handler - Get customer from ERP cho account page
+ */
+function vinapet_ajax_get_customer_from_erp() {
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Not logged in');
+    }
+    
+    if (!wp_verify_nonce($_POST['nonce'], 'vinapet_ajax_nonce')) {
+        wp_send_json_error('Security check failed');
+    }
+    
+    $user = wp_get_current_user();
+    
+    if (!class_exists('ERP_API_Client')) {
+        require_once VINAPET_THEME_DIR . '/includes/api/class-erp-api-client.php';
+    }
+    
+    $erp_api = new ERP_API_Client();
+    $customer_data = $erp_api->get_customer_by_email($user->user_email);
+    
+    if ($customer_data && $customer_data['status'] === 'success') {
+        // Update user meta từ ERP
+        $customer = $customer_data['customer'];
+        
+        if (!empty($customer['name'])) {
+            update_user_meta($user->ID, 'erpnext_customer_id', $customer['name']);
+        }
+        
+        if (!empty($customer['custom_phone'])) {
+            update_user_meta($user->ID, 'phone_number', $customer['custom_phone']);
+        }
+        
+        update_user_meta($user->ID, 'erpnext_last_sync', current_time('mysql'));
+        
+        wp_send_json_success(array(
+            'message' => 'Cập nhật thành công từ ERP',
+            'customer_data' => $customer_data
+        ));
+    } else {
+        wp_send_json_error('Không tìm thấy trong ERP');
+    }
+}
+add_action('wp_ajax_vinapet_get_customer_from_erp', 'vinapet_ajax_get_customer_from_erp');
+
+/**
+ * Cleanup khi deactivate theme
+ */
+function vinapet_erp_cleanup() {
+    $timestamp = wp_next_scheduled('vinapet_sync_customers_cron');
+    if ($timestamp) {
+        wp_unschedule_event($timestamp, 'vinapet_sync_customers_cron');
+    }
+}
+add_action('switch_theme', 'vinapet_erp_cleanup');

@@ -131,6 +131,32 @@
         });
     }
 
+    function setupAccessibility() {
+        // Add keyboard navigation for modal
+        $('#authModalOverlay').on('keydown', function(e) {
+            if (e.key === 'Tab') {
+                trapFocus(e);
+            }
+        });
+
+        // Announce form switches to screen readers
+        $('#modalTitle').attr('aria-live', 'polite');
+    }
+
+    function trapFocus(e) {
+        const focusableElements = $('#authModalOverlay').find('button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])').filter(':visible');
+        const firstElement = focusableElements.first();
+        const lastElement = focusableElements.last();
+
+        if (e.shiftKey && document.activeElement === firstElement[0]) {
+            e.preventDefault();
+            lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement[0]) {
+            e.preventDefault();
+            firstElement.focus();
+        }
+    }
+
     // =============================================================================
     // MODAL MANAGEMENT
     // =============================================================================
@@ -272,20 +298,7 @@
 
             case 'user_address':
                 if (!value || value.length < 10) {
-                    message = 'Địa chỉ phải có ít nhất 10 ký tự';
-                    isValid = false;
-                } else if (value.length > 500) {
-                    message = 'Địa chỉ quá dài (tối đa 500 ký tự)';
-                    isValid = false;
-                }
-                break;
-
-            case 'user_phone':
-                if (!value) {
-                    message = 'Vui lòng nhập số điện thoại';
-                    isValid = false;
-                } else if (!validatePhone(value)) {
-                    message = 'Số điện thoại không hợp lệ';
+                    message = 'Vui lòng nhập địa chỉ đầy đủ (ít nhất 10 ký tự)';
                     isValid = false;
                 }
                 break;
@@ -294,8 +307,15 @@
                 if (!value) {
                     message = 'Vui lòng nhập mật khẩu';
                     isValid = false;
-                } else if (currentForm === 'register' && value.length < 6) {
+                } else if (value.length < 6) {
                     message = 'Mật khẩu phải có ít nhất 6 ký tự';
+                    isValid = false;
+                }
+                break;
+
+            case 'user_phone':
+                if (value && !validatePhone(value)) {
+                    message = 'Số điện thoại không hợp lệ';
                     isValid = false;
                 }
                 break;
@@ -313,19 +333,26 @@
     function validateLoginForm($form) {
         let isValid = true;
         
-        $form.find('.form-input').each(function() {
-            if (!validateField($(this))) {
-                isValid = false;
-            }
-        });
+        const formData = getFormData($form);
+
+        // Basic validation
+        if (!formData.user_email || !validateEmail(formData.user_email)) {
+            showFieldError($form.find('input[name="user_email"]'), 'Email không hợp lệ');
+            isValid = false;
+        }
+
+        if (!formData.user_password) {
+            showFieldError($form.find('input[name="user_password"]'), 'Vui lòng nhập mật khẩu');
+            isValid = false;
+        }
 
         return isValid;
     }
 
     function validateRegisterForm($form) {
         let isValid = true;
-        
-        // Validate all fields
+
+        // Validate each field
         $form.find('.form-input').each(function() {
             if (!validateField($(this))) {
                 isValid = false;
@@ -347,92 +374,13 @@
     }
 
     // =============================================================================
-    // ERROR HANDLING
-    // =============================================================================
-
-    function showFieldError($field, message) {
-        const errorId = $field.attr('aria-describedby');
-        if (errorId) {
-            $field.addClass('error');
-            $(`#${errorId}`).text('⚠ ' + message).show();
-        }
-    }
-
-    function clearFieldError($field) {
-        const errorId = $field.attr('aria-describedby');
-        if (errorId) {
-            $field.removeClass('error');
-            $(`#${errorId}`).hide();
-        }
-    }
-
-    function clearAllErrors() {
-        $('.form-input').removeClass('error');
-        $('.error-message').hide();
-    }
-
-    // =============================================================================
-    // NOTIFICATION SYSTEM
-    // =============================================================================
-
-    function showNotification(message, type = 'info', duration = 5000) {
-        const $container = $('#notificationContainer');
-        const $notification = $(`
-            <div class="auth-notification auth-${type}">
-                <div class="notification-content">
-                    <span class="notification-icon">
-                        ${type === 'success' ? '✓' : type === 'error' ? '⚠' : 'ℹ'}
-                    </span>
-                    <span class="notification-message">${message}</span>
-                </div>
-                <button class="notification-close" aria-label="Đóng thông báo">×</button>
-            </div>
-        `);
-
-        $container.empty().append($notification);
-        
-        // Auto dismiss
-        if (duration > 0) {
-            setTimeout(() => {
-                $notification.fadeOut(() => $notification.remove());
-            }, duration);
-        }
-
-        // Manual dismiss
-        $notification.find('.notification-close').on('click', function() {
-            $notification.fadeOut(() => $notification.remove());
-        });
-    }
-
-    function clearAllNotifications() {
-        $('#notificationContainer').empty();
-    }
-
-    // =============================================================================
-    // BUTTON STATES
-    // =============================================================================
-
-    function showButtonLoading($button, loadingText = 'Đang xử lý...') {
-        $button.prop('disabled', true);
-        $button.find('.btn-text').hide();
-        $button.find('.btn-loading').show().find('span').text(loadingText);
-    }
-
-    function hideButtonLoading($button, originalText) {
-        $button.prop('disabled', false);
-        $button.find('.btn-loading').hide();
-        $button.find('.btn-text').show().text(originalText);
-    }
-
-    // =============================================================================
-    // AUTHENTICATION HANDLERS
+    // FORM SUBMISSION HANDLERS
     // =============================================================================
 
     function handleLogin(form) {
         const $form = $(form);
-
+        
         if (!validateLoginForm($form)) {
-            showNotification('Vui lòng nhập đầy đủ thông tin', 'error');
             return;
         }
 
@@ -440,13 +388,8 @@
         const $submitBtn = $('#loginSubmit');
         showButtonLoading($submitBtn, 'Đang đăng nhập...');
 
-        const formData = {
-            action: 'vinapet_ajax_login',
-            nonce: $form.find('input[name="vinapet_login_nonce"]').val(),
-            user_email: $form.find('input[name="user_email"]').val().trim(),
-            user_password: $form.find('input[name="user_password"]').val(),
-            remember: $form.find('#rememberMe').is(':checked')
-        };
+        const formData = getFormData($form);
+        formData.action = 'vinapet_ajax_login';
 
         $.ajax({
             url: vinapet_auth_data.ajax_url,
@@ -493,7 +436,7 @@
 
         const formData = {
             action: 'vinapet_ajax_register',
-            nonce: $form.find('input[name="vinapet_register_nonce"]').val(),
+            nonce: vinapet_auth_data.register_nonce,
             user_name: $form.find('input[name="user_name"]').val().trim(),
             user_address: $form.find('textarea[name="user_address"]').val().trim(),
             user_email: $form.find('input[name="user_email"]').val().trim(),
@@ -509,7 +452,7 @@
             timeout: 30000,
             success: function(response) {
                 if (response.success) {
-                    showNotification('Đăng ký thành công!', 'success');
+                    showNotification('Đăng ký thành công! Thông tin đã được đồng bộ với hệ thống.', 'success');
                     
                     // Track successful registration
                     trackEvent('register_success', { method: 'email' });
@@ -526,9 +469,9 @@
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Register error:', error);
+                console.log('Register error:', error);
                 showNotification('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
-                trackEvent('register_error', { method: 'email', error: error });
+                trackEvent('register_failed', { method: 'email', reason: 'network_error' });
             },
             complete: function() {
                 hideButtonLoading($submitBtn, 'Đăng ký');
@@ -543,72 +486,47 @@
 
     function handleGoogleAuth(type) {
         if (!vinapet_auth_data.has_nextend) {
-            showNotification('Google Login không khả dụng', 'error');
+            showNotification('Social login không khả dụng', 'error');
             return;
         }
 
-        // Track social login attempt
         trackEvent('social_login_attempt', { provider: 'google', type: type });
 
-        // Get Google login URL
-        const googleUrl = getGoogleLoginUrl();
-        if (!googleUrl) {
-            showNotification('Không thể kết nối với Google', 'error');
-            return;
-        }
+        // Open popup window for Google auth
+        const authUrl = vinapet_auth_data.home_url + '/wp-login.php?loginSocial=google';
+        const popup = window.open(
+            authUrl,
+            'googleAuth',
+            'width=500,height=600,scrollbars=yes,resizable=yes'
+        );
 
-        // Open popup window
-        const popupFeatures = 'width=500,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes';
-        socialLoginWindow = window.open(googleUrl, 'google_login', popupFeatures);
+        socialLoginWindow = popup;
 
-        if (!socialLoginWindow) {
-            showNotification('Vui lòng cho phép popup để đăng nhập với Google', 'error');
-            return;
-        }
-
-        // Monitor popup window
+        // Check if popup is closed manually
         const checkClosed = setInterval(() => {
-            if (socialLoginWindow.closed) {
+            if (popup.closed) {
                 clearInterval(checkClosed);
-                // Check if login was successful by checking current user status
-                setTimeout(() => {
-                    checkLoginStatus();
-                }, 1000);
+                socialLoginWindow = null;
             }
         }, 1000);
     }
 
-    function getGoogleLoginUrl() {
-        // Try to get Nextend Social Login URL
-        if (vinapet_auth_data.google_login_url) {
-            return vinapet_auth_data.google_login_url;
-        }
-
-        // Fallback: construct URL
-        const baseUrl = vinapet_auth_data.home_url;
-        return `${baseUrl}/wp-login.php?loginSocial=google&redirect=${encodeURIComponent(vinapet_auth_data.login_redirect)}`;
-    }
-
     function handleSocialLoginCallback(event) {
-        // Handle messages from social login popup
-        if (event.origin !== window.location.origin) {
-            return;
-        }
-
         if (event.data && event.data.type === 'social_login_success') {
             if (socialLoginWindow) {
                 socialLoginWindow.close();
+                socialLoginWindow = null;
             }
-            
+
             showNotification('Đăng nhập thành công! Đang chuyển hướng...', 'success');
             trackEvent('social_login_success', { provider: 'google' });
-            
+
             setTimeout(() => {
-                window.location.href = event.data.redirect_url || vinapet_auth_data.login_redirect;
-            }, 1500);
+                window.location.href = vinapet_auth_data.login_redirect;
+            }, 1000);
         } else if (event.data && event.data.type === 'social_login_error') {
-            showNotification(event.data.message || 'Đăng nhập với Google thất bại', 'error');
-            trackEvent('social_login_failed', { provider: 'google', reason: event.data.message });
+            showNotification('Đăng nhập mạng xã hội thất bại', 'error');
+            trackEvent('social_login_failed', { provider: 'google' });
         }
     }
 
@@ -638,33 +556,114 @@
     }
 
     // =============================================================================
-    // ACCESSIBILITY HELPERS
+    // ERROR HANDLING
     // =============================================================================
 
-    function setupAccessibility() {
-        // Add keyboard navigation for modal
-        $('#authModalOverlay').on('keydown', function(e) {
-            if (e.key === 'Tab') {
-                trapFocus(e);
-            }
-        });
-
-        // Announce form switches to screen readers
-        $('#modalTitle').attr('aria-live', 'polite');
+    function showFieldError($field, message) {
+        const errorId = $field.attr('aria-describedby');
+        if (errorId) {
+            $field.addClass('error');
+            $(`#${errorId}`).text('⚠ ' + message).show();
+        }
     }
 
-    function trapFocus(e) {
-        const focusableElements = $('#authModalOverlay').find('button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])').filter(':visible');
-        const firstElement = focusableElements.first();
-        const lastElement = focusableElements.last();
-
-        if (e.shiftKey && document.activeElement === firstElement[0]) {
-            e.preventDefault();
-            lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement[0]) {
-            e.preventDefault();
-            firstElement.focus();
+    function clearFieldError($field) {
+        const errorId = $field.attr('aria-describedby');
+        if (errorId) {
+            $field.removeClass('error');
+            $(`#${errorId}`).hide();
         }
+    }
+
+    function clearAllErrors() {
+        $('.form-input').removeClass('error');
+        $('.error-message').hide();
+    }
+
+    // =============================================================================
+    // NOTIFICATION SYSTEM
+    // =============================================================================
+
+    function showNotification(message, type = 'info', duration = 5000) {
+        const $container = $('#notificationContainer');
+        const $notification = $(`
+            <div class="auth-notification auth-${type}">
+                <div class="notification-content">
+                    <span class="notification-icon">
+                          ${type === 'success' ? '✓' : type === 'error' ? '⚠' : 'ℹ'}
+                    </span>
+                    <span class="notification-message">${message}</span>
+                    <button type="button" class="notification-close" aria-label="Đóng thông báo">
+                        ×
+                    </button>
+                </div>
+            </div>
+        `);
+
+        // Add notification to container
+        if ($container.length) {
+            $container.append($notification);
+        } else {
+            $('.modal-content').prepend($notification);
+        }
+
+        // Show notification
+        $notification.addClass('show');
+
+        // Auto-hide after specified duration
+        setTimeout(() => {
+            $notification.removeClass('show');
+            setTimeout(() => $notification.remove(), 300);
+        }, duration);
+
+        // Manual close
+        $notification.find('.notification-close').on('click', () => {
+            $notification.removeClass('show');
+            setTimeout(() => $notification.remove(), 300);
+        });
+
+        return $notification;
+    }
+
+    function clearAllNotifications() {
+        $('.auth-notification').removeClass('show');
+        setTimeout(() => $('.auth-notification').remove(), 300);
+    }
+
+    // =============================================================================
+    // UI HELPERS
+    // =============================================================================
+
+    function showButtonLoading($button, text) {
+        $button.data('original-text', $button.html());
+        $button.html(`<span class="btn-loading"></span> ${text}`).prop('disabled', true);
+    }
+
+    function hideButtonLoading($button, defaultText) {
+        const originalText = $button.data('original-text') || defaultText;
+        $button.html(originalText).prop('disabled', false);
+    }
+
+    function getFormData($form) {
+        const formData = {};
+        $form.find('input, textarea, select').each(function() {
+            const $field = $(this);
+            const name = $field.attr('name');
+            const type = $field.attr('type');
+            
+            if (name) {
+                if (type === 'checkbox') {
+                    formData[name] = $field.is(':checked');
+                } else if (type === 'radio') {
+                    if ($field.is(':checked')) {
+                        formData[name] = $field.val();
+                    }
+                } else {
+                    formData[name] = $field.val();
+                }
+            }
+        });
+        return formData;
     }
 
     // =============================================================================

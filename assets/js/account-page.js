@@ -390,3 +390,166 @@
 function wp_logout_url() {
     return window.location.origin + '/wp-login.php?action=logout&redirect_to=' + encodeURIComponent(window.location.origin);
 }
+
+// ============================================================================
+// THÊM VÀO assets/js/account-page.js (hoặc thêm vào cuối file hiện có)
+// ============================================================================
+
+/**
+ * ERP Customer Integration cho Account Page
+ */
+(function($) {
+    'use strict';
+
+    $(document).ready(function() {
+        initERPIntegration();
+    });
+
+    function initERPIntegration() {
+        // Load customer data từ ERP khi vào trang
+        loadCustomerFromERP();
+        
+        // Add sync button
+        addERPSyncButton();
+    }
+
+    /**
+     * Load customer data từ ERP
+     */
+    function loadCustomerFromERP() {
+        $.ajax({
+            url: vinapet_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'vinapet_get_customer_from_erp',
+                nonce: vinapet_ajax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    updateFormWithERPData(response.data.customer_data);
+                    showERPStatus(true, 'Đã đồng bộ với ERP');
+                } else {
+                    showERPStatus(false, 'Chưa có trong ERP');
+                }
+            },
+            error: function() {
+                showERPStatus(false, 'Lỗi kết nối ERP');
+            }
+        });
+    }
+
+    /**
+     * Update form với data từ ERP
+     */
+    function updateFormWithERPData(customerData) {
+        if (!customerData || customerData.status !== 'success') {
+            return;
+        }
+
+        const customer = customerData.customer;
+        
+        // Update form fields
+        if (customer.customer_name) {
+            $('#display_name').val(customer.customer_name);
+        }
+        
+        if (customer.custom_phone) {
+            $('#phone_number').val(customer.custom_phone);
+        }
+        
+        // Update address
+        if (customer.address) {
+            const addressString = formatERPAddress(customer.address);
+            $('#user_address').val(addressString);
+        }
+    }
+
+    /**
+     * Format address từ ERP
+     */
+    function formatERPAddress(addressData) {
+        if (typeof addressData === 'string') {
+            return addressData;
+        }
+        
+        const parts = [];
+        if (addressData.address_line1) parts.push(addressData.address_line1);
+        if (addressData.city && addressData.city !== 'Unknow') parts.push(addressData.city);
+        if (addressData.country) parts.push(addressData.country);
+        
+        return parts.join(', ');
+    }
+
+    /**
+     * Add ERP sync button
+     */
+    function addERPSyncButton() {
+        if ($('.erp-sync-btn').length > 0) return;
+        
+        const syncBtn = `
+            <div class="form-group erp-sync-section">
+                <button type="button" class="btn btn-secondary erp-sync-btn">
+                    Đồng bộ với ERP
+                </button>
+                <div class="erp-status"></div>
+            </div>
+        `;
+        
+        $('#profile-info-form').append(syncBtn);
+        
+        // Bind click event
+        $('.erp-sync-btn').on('click', function() {
+            syncWithERP();
+        });
+    }
+
+    /**
+     * Sync với ERP
+     */
+    function syncWithERP() {
+        const $btn = $('.erp-sync-btn');
+        const originalText = $btn.text();
+        
+        $btn.text('Đang đồng bộ...').prop('disabled', true);
+
+        $.ajax({
+            url: vinapet_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'vinapet_get_customer_from_erp',
+                nonce: vinapet_ajax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    updateFormWithERPData(response.data.customer_data);
+                    showERPStatus(true, 'Đồng bộ thành công!');
+                } else {
+                    showERPStatus(false, 'Lỗi: ' + response.data);
+                }
+            },
+            error: function() {
+                showERPStatus(false, 'Lỗi kết nối');
+            },
+            complete: function() {
+                $btn.text(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    /**
+     * Show ERP status
+     */
+    function showERPStatus(success, message) {
+        const statusClass = success ? 'success' : 'error';
+        const statusHtml = `<div class="erp-status-message ${statusClass}">${message}</div>`;
+        
+        $('.erp-status').html(statusHtml);
+        
+        // Auto hide sau 3 giây
+        setTimeout(() => {
+            $('.erp-status-message').fadeOut();
+        }, 3000);
+    }
+
+})(jQuery);
+

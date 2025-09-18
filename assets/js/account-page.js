@@ -454,7 +454,7 @@ function wp_logout_url() {
         }
         
         if (customer.custom_phone) {
-            $('#phone_number').val(customer.custom_phone);
+            $('#user_phone').val(customer.custom_phone);
         }
         
         // Update address

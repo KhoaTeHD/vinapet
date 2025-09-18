@@ -390,6 +390,7 @@
 
         const formData = getFormData($form);
         formData.action = 'vinapet_ajax_login';
+        formData.nonce = vinapet_auth_data.login_nonce;
 
         $.ajax({
             url: vinapet_auth_data.ajax_url,

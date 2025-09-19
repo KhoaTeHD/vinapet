@@ -448,36 +448,40 @@ class ERP_API_Client
     }
 
     /**
-     * UPDATE customer by email - API chưa có
+     * UPDATE customer - Sử dụng API create với name field
      * 
-     * @param string $email Customer email
-     * @param array $update_data Update data
+     * @param array $customer_data Customer data với name field
      * @return array|false Response từ API hoặc false nếu lỗi
      */
-    public function update_customer_by_email_vinapet($email, $update_data)
+    public function update_customer_vinapet($customer_data)
     {
-        if (!$this->is_configured() || empty($email) || empty($update_data)) {
+        if (!$this->is_configured() || empty($customer_data)) {
             return false;
         }
 
-        $endpoint = $this->get_endpoint('create_customer');
-        $data = array_merge($update_data, array(['email' => $email, 'name' => $email]));
+        // Validate required fields
+        $required_fields = ['customer_name', 'email', 'name'];
+        foreach ($required_fields as $field) {
+            if (empty($customer_data[$field])) {
+                error_log("VinaPet ERP: Missing required field for update: {$field}");
+                return false;
+            }
+        }
 
-        $response = $this->make_request('POST', $endpoint, $data);
+        // Sử dụng endpoint create nhưng với name field để update
+        $endpoint = 'method/vinapet.api.customer.customer.create_customer';
+        $response = $this->make_request('POST', $endpoint, $customer_data);
 
         if (!is_wp_error($response)) {
             $body = wp_remote_retrieve_body($response);
-            $result = json_decode($body, true);
+            $data = json_decode($body, true);
 
-            if (isset($result['message']['status']) && $result['message']['status'] === 'success') {
+            if (isset($data['message']['status']) && $data['message']['status'] === 'success') {
                 // Clear customer cache
-                $cache_key = 'erp_customer_' . md5($email);
+                $cache_key = 'erp_customer_' . md5($customer_data['email']);
                 delete_transient($cache_key);
 
-                // Clear customers list cache
-                $this->clear_cache_by_pattern('erp_customers_*');
-
-                return $result['message'];
+                return $data['message'];
             }
         }
 

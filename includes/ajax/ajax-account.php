@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Account AJAX Handlers
  * 
@@ -9,13 +10,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class VinaPet_Account_Ajax {
+class VinaPet_Account_Ajax
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->init_hooks();
     }
 
-    private function init_hooks() {
+    private function init_hooks()
+    {
         // Update profile info
         add_action('wp_ajax_update_profile_info', array($this, 'update_profile_info'));
         add_action('wp_ajax_nopriv_update_profile_info', array($this, 'ajax_login_required'));
@@ -38,89 +42,210 @@ class VinaPet_Account_Ajax {
     }
 
     /**
-     * Update user profile information
+     * Update user profile information - WITH ROLLBACK SUPPORT
      */
     public function update_profile_info() {
         // Verify nonce
         if (!wp_verify_nonce($_POST['profile_info_nonce'], 'update_profile_info')) {
-            wp_die(json_encode(array(
-                'success' => false,
-                'data' => 'Phiên làm việc không hợp lệ!'
-            )));
+            wp_send_json_error('Phiên làm việc không hợp lệ!');
+            return;
         }
 
         // Check if user is logged in
         if (!is_user_logged_in()) {
-            wp_die(json_encode(array(
-                'success' => false,
-                'data' => 'Bạn cần đăng nhập để thực hiện chức năng này!'
-            )));
+            wp_send_json_error('Bạn cần đăng nhập để thực hiện chức năng này!');
+            return;
         }
 
         $current_user_id = get_current_user_id();
+        $current_user = wp_get_current_user();
         
         // Sanitize input data
         $display_name = sanitize_text_field($_POST['display_name']);
         $user_phone = sanitize_text_field($_POST['user_phone']);
         $user_email = sanitize_email($_POST['user_email']);
+        $user_address = sanitize_textarea_field($_POST['user_address'] ?? '');
 
         // Validate email
         if (!is_email($user_email)) {
-            wp_die(json_encode(array(
-                'success' => false,
-                'data' => 'Địa chỉ email không hợp lệ!'
-            )));
+            wp_send_json_error('Địa chỉ email không hợp lệ!');
+            return;
         }
 
         // Check if email already exists for another user
         $email_exists = email_exists($user_email);
         if ($email_exists && $email_exists != $current_user_id) {
-            wp_die(json_encode(array(
-                'success' => false,
-                'data' => 'Email này đã được sử dụng bởi tài khoản khác!'
-            )));
+            wp_send_json_error('Email này đã được sử dụng bởi tài khoản khác!');
+            return;
         }
 
-        // Update user data
-        $user_data = array(
-            'ID' => $current_user_id,
-            'display_name' => $display_name,
-            'user_email' => $user_email
+        // ============================================================================
+        // BACKUP CURRENT DATA FOR ROLLBACK
+        // ============================================================================
+        
+        $backup_data = array(
+            'display_name' => $current_user->display_name,
+            'user_email' => $current_user->user_email,
+            'phone' => get_user_meta($current_user_id, 'phone', true),
+            'user_address' => get_user_meta($current_user_id, 'user_address', true),
+            'last_sync' => get_user_meta($current_user_id, 'erpnext_last_sync', true)
         );
 
-        $user_id = wp_update_user($user_data);
-
-        if (is_wp_error($user_id)) {
-            wp_die(json_encode(array(
-                'success' => false,
-                'data' => 'Có lỗi xảy ra khi cập nhật thông tin: ' . $user_id->get_error_message()
-            )));
+        // Check ERP configuration
+        if (!class_exists('ERP_API_Client')) {
+            require_once VINAPET_THEME_DIR . '/includes/api/class-erp-api-client.php';
+        }
+        
+        $erp_api = new ERP_API_Client();
+        
+        if (!$erp_api->is_configured()) {
+            wp_send_json_error('Hệ thống ERP chưa được cấu hình. Không thể cập nhật thông tin!');
+            return;
         }
 
-        // Update phone number
-        if (!empty($user_phone)) {
-            update_user_meta($current_user_id, 'phone', $user_phone);
+        // ============================================================================
+        // STEP 1: UPDATE WORDPRESS FIRST (dễ rollback)
+        // ============================================================================
+        
+        try {
+            error_log('VinaPet: Starting WordPress update for user ' . $current_user_id);
+
+            // Update user data
+            $user_data = array(
+                'ID' => $current_user_id,
+                'display_name' => $display_name,
+                'user_email' => $user_email
+            );
+
+            $user_update_result = wp_update_user($user_data);
+
+            if (is_wp_error($user_update_result)) {
+                throw new Exception('WordPress user update failed: ' . $user_update_result->get_error_message());
+            }
+
+            // Update user meta
+            $phone_update = update_user_meta($current_user_id, 'phone', $user_phone);
+            $address_update = true;
+            if (!empty($user_address)) {
+                $address_update = update_user_meta($current_user_id, 'user_address', $user_address);
+            }
+
+            if ($phone_update === false || $address_update === false) {
+                throw new Exception('Failed to update user meta data');
+            }
+
+            error_log('VinaPet: WordPress update successful for user ' . $current_user_id);
+
+        } catch (Exception $e) {
+            error_log('VinaPet: WordPress update failed for user ' . $current_user_id . ': ' . $e->getMessage());
+            wp_send_json_error('Không thể cập nhật thông tin WordPress: ' . $e->getMessage());
+            return;
         }
 
-        // Sync with ERPNext if enabled
-        if (function_exists('vinapet_is_erpnext_enabled') && vinapet_is_erpnext_enabled()) {
-            // $this->sync_user_to_erpnext($current_user_id, array(
-            //     'customer_name' => $display_name,
-            //     'email_id' => $user_email,
-            //     'mobile_no' => $user_phone
-            // ));
+        // ============================================================================
+        // STEP 2: UPDATE ERP CUSTOMER
+        // ============================================================================
+        
+        try {
+            error_log('VinaPet: Starting ERP update for user ' . $current_user_id);
+
+            // Prepare ERP customer data
+            $erp_customer_data = array(
+                'customer_name' => $display_name,
+                'email' => $user_email,
+                'name' => $user_email, // Key để update
+                'phone' => $user_phone,
+                'address' => $user_address,
+                'company_name' => ''
+            );
+            
+            $erp_result = $erp_api->update_customer_vinapet($erp_customer_data);
+            
+            if (!$erp_result || $erp_result['status'] !== 'success') {
+                throw new Exception('ERP update failed: ' . ($erp_result['message'] ?? 'Unknown error'));
+            }
+
+            // Update ERP sync timestamp
+            update_user_meta($current_user_id, 'erpnext_last_sync', current_time('mysql'));
+
+            error_log('VinaPet: ERP update successful for user ' . $current_user_id);
+
+            // ============================================================================
+            // SUCCESS - CẢ WORDPRESS VÀ ERP ĐỀU THÀNH CÔNG
+            // ============================================================================
+
+            wp_send_json_success('Cập nhật thông tin thành công! Đã đồng bộ với hệ thống ERP.');
+
+        } catch (Exception $e) {
+            error_log('VinaPet: ERP update failed for user ' . $current_user_id . ': ' . $e->getMessage());
+
+            // ============================================================================
+            // ROLLBACK WORDPRESS DATA
+            // ============================================================================
+            
+            error_log('VinaPet: Starting rollback for user ' . $current_user_id);
+            
+            try {
+                // Rollback user data
+                $rollback_user_data = array(
+                    'ID' => $current_user_id,
+                    'display_name' => $backup_data['display_name'],
+                    'user_email' => $backup_data['user_email']
+                );
+
+                $rollback_result = wp_update_user($rollback_user_data);
+                
+                if (is_wp_error($rollback_result)) {
+                    throw new Exception('Rollback user data failed: ' . $rollback_result->get_error_message());
+                }
+
+                // Rollback user meta
+                update_user_meta($current_user_id, 'phone', $backup_data['phone']);
+                update_user_meta($current_user_id, 'user_address', $backup_data['user_address']);
+                
+                // Restore last sync time
+                if ($backup_data['last_sync']) {
+                    update_user_meta($current_user_id, 'erpnext_last_sync', $backup_data['last_sync']);
+                } else {
+                    delete_user_meta($current_user_id, 'erpnext_last_sync');
+                }
+
+                error_log('VinaPet: Rollback successful for user ' . $current_user_id);
+
+                wp_send_json_error('Cập nhật ERP thất bại. Đã khôi phục thông tin ban đầu. Chi tiết: ' . $e->getMessage());
+
+            } catch (Exception $rollback_error) {
+                // Critical error - không thể rollback
+                error_log('VinaPet: CRITICAL - Rollback failed for user ' . $current_user_id . ': ' . $rollback_error->getMessage());
+                error_log('VinaPet: Backup data: ' . print_r($backup_data, true));
+
+                wp_send_json_error('Cập nhật ERP thất bại và không thể khôi phục dữ liệu. Vui lòng liên hệ admin ngay!');
+            }
+        }
+    }
+
+    /**
+     * Helper method để validate dữ liệu trước khi update
+     */
+    private function validate_update_data($data) {
+        $errors = array();
+
+        if (empty($data['display_name']) || strlen($data['display_name']) < 2) {
+            $errors[] = 'Họ và tên phải có ít nhất 2 ký tự';
         }
 
-        wp_die(json_encode(array(
-            'success' => true,
-            'data' => 'Cập nhật thông tin thành công!'
-        )));
+        if (!is_email($data['user_email'])) {
+            $errors[] = 'Email không hợp lệ';
+        }
+
+        return $errors;
     }
 
     /**
      * Change user password
      */
-    public function change_user_password() {
+    public function change_user_password()
+    {
         // Verify nonce
         if (!wp_verify_nonce($_POST['change_password_nonce'], 'change_password')) {
             wp_die(json_encode(array(
@@ -184,10 +309,10 @@ class VinaPet_Account_Ajax {
     //     try {
     //         if (class_exists('VinaPet_ERP_API_Client')) {
     //             $erp_client = new VinaPet_ERP_API_Client();
-                
+
     //             // Get user's ERPNext customer ID
     //             $customer_id = get_user_meta($user_id, 'erpnext_customer_id', true);
-                
+
     //             if ($customer_id) {
     //                 // Update existing customer
     //                 $erp_client->update_customer($customer_id, $data);
@@ -207,7 +332,8 @@ class VinaPet_Account_Ajax {
     /**
      * Handle AJAX requests from non-logged-in users
      */
-    public function ajax_login_required() {
+    public function ajax_login_required()
+    {
         wp_die(json_encode(array(
             'success' => false,
             'data' => 'Bạn cần đăng nhập để thực hiện chức năng này!',
@@ -218,7 +344,8 @@ class VinaPet_Account_Ajax {
     /**
      * Load user orders
      */
-    public function load_user_orders() {
+    public function load_user_orders()
+    {
         // Check if user is logged in
         if (!is_user_logged_in()) {
             wp_die(json_encode(array(
@@ -236,11 +363,11 @@ class VinaPet_Account_Ajax {
         }
 
         $orders = array();
-        
+
         switch ($order_type) {
             case 'creating_request':
-                $orders = function_exists('vinapet_get_user_creating_orders') 
-                    ? vinapet_get_user_creating_orders($user_id) 
+                $orders = function_exists('vinapet_get_user_creating_orders')
+                    ? vinapet_get_user_creating_orders($user_id)
                     : array();
                 break;
             // Add other order types later
@@ -257,7 +384,8 @@ class VinaPet_Account_Ajax {
     /**
      * Cancel user order
      */
-    public function cancel_user_order() {
+    public function cancel_user_order()
+    {
         // Check if user is logged in
         if (!is_user_logged_in()) {
             wp_die(json_encode(array(
@@ -282,8 +410,10 @@ class VinaPet_Account_Ajax {
         }
 
         // Check if user can manage this order
-        if (function_exists('vinapet_user_can_manage_order') && 
-            !vinapet_user_can_manage_order($order_id, $user_id)) {
+        if (
+            function_exists('vinapet_user_can_manage_order') &&
+            !vinapet_user_can_manage_order($order_id, $user_id)
+        ) {
             wp_die(json_encode(array(
                 'success' => false,
                 'data' => 'Bạn không có quyền hủy đơn hàng này!'
@@ -291,7 +421,7 @@ class VinaPet_Account_Ajax {
         }
 
         // Cancel the order
-        $result = function_exists('vinapet_cancel_user_order') 
+        $result = function_exists('vinapet_cancel_user_order')
             ? vinapet_cancel_user_order($order_id, $user_id)
             : new WP_Error('function_not_found', 'Chức năng chưa được tích hợp');
 
@@ -311,7 +441,8 @@ class VinaPet_Account_Ajax {
     /**
      * Continue user order (redirect to checkout)
      */
-    public function continue_user_order() {
+    public function continue_user_order()
+    {
         // Check if user is logged in
         if (!is_user_logged_in()) {
             wp_die(json_encode(array(
@@ -336,7 +467,7 @@ class VinaPet_Account_Ajax {
         }
 
         // Get order data
-        $order = function_exists('vinapet_get_user_order_by_id') 
+        $order = function_exists('vinapet_get_user_order_by_id')
             ? vinapet_get_user_order_by_id($order_id, $user_id)
             : false;
 

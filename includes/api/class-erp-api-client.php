@@ -460,10 +460,10 @@ class ERP_API_Client
             return false;
         }
 
-        $endpoint = $this->get_endpoint('update_customer_vinapet');
-        $data = array_merge($update_data, array('email' => $email));
+        $endpoint = $this->get_endpoint('create_customer');
+        $data = array_merge($update_data, array(['email' => $email, 'name' => $email]));
 
-        $response = $this->make_request('PUT', $endpoint, $data);
+        $response = $this->make_request('POST', $endpoint, $data);
 
         if (!is_wp_error($response)) {
             $body = wp_remote_retrieve_body($response);
@@ -481,12 +481,7 @@ class ERP_API_Client
             }
         }
 
-        // Return placeholder for now (API not implemented)
-        return array(
-            'status' => 'success',
-            'name' => $email,
-            'message' => 'API chưa được triển khai'
-        );
+        return false;
     }
 
     /**

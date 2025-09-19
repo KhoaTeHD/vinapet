@@ -98,3 +98,20 @@
         });
     })(jQuery);
 
+jQuery(document).ready(function($) {
+    $('.size-option').on('click', function() {
+        var $tieredPricing = $(this).find('.tiered-pricing');
+        if ($tieredPricing.length) {
+            $tieredPricing.toggle();
+            // Ẩn các tiered pricing khác
+            $('.tiered-pricing').not($tieredPricing).hide();
+        }
+    });
+    
+    // Ẩn khi click bên ngoài
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.size-option').length) {
+            $('.tiered-pricing').hide();
+        }
+    });
+});

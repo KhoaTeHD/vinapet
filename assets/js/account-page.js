@@ -135,8 +135,8 @@
         display_name: $form.find("#display_name").val().trim(),
         user_phone: $form.find("#user_phone").val().trim(),
         user_email: $form.find("#user_email").val().trim(),
-        //user_address: $form.find("#user_address").val().trim(),
-        user_address: "ABCD",
+        user_address: $form.find("#user_address").val().trim(),
+        //user_address: "ABCDE",
       };
 
       $.ajax({
@@ -548,8 +548,9 @@ function wp_logout_url() {
 
     // Update address
     if (customer.address) {
-      const addressString = formatERPAddress(customer.address);
-      $("#user_address").val(addressString);
+      //const addressString = formatERPAddress(customer.address);
+      const addressString = customer.address;
+      //$("#user_address").val(addressString);
     }
   }
 

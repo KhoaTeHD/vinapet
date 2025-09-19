@@ -94,6 +94,16 @@ $current_user = wp_get_current_user();
                                                placeholder="lenguyen@gmail.com">
                                     </div>
 
+                                    <!-- THÊM FIELD ADDRESS -->
+                                    <div class="form-group">
+                                        <label for="user_address">Địa chỉ</label>
+                                        <textarea 
+                                               id="user_address" 
+                                               name="user_address" 
+                                               rows="3"
+                                               placeholder="Nhập địa chỉ đầy đủ"><?php echo esc_textarea(get_user_meta($current_user->ID, 'user_address', true)); ?></textarea>
+                                    </div>
+
                                     <div class="form-actions">
                                         <button type="submit" class="btn-save">
                                             <span class="btn-text">Lưu thay đổi</span>

@@ -42,7 +42,7 @@ class VinaPet_Account_Ajax
     }
 
     /**
-     * Update user profile information - WITH ROLLBACK SUPPORT
+     * Update user profile information - FIXED METADATA LOGIC
      */
     public function update_profile_info() {
         // Verify nonce
@@ -104,34 +104,66 @@ class VinaPet_Account_Ajax
         }
 
         // ============================================================================
+        // CHECK IF THERE ARE ANY CHANGES
+        // ============================================================================
+        
+        $has_changes = (
+            $display_name !== $backup_data['display_name'] ||
+            $user_email !== $backup_data['user_email'] ||
+            $user_phone !== $backup_data['phone'] ||
+            $user_address !== $backup_data['user_address']
+        );
+
+        if (!$has_changes) {
+            wp_send_json_success('Không có thay đổi nào để lưu.');
+            return;
+        }
+
+        // ============================================================================
         // STEP 1: UPDATE WORDPRESS FIRST (dễ rollback)
         // ============================================================================
         
         try {
             error_log('VinaPet: Starting WordPress update for user ' . $current_user_id);
 
-            // Update user data
-            $user_data = array(
-                'ID' => $current_user_id,
-                'display_name' => $display_name,
-                'user_email' => $user_email
-            );
+            $wp_update_success = true;
+            $wp_errors = array();
 
-            $user_update_result = wp_update_user($user_data);
+            // Update user data only if changed
+            if ($display_name !== $backup_data['display_name'] || $user_email !== $backup_data['user_email']) {
+                $user_data = array(
+                    'ID' => $current_user_id,
+                    'display_name' => $display_name,
+                    'user_email' => $user_email
+                );
 
-            if (is_wp_error($user_update_result)) {
-                throw new Exception('WordPress user update failed: ' . $user_update_result->get_error_message());
+                $user_update_result = wp_update_user($user_data);
+
+                if (is_wp_error($user_update_result)) {
+                    $wp_errors[] = 'Cập nhật thông tin cơ bản: ' . $user_update_result->get_error_message();
+                    $wp_update_success = false;
+                }
             }
 
-            // Update user meta
-            $phone_update = update_user_meta($current_user_id, 'phone', $user_phone);
-            $address_update = true;
-            if (!empty($user_address)) {
-                $address_update = update_user_meta($current_user_id, 'user_address', $user_address);
+            // Update phone meta only if changed
+            if ($user_phone !== $backup_data['phone']) {
+                $phone_result = update_user_meta($current_user_id, 'phone', $user_phone);
+                // Note: update_user_meta returns false if no change, but that's not an error
+                // We only care if it returns WP_Error or throws exception
             }
 
-            if ($phone_update === false || $address_update === false) {
-                throw new Exception('Failed to update user meta data');
+            // Update address meta only if changed
+            if ($user_address !== $backup_data['user_address']) {
+                if (!empty($user_address)) {
+                    $address_result = update_user_meta($current_user_id, 'user_address', $user_address);
+                } else {
+                    // If address is empty, delete the meta
+                    delete_user_meta($current_user_id, 'user_address');
+                }
+            }
+
+            if (!$wp_update_success) {
+                throw new Exception('WordPress update errors: ' . implode('; ', $wp_errors));
             }
 
             error_log('VinaPet: WordPress update successful for user ' . $current_user_id);
@@ -162,10 +194,14 @@ class VinaPet_Account_Ajax
             $erp_result = $erp_api->update_customer_vinapet($erp_customer_data);
             
             if (!$erp_result || $erp_result['status'] !== 'success') {
-                throw new Exception('ERP update failed: ' . ($erp_result['message'] ?? 'Unknown error'));
+                $erp_error_msg = 'Unknown ERP error';
+                if (is_array($erp_result) && !empty($erp_result['message'])) {
+                    $erp_error_msg = $erp_result['message'];
+                }
+                throw new Exception('ERP update failed: ' . $erp_error_msg);
             }
 
-            // Update ERP sync timestamp
+            // Update ERP sync timestamp only on success
             update_user_meta($current_user_id, 'erpnext_last_sync', current_time('mysql'));
 
             error_log('VinaPet: ERP update successful for user ' . $current_user_id);
@@ -186,28 +222,52 @@ class VinaPet_Account_Ajax
             error_log('VinaPet: Starting rollback for user ' . $current_user_id);
             
             try {
-                // Rollback user data
-                $rollback_user_data = array(
-                    'ID' => $current_user_id,
-                    'display_name' => $backup_data['display_name'],
-                    'user_email' => $backup_data['user_email']
-                );
+                $rollback_success = true;
+                $rollback_errors = array();
 
-                $rollback_result = wp_update_user($rollback_user_data);
-                
-                if (is_wp_error($rollback_result)) {
-                    throw new Exception('Rollback user data failed: ' . $rollback_result->get_error_message());
+                // Rollback user data only if it was changed
+                if ($display_name !== $backup_data['display_name'] || $user_email !== $backup_data['user_email']) {
+                    $rollback_user_data = array(
+                        'ID' => $current_user_id,
+                        'display_name' => $backup_data['display_name'],
+                        'user_email' => $backup_data['user_email']
+                    );
+
+                    $rollback_result = wp_update_user($rollback_user_data);
+                    
+                    if (is_wp_error($rollback_result)) {
+                        $rollback_errors[] = 'User data rollback: ' . $rollback_result->get_error_message();
+                        $rollback_success = false;
+                    }
                 }
 
-                // Rollback user meta
-                update_user_meta($current_user_id, 'phone', $backup_data['phone']);
-                update_user_meta($current_user_id, 'user_address', $backup_data['user_address']);
+                // Rollback phone meta only if it was changed
+                if ($user_phone !== $backup_data['phone']) {
+                    if (!empty($backup_data['phone'])) {
+                        update_user_meta($current_user_id, 'phone', $backup_data['phone']);
+                    } else {
+                        delete_user_meta($current_user_id, 'phone');
+                    }
+                }
+
+                // Rollback address meta only if it was changed
+                if ($user_address !== $backup_data['user_address']) {
+                    if (!empty($backup_data['user_address'])) {
+                        update_user_meta($current_user_id, 'user_address', $backup_data['user_address']);
+                    } else {
+                        delete_user_meta($current_user_id, 'user_address');
+                    }
+                }
                 
                 // Restore last sync time
                 if ($backup_data['last_sync']) {
                     update_user_meta($current_user_id, 'erpnext_last_sync', $backup_data['last_sync']);
                 } else {
                     delete_user_meta($current_user_id, 'erpnext_last_sync');
+                }
+
+                if (!$rollback_success) {
+                    throw new Exception('Rollback errors: ' . implode('; ', $rollback_errors));
                 }
 
                 error_log('VinaPet: Rollback successful for user ' . $current_user_id);

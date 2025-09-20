@@ -874,3 +874,36 @@ function vinapet_erp_cleanup() {
     }
 }
 add_action('switch_theme', 'vinapet_erp_cleanup');
+
+
+// Include Session Handler
+if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-simple-session-handler.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/helpers/class-simple-session-handler.php';
+}
+
+/**
+ * AJAX: Lưu order data vào session
+ */
+function vinapet_store_order_session() {
+    check_ajax_referer('vinapet_nonce', 'nonce');
+    
+    $product_code = sanitize_text_field($_POST['product_code'] ?? '');
+    $variant = sanitize_text_field($_POST['variant'] ?? '');
+    
+    if (empty($product_code)) {
+        wp_send_json_error('Mã sản phẩm không hợp lệ');
+    }
+    
+    $session = VinaPet_Simple_Session::get_instance();
+    
+    if ($session->store_order($product_code, $variant)) {
+        wp_send_json_success(array(
+            'redirect_url' => home_url('/dat-hang')
+        ));
+    } else {
+        wp_send_json_error('Không thể lưu dữ liệu');
+    }
+}
+
+add_action('wp_ajax_vinapet_store_order_session', 'vinapet_store_order_session');
+add_action('wp_ajax_nopriv_vinapet_store_order_session', 'vinapet_store_order_session');

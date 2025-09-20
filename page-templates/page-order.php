@@ -6,13 +6,33 @@
 
 get_header();
 
-// Lấy thông tin sản phẩm từ URL parameters
-$product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
-$selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
+// Include session handler
+require_once get_template_directory() . '/includes/helpers/class-simple-session-handler.php';
+$session = VinaPet_Simple_Session::get_instance();
 
-if (empty($product_code)) {
-    wp_redirect(home_url('/san-pham'));
-    exit;
+// Lấy dữ liệu từ session 
+$order_data = $session->get_order();
+
+
+// Nếu không có session, fallback sang URL params
+if (!$order_data) {
+    $product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
+    $selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
+    
+    if (empty($product_code)) {
+        wp_redirect(home_url('/san-pham'));
+        exit;
+    }
+    
+    // Tạo order_data từ URL params để compatibility
+    $order_data = array(
+        'product_code' => strtoupper($product_code),
+        'variant' => $selected_variant
+    );
+} else {
+    // Dùng data từ session
+    $product_code = $order_data['product_code'];
+    $selected_variant = $order_data['variant'] ?? '';
 }
 
 $product_code = strtoupper($product_code);

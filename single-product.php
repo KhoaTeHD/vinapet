@@ -345,14 +345,16 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 
             <!-- Product Actions -->
             <div class="product-actions">
-                <button class="primary-button add-to-cart-btn">
+                <button class="primary-button" id="order-now-btn" data-product="<?php echo esc_attr($product_code); ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                     </svg>
-                    Đặt hàng
+                    <span class="btn-text">Đặt hàng</span>
+                    <span class="btn-loading" style="display: none;">Đang xử lý...</span>
                 </button>
+
                 <button class="secondary-button mix-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -422,24 +424,52 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 <script>
     jQuery(document).ready(function($) {
         // Cập nhật nút đặt hàng
-        $('.add-to-cart-btn').on('click', function(e) {
+        $('#order-now-btn').off('click').on('click', function(e) {
             e.preventDefault();
-            redirectToOrderPage();
+
+            const $btn = $(this);
+            const $btnText = $btn.find('.btn-text');
+            const $btnLoading = $btn.find('.btn-loading');
+            const productCode = $btn.data('product');
+
+            // Lấy variant được chọn
+            const selectedVariant = $('.variant-option.selected').data('variant') || '';
+
+            // Hiển thị loading
+            $btn.prop('disabled', true);
+            $btnText.hide();
+            $btnLoading.show();
+
+            // Gửi AJAX
+            $.ajax({
+                url: vinapet_data.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'vinapet_store_order_session',
+                    product_code: productCode,
+                    variant: selectedVariant,
+                    nonce: vinapet_data.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.data.redirect_url;
+                    } else {
+                        alert('Lỗi: ' + response.data);
+                        resetButton();
+                    }
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    resetButton();
+                }
+            });
+
+            function resetButton() {
+                $btn.prop('disabled', false);
+                $btnLoading.hide();
+                $btnText.show();
+            }
         });
-
-        function redirectToOrderPage() {
-            // Lấy variant được chọn từ data-variant attribute
-            var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
-
-            // Lấy product code
-            var productCode = '<?php echo $product_code; ?>';
-
-            // Redirect với parameters
-            var orderUrl = '<?php echo home_url("/dat-hang"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
-
-            console.log('Redirecting to:', orderUrl);
-            window.location.href = orderUrl;
-        }
 
         // Cập nhật nút mix với hạt khác
         $('.mix-button').on('click', function(e) {

@@ -252,6 +252,110 @@ if (!defined('ABSPATH')) {
                         <a href="#" class="switch-link" id="switchToLogin">Đăng nhập ngay!</a>
                     </div>
                 </form>
+
+                <!-- Google Register Form (Hidden by default) -->
+                <form class="auth-form" id="googleRegisterForm" style="display: none;">
+                    <?php wp_nonce_field('vinapet_register_action', 'vinapet_google_register_nonce'); ?>
+
+                    <div class="register-notice">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0172CB" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                        <span>Hoàn tất thông tin để tạo tài khoản với Google</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="googleRegisterName">Họ và tên</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="googleRegisterName"
+                            name="user_name"
+                            placeholder="Nhập họ và tên"
+                            required
+                            autocomplete="name"
+                            aria-describedby="googleRegisterNameError">
+                        <div class="error-message" id="googleRegisterNameError" role="alert">
+                            ⚠ Vui lòng nhập họ và tên
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="googleRegisterAddress">Địa chỉ</label>
+                        <textarea
+                            class="form-input"
+                            id="googleRegisterAddress"
+                            name="user_address"
+                            placeholder="Nhập địa chỉ đầy đủ"
+                            required
+                            autocomplete="street-address"
+                            aria-describedby="googleRegisterAddressError"
+                            rows="3"
+                            style="resize: vertical; min-height: 80px;"></textarea>
+                        <div class="error-message" id="googleRegisterAddressError" role="alert">
+                            ⚠ Vui lòng nhập địa chỉ
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="googleRegisterEmail">Email</label>
+                        <input
+                            type="email"
+                            class="form-input"
+                            id="googleRegisterEmail"
+                            name="user_email"
+                            placeholder="Email từ Google"
+                            required
+                            disabled
+                            style="background-color: #f5f5f5; cursor: not-allowed;"
+                            aria-describedby="googleRegisterEmailError">
+                        <div class="error-message" id="googleRegisterEmailError" role="alert">
+                            ⚠ Email không hợp lệ
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="googleRegisterPhone">Số điện thoại</label>
+                        <input
+                            type="tel"
+                            class="form-input"
+                            id="googleRegisterPhone"
+                            name="user_phone"
+                            placeholder="Nhập số điện thoại"
+                            required
+                            autocomplete="tel"
+                            aria-describedby="googleRegisterPhoneError">
+                        <div class="error-message" id="googleRegisterPhoneError" role="alert">
+                            ⚠ Số điện thoại không hợp lệ
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox-input" id="googleAgreeTerms" name="agree_terms" required>
+                            <label class="checkbox-label" for="googleAgreeTerms">
+                                Tôi đồng ý với
+                                <a href="<?php echo home_url('/dieu-khoan-su-dung'); ?>" target="_blank" class="terms-link">Điều khoản sử dụng</a>
+                                và
+                                <a href="<?php echo home_url('/chinh-sach-bao-mat'); ?>" target="_blank" class="terms-link">Chính sách bảo mật</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="googleRegisterSubmit">
+                        <span class="btn-text">Hoàn tất đăng ký</span>
+                        <div class="btn-loading" style="display: none;">
+                            <div class="spinner"></div>
+                            <span>Đang xử lý...</span>
+                        </div>
+                    </button>
+
+                    <div class="auth-switch">
+                        <span>Đã có tài khoản?</span>
+                        <a href="#" class="switch-link" id="switchToLogin">Đăng nhập ngay!</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

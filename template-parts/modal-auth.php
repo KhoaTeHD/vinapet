@@ -253,7 +253,7 @@ if (!defined('ABSPATH')) {
                     </div>
                 </form>
 
-                <!-- Google Register Form (Hidden by default) -->
+                <!-- Google Register Form -->
                 <form class="auth-form" id="googleRegisterForm" style="display: none;">
                     <?php wp_nonce_field('vinapet_register_action', 'vinapet_google_register_nonce'); ?>
 

@@ -33,10 +33,47 @@
     bindSocialLoginEvents();
     setupAccessibility();
 
+    // THÊM MESSAGE LISTENER VÀO ĐÂY
+    bindPopupMessageListener();
+
     // Auto-redirect logged users
     if (vinapet_auth_data.is_user_logged_in) {
       handleLoggedInUser();
     }
+  }
+
+  function bindPopupMessageListener() {
+    // Listen for messages from Google OAuth popup
+    window.addEventListener("message", function (event) {
+
+      // Kiểm tra message type
+      if (event.data && event.data.type === "google_register_required") {
+        console.log(
+          "✅ Received Google register required message:",
+          event.data
+        );
+
+        // Đóng popup nếu còn reference
+        if (socialLoginWindow && !socialLoginWindow.closed) {
+          socialLoginWindow.close();
+          socialLoginWindow = null;
+          console.log("✅ Popup closed");
+        }
+
+        // Mở modal Google register với data từ popup
+        setTimeout(function () {
+          console.log("✅ Opening modal...");
+          openAuthModal(); // BÂY GIỜ FUNCTION NÀY CÓ THỂ ACCESS ĐƯỢC
+          setTimeout(function () {
+            console.log("✅ Switching to Google register form...");
+            switchToGoogleRegister(event.data.email, event.data.name);
+          }, 300);
+        }, 500);
+      } else {
+        //console.log("❌ Message type not recognized or missing");
+      }
+    });
+
   }
 
   function bindModalEvents() {
@@ -260,10 +297,10 @@
     currentForm = "google_register";
     $("#loginForm, #registerForm").hide();
     $("#googleRegisterForm").show().addClass("fade-in");
-    $("#modalTitle").text("Hoàn tất thông tin");
+    $("#modalTitle").text("Đăng ký tài khoản");
     $(".modal-subtitle").text("Tạo tài khoản với Google");
 
-    // Pre-fill email and name
+    // Pre-fill email và name
     $("#googleRegisterEmail").val(email);
     if (name) {
       $("#googleRegisterName").val(name);

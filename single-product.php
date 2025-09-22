@@ -194,6 +194,7 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
             </div>
 
             <!-- Product Description -->
+            <!-- Product Description -->
             <div class="product-description-section">
                 <h2 class="section-title">Mô tả</h2>
                 <div class="product-description-content">

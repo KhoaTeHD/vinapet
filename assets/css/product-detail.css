@@ -337,6 +337,8 @@
 .product-description-content {
     color: var(--text-secondary);
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-description-content p {
@@ -755,4 +757,19 @@
 .tier-price {
     font-weight: bold;
     color: #333;
+}
+
+/* Thêm style cho nút read more  */
+.product-description-content .read-more-btn {
+    background: none;
+    border: none;
+    color: #19457B;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: inherit;
+    padding-left: 0px;
+}
+
+.product-description-content .read-more-btn:hover {
+    color: #0FBAB3;
 }

@@ -7,11 +7,11 @@
 get_header();
 
 // Include session handler
-require_once get_template_directory() . '/includes/helpers/class-simple-session-handler.php';
-$session = VinaPet_Simple_Session::get_instance();
+//require_once get_template_directory() . '/includes/helpers/class-simple-session-handler.php';
+//$session = VinaPet_Simple_Session::get_instance();
 
 // Lấy dữ liệu từ session 
-$order_data = $session->get_order();
+//$order_data = $session->get_order();
 
 
 // Nếu không có session, fallback sang URL params

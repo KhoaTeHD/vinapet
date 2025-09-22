@@ -115,3 +115,39 @@ jQuery(document).ready(function($) {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Sử dụng class có sẵn từ CSS
+    const description = document.querySelector('.product-description-content');
+    
+    if (!description) return;
+    
+    const fullText = description.textContent;
+    const limit = 200;
+    
+    if (fullText.length > limit) {
+        const shortText = fullText.substring(0, limit);
+        
+        description.innerHTML = `
+            <span class="short-text">${shortText}...</span>
+            <span class="full-text" style="display:none;">${fullText}</span>
+            <button class="read-more-btn">Đọc thêm</button>
+        `;
+        
+        const btn = description.querySelector('.read-more-btn');
+        const short = description.querySelector('.short-text');
+        const full = description.querySelector('.full-text');
+        
+        btn.addEventListener('click', function() {
+            if (full.style.display === 'none') {
+                short.style.display = 'none';
+                full.style.display = 'inline';
+                btn.textContent = 'Thu gọn';
+            } else {
+                short.style.display = 'inline';
+                full.style.display = 'none';
+                btn.textContent = 'Đọc thêm';
+            }
+        });
+    }
+});

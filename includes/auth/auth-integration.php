@@ -173,34 +173,54 @@ class VinaPet_Auth_Integration
 
     /**
      * Intercept Google registration để chuyển sang modal
+     * 
+     * Hook signature: nsl_register_new_user($user_id, $provider_object)
+     * NOT: nsl_register_new_user($provider, $email, $user_data)
      */
-    public function intercept_google_registration($provider, $email, $user_data)
+    public function intercept_google_registration($user_id, $provider_object)
     {
-        if ($provider !== 'google') {
+        // Kiểm tra provider
+        if (!is_object($provider_object) || $provider_object->getId() !== 'google') {
             return;
         }
 
-        // Check if user already exists
-        $existing_user = get_user_by('email', $email);
-        if ($existing_user) {
-            return; // Let Nextend handle existing user login
+        // Lấy thông tin user vừa được tạo 
+        $user = get_user_by('ID', $user_id);
+        if (!$user) {
+            return;
         }
 
-        // Prevent auto registration
-        if (!isset($_GET['google_manual_register'])) {
-            // Store user data in session for later use
+        // Kiểm tra có phải manual register không
+        if (isset($_GET['google_manual_register'])) {
+            return; // Để Nextend xử lý bình thường
+        }
+
+        // Kiểm tra user có meta đặc biệt không (từ form register)
+        $has_custom_data = get_user_meta($user_id, 'custom_google_register', true);
+        if ($has_custom_data) {
+            return; // Đây là user từ custom form, không cần intercept
+        }
+
+        // Đây là auto-registration từ Nextend → chúng ta muốn chặn và show modal
+
+        // Lưu thông tin user
+        if (!session_id()) {
             session_start();
-            $_SESSION['google_pending_user'] = array(
-                'email' => $email,
-                'name' => isset($user_data['display_name']) ? $user_data['display_name'] : '',
-                'avatar' => isset($user_data['avatar']) ? $user_data['avatar'] : '',
-                'google_id' => isset($user_data['id']) ? $user_data['id'] : ''
-            );
-
-            // Redirect to trigger modal
-            wp_safe_redirect(add_query_arg('show_google_register', '1', home_url()));
-            exit;
         }
+
+        $_SESSION['google_pending_user'] = array(
+            'email' => $user->user_email,
+            'name' => $user->display_name,
+            'google_id' => $provider_object->getAuthUserId(),
+            'temp_user_id' => $user_id // Lưu để xóa sau
+        );
+
+        // XÓA user vừa tạo (vì chúng ta muốn tạo lại với đầy đủ thông tin)
+        wp_delete_user($user_id);
+
+        // Redirect to show modal
+        wp_safe_redirect(add_query_arg('show_google_register', '1', home_url()));
+        exit;
     }
 
 
@@ -359,96 +379,97 @@ class VinaPet_Auth_Integration
     public function handle_ajax_google_register()
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'vinapet_register_action')) {
-            wp_send_json_error(array('message' => 'Security check failed'));
-        }
+    if (!wp_verify_nonce($_POST['nonce'], 'vinapet_register_action')) {
+        wp_send_json_error(array('message' => 'Security check failed'));
+    }
 
+    if (!session_id()) {
         session_start();
-        $google_data = isset($_SESSION['google_pending_user']) ? $_SESSION['google_pending_user'] : null;
+    }
+    
+    $google_data = isset($_SESSION['google_pending_user']) ? $_SESSION['google_pending_user'] : null;
 
-        if (!$google_data) {
-            wp_send_json_error(array('message' => 'Phiên Google đã hết hạn. Vui lòng thử lại.'));
-        }
+    if (!$google_data) {
+        wp_send_json_error(array('message' => 'Phiên Google đã hết hạn. Vui lòng thử lại.'));
+    }
 
-        // Validate form data
-        $user_name = sanitize_text_field($_POST['user_name']);
-        $user_address = sanitize_textarea_field($_POST['user_address']);
-        $user_email = sanitize_email($_POST['user_email']);
-        $user_phone = sanitize_text_field($_POST['user_phone']);
-        $agree_terms = isset($_POST['agree_terms']) && $_POST['agree_terms'] === 'true';
+    // Validate form data
+    $user_name = sanitize_text_field($_POST['user_name']);
+    $user_address = sanitize_textarea_field($_POST['user_address']);
+    $user_email = sanitize_email($_POST['user_email']);
+    $user_phone = sanitize_text_field($_POST['user_phone']);
+    $agree_terms = isset($_POST['agree_terms']) && $_POST['agree_terms'] === 'true';
 
-        // Validation
-        if (empty($user_name) || empty($user_address) || empty($user_phone)) {
-            wp_send_json_error(array('message' => 'Vui lòng điền đầy đủ thông tin'));
-        }
+    // Validation
+    if (empty($user_name) || empty($user_address) || empty($user_phone)) {
+        wp_send_json_error(array('message' => 'Vui lòng điền đầy đủ thông tin'));
+    }
 
-        if (!$agree_terms) {
-            wp_send_json_error(array('message' => 'Vui lòng đồng ý với điều khoản sử dụng'));
-        }
+    if (!$agree_terms) {
+        wp_send_json_error(array('message' => 'Vui lòng đồng ý với điều khoản sử dụng'));
+    }
 
-        if ($user_email !== $google_data['email']) {
-            wp_send_json_error(array('message' => 'Email không khớp với tài khoản Google'));
-        }
+    if ($user_email !== $google_data['email']) {
+        wp_send_json_error(array('message' => 'Email không khớp với tài khoản Google'));
+    }
 
-        // Check if email already exists (double check)
-        if (email_exists($user_email)) {
-            wp_send_json_error(array('message' => 'Email đã được sử dụng'));
-        }
+    // Check if email already exists (double check)
+    if (email_exists($user_email)) {
+        wp_send_json_error(array('message' => 'Email đã được sử dụng'));
+    }
 
-        // Create user
-        $user_data = array(
-            'user_login' => $user_email,
-            'user_email' => $user_email,
-            'user_pass' => wp_generate_password(12, false), // Random password
-            'display_name' => $user_name,
-            'first_name' => $user_name,
-            'role' => 'customer'
+    // Create user với thông tin đầy đủ
+    $user_data = array(
+        'user_login' => $user_email,
+        'user_email' => $user_email,
+        'user_pass' => wp_generate_password(12, false),
+        'display_name' => $user_name,
+        'first_name' => $user_name,
+        'role' => 'customer'
+    );
+
+    $user_id = wp_insert_user($user_data);
+
+    if (is_wp_error($user_id)) {
+        wp_send_json_error(array('message' => 'Không thể tạo tài khoản: ' . $user_id->get_error_message()));
+    }
+
+    // Add user meta
+    update_user_meta($user_id, 'billing_phone', $user_phone);
+    update_user_meta($user_id, 'billing_address_1', $user_address);
+    update_user_meta($user_id, 'user_phone', $user_phone);
+    update_user_meta($user_id, 'user_address', $user_address);
+    update_user_meta($user_id, 'google_registered', true);
+    update_user_meta($user_id, 'google_id', $google_data['google_id']);
+    update_user_meta($user_id, 'custom_google_register', true); // Flag đặc biệt
+
+    // Link với Nextend Social Login
+    if (class_exists('NextendSocialLogin')) {
+        global $wpdb;
+        $wpdb->insert(
+            $wpdb->prefix . 'nextend_social_login_users',
+            array(
+                'user_id' => $user_id,
+                'provider' => 'google',
+                'provider_id' => $google_data['google_id'],
+                'created' => current_time('mysql')
+            )
         );
+    }
 
-        $user_id = wp_insert_user($user_data);
+    // Auto login
+    wp_set_current_user($user_id);
+    wp_set_auth_cookie($user_id, true);
 
-        if (is_wp_error($user_id)) {
-            wp_send_json_error(array('message' => 'Không thể tạo tài khoản: ' . $user_id->get_error_message()));
-        }
+    // Clear session
+    unset($_SESSION['google_pending_user']);
 
-        // Add user meta
-        update_user_meta($user_id, 'billing_phone', $user_phone);
-        update_user_meta($user_id, 'billing_address_1', $user_address);
-        update_user_meta($user_id, 'user_phone', $user_phone);
-        update_user_meta($user_id, 'user_address', $user_address);
-        update_user_meta($user_id, 'google_registered', true);
-        update_user_meta($user_id, 'google_id', $google_data['google_id']);
-
-        // Link with Nextend Social Login
-        if (class_exists('NextendSocialLogin')) {
-            global $wpdb;
-            $wpdb->insert(
-                $wpdb->prefix . 'nextend_social_login_users',
-                array(
-                    'user_id' => $user_id,
-                    'provider' => 'google',
-                    'provider_id' => $google_data['google_id'],
-                    'created' => current_time('mysql')
-                )
-            );
-        }
-
-        // Sync to ERPNext
-        $this->sync_user_to_erpnext($user_id);
-
-        // Auto login
-        wp_set_current_user($user_id);
-        wp_set_auth_cookie($user_id, true);
-
-        // Clear session
-        unset($_SESSION['google_pending_user']);
-
-        // Success response
-        wp_send_json_success(array(
-            'message' => 'Đăng ký thành công',
-            'redirect_url' => home_url('/tai-khoan'),
-            'user_id' => $user_id
-        ));
+    // Success response
+    wp_send_json_success(array(
+        'message' => 'Đăng ký thành công',
+        'redirect_url' => home_url('/tai-khoan'),
+        'user_id' => $user_id
+    ));
     }
 
     /**

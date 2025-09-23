@@ -55,6 +55,7 @@
         updateMixSliders();
         showFooterSummary();
         $(".secondary-product").addClass("has-selection");
+        $("#mixsuggest-container-2").slideUp();  
       } else {
         resetProduct2();
       }
@@ -179,6 +180,8 @@
       $("#dropdown-container-2").removeClass("selected");
       $(".secondary-product").removeClass("has-selection");
       $(".progress-section").removeClass("show");
+      $("#mixsuggest-container-2").slideDown(300);
+		  $("#mixsuggest-container-3").slideDown(300);
 
       mixData.product1.percentage = 100;
       updateMixSliders();
@@ -526,7 +529,7 @@
           $(this),
           'Qua bước tiếp theo <span class="arrow-icon">→</span>'
         );
-        window.location.href = "/checkout";
+        window.location.href = "/vinapet/checkout";
       }, 1500);
     });
 

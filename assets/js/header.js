@@ -300,6 +300,115 @@ if (typeof showNotification === 'undefined') {
 }
 
 /**
- * VinaPet Header Mobile/Tablet JavaScript
- * Xử lý responsive header cho mobile và tablet
+ * Header Dropdown Functionality
+ * Xử lý dropdown menu cho cả desktop và mobile
  */
+
+document.addEventListener('DOMContentLoaded', function() {
+    initDropdownMenu();
+});
+
+function initDropdownMenu() {
+    // Xử lý mobile dropdown toggle
+    const mobileDropdownToggles = document.querySelectorAll('.mobile-dropdown-toggle');
+    
+    mobileDropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            // Chỉ ngăn chặn default nếu có submenu
+            const parent = this.closest('.mobile-menu-item-has-children');
+            const submenu = parent.querySelector('.mobile-submenu');
+            
+            if (submenu) {
+                e.preventDefault();
+                toggleMobileSubmenu(parent);
+            }
+        });
+    });
+    
+    // Đóng dropdown khi click outside (desktop)
+    document.addEventListener('click', function(e) {
+        const dropdownParents = document.querySelectorAll('.menu-item-has-children');
+        dropdownParents.forEach(parent => {
+            if (!parent.contains(e.target)) {
+                const dropdown = parent.querySelector('.dropdown-menu');
+                if (dropdown) {
+                    dropdown.style.opacity = '0';
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.transform = 'translateY(-10px)';
+                }
+            }
+        });
+    });
+    
+    // Touch support cho mobile
+    handleTouchEvents();
+}
+
+function toggleMobileSubmenu(parent) {
+    const isActive = parent.classList.contains('active');
+    
+    // Đóng tất cả submenu khác
+    const allMobileParents = document.querySelectorAll('.mobile-menu-item-has-children');
+    allMobileParents.forEach(item => {
+        if (item !== parent) {
+            item.classList.remove('active');
+        }
+    });
+    
+    // Toggle submenu hiện tại
+    if (isActive) {
+        parent.classList.remove('active');
+    } else {
+        parent.classList.add('active');
+    }
+}
+
+function handleTouchEvents() {
+    // Xử lý touch events cho mobile để cải thiện UX
+    const dropdownParents = document.querySelectorAll('.menu-item-has-children');
+    
+    dropdownParents.forEach(parent => {
+        let touchStartY = 0;
+        
+        parent.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        parent.addEventListener('touchend', function(e) {
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchDiff = touchStartY - touchEndY;
+            
+            // Nếu swipe xuống nhẹ, mở dropdown
+            if (touchDiff < -10) {
+                const dropdown = this.querySelector('.dropdown-menu');
+                if (dropdown && window.innerWidth > 768) {
+                    dropdown.style.opacity = '1';
+                    dropdown.style.visibility = 'visible';
+                    dropdown.style.transform = 'translateY(0)';
+                }
+            }
+        });
+    });
+}
+
+// Utility function để check mobile
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
+// Xử lý resize window
+window.addEventListener('resize', function() {
+    // Đóng tất cả dropdown khi resize
+    const allDropdowns = document.querySelectorAll('.dropdown-menu');
+    const allMobileParents = document.querySelectorAll('.mobile-menu-item-has-children');
+    
+    allDropdowns.forEach(dropdown => {
+        dropdown.style.opacity = '0';
+        dropdown.style.visibility = 'hidden';
+        dropdown.style.transform = 'translateY(-10px)';
+    });
+    
+    allMobileParents.forEach(parent => {
+        parent.classList.remove('active');
+    });
+});

@@ -70,7 +70,6 @@
           }, 300);
         }, 500);
       } else {
-        //console.log("❌ Message type not recognized or missing");
       }
     });
 

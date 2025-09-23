@@ -94,7 +94,16 @@
         echo '<ul class="nav-list">';
         echo '<li><a href="' . home_url() . '">Trang chủ</a></li>';
         echo '<li><a href="' . home_url('/san-pham') . '">Sản phẩm</a></li>';
-        echo '<li><a href="' . home_url('/gioi-thieu') . '">Giới thiệu</a></li>';
+
+        // Menu Giới thiệu với dropdown
+        echo '<li class="menu-item-has-children has-dropdown">';
+        echo '<a href="' . home_url('/gioi-thieu') . '">Giới thiệu <span class="dropdown-arrow">▼</span></a>';
+        echo '<ul class="dropdown-menu">';
+        echo '<li><a href="' . home_url('/gioi-thieu-cong-ty') . '">Giới thiệu về công ty</a></li>';
+        echo '<li><a href="' . home_url('/gioi-thieu-nha-may') . '">Giới thiệu về nhà máy</a></li>';
+        echo '</ul>';
+        echo '</li>';
+
         echo '<li><a href="' . home_url('/tin-tuc') . '">Tin tức</a></li>';
         echo '<li><a href="' . home_url('/faq') . '">FAQ & Hướng dẫn</a></li>';
         echo '<li><a href="' . home_url('/lien-he') . '">Liên hệ</a></li>';
@@ -105,7 +114,16 @@
     {
         echo '<ul class="mobile-nav-list">';
         echo '<li><a href="' . home_url('/san-pham') . '">Sản phẩm</a></li>';
-        echo '<li><a href="' . home_url('/gioi-thieu') . '">Giới thiệu</a></li>';
+
+        // Mobile menu với accordion cho Giới thiệu
+        echo '<li class="mobile-menu-item-has-children">';
+        echo '<a href="' . home_url('/gioi-thieu') . '" class="mobile-dropdown-toggle">Giới thiệu <span class="mobile-arrow">+</span></a>';
+        echo '<ul class="mobile-submenu">';
+        echo '<li><a href="' . home_url('/gioi-thieu/cong-ty') . '">Giới thiệu về công ty</a></li>';
+        echo '<li><a href="' . home_url('/gioi-thieu/nha-may') . '">Giới thiệu về nhà máy</a></li>';
+        echo '</ul>';
+        echo '</li>';
+
         echo '<li><a href="' . home_url('/tin-tuc') . '">Tin tức</a></li>';
         echo '<li><a href="' . home_url('/faq') . '">FAQ & Hướng dẫn</a></li>';
         echo '<li><a href="' . home_url('/lien-he') . '">Liên hệ</a></li>';
@@ -168,10 +186,10 @@
                 // Menu item bình thường
                 $output .= $indent . '<li' . $id . $class_names . '>';
 
-                $attributes = ! empty($item->attr_title) ? ' title="'  . esc_attr($item->attr_title) .'"' : '';
-                $attributes .= ! empty($item->target)     ? ' target="' . esc_attr($item->target     ) .'"' : '';
-                $attributes .= ! empty($item->xfn)        ? ' rel="'    . esc_attr($item->xfn        ) .'"' : '';
-                $attributes .= ! empty($item->url)        ? ' href="'   . esc_attr($item->url        ) .'"' : '';
+                $attributes = ! empty($item->attr_title) ? ' title="'  . esc_attr($item->attr_title) . '"' : '';
+                $attributes .= ! empty($item->target)     ? ' target="' . esc_attr($item->target) . '"' : '';
+                $attributes .= ! empty($item->xfn)        ? ' rel="'    . esc_attr($item->xfn) . '"' : '';
+                $attributes .= ! empty($item->url)        ? ' href="'   . esc_attr($item->url) . '"' : '';
 
                 $item_output = isset($args->before) ? $args->before : '';
                 $item_output .= '<a' . $attributes . '>';

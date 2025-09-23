@@ -73,13 +73,13 @@
     align-items: center;
     gap: 12px;
     padding: 16px 20px;
-    background: rgba(46, 134, 171, 0.1);
-    border: 1px solid rgba(46, 134, 171, 0.3);
-    border-radius: var(--border-radius);
-    color: var(--primary-color);
+    background: #F1F8FE;
+    border: 1px solid #0070B01A;
+    border-left: 3px solid #0172CB;    
+    border-radius: 3px;
     font-size: 16px;
     font-weight: 500;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
 }
 
 .mix-notice svg {
@@ -458,14 +458,16 @@
 .color-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
+    grid-auto-rows: fit-content;
 }
 
 .color-option {
+    max-width: 80px;
+    max-height: 80px;
     cursor: pointer;
     border: 2px dashed var(--border-color);
     border-radius: var(--border-radius);
-    padding: 12px;
+    padding: 30px 40px;
     text-align: center;
     transition: var(--transition);
     position: relative;
@@ -481,10 +483,17 @@
     background-color: rgba(46, 134, 171, 0.05);
 }
 
+.color-content{
+    display: flex;
+    width: 100%;
+    height: 80px;
+}
+
 .color-image-wrap {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    display: flex;
+    height: 100%;
+    width: 80%;
+    border-radius: 4px;
     overflow: hidden;
     margin: 0 auto 8px;
     border: 1px solid var(--border-color);
@@ -553,7 +562,6 @@
 .scent-name {
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-primary);
     flex: 1;
 }
 
@@ -605,7 +613,6 @@
 .quantity-label {
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-primary);
     flex: 1;
 }
 
@@ -674,13 +681,15 @@
 .packaging-name {
     font-size: 16px;
     font-weight: 600;
-    color: var(--text-primary);
 }
 
 .packaging-price {
     font-size: 14px;
     font-weight: 500;
-    color: var(--accent-color);
+}
+
+.gray-text{
+    color: #8C8A94;
 }
 
 /* Fixed Footer Summary - Giống Order Page HOÀN TOÀN */

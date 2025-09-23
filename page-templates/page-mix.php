@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template Name: Mix Products Page
  * Description: Trang mix với hạt khác
@@ -35,7 +36,7 @@ $all_products_response = $product_provider->get_products(['limit' => 100]);
 $all_products = isset($all_products_response['data']) ? $all_products_response['data'] : [];
 
 // Lọc bỏ sản phẩm chính khỏi danh sách
-$other_products = array_filter($all_products, function($product) use ($main_product_code) {
+$other_products = array_filter($all_products, function ($product) use ($main_product_code) {
     return $product['item_code'] !== $main_product_code;
 });
 
@@ -58,7 +59,7 @@ $product_sizes = [
 // Color options - match design with square colors
 $color_options = [
     ['id' => 'xanh_non', 'name' => 'Màu xanh non', 'color' => '#8BC34A'],
-    ['id' => 'hong_nhat', 'name' => 'Màu hồng nhạt', 'color' => '#FFB6C1'], 
+    ['id' => 'hong_nhat', 'name' => 'Màu hồng nhạt', 'color' => '#FFB6C1'],
     ['id' => 'vang_dat', 'name' => 'Màu vàng đất', 'color' => '#DAA520'],
     ['id' => 'do_gach', 'name' => 'Màu đỏ gạch', 'color' => '#CD5C5C'],
     ['id' => 'be_nhat', 'name' => 'Màu be nhạt', 'color' => '#F5F5DC'],
@@ -103,16 +104,21 @@ $packaging_options = [
 <div class="container">
     <!-- Breadcrumb -->
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
-    
+
     <!-- Notice -->
     <div class="mix-notice">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 16v-4M12 8h.01"/>
+        <svg fill="#0172CB" width="18px" height="18px" viewBox="0 0 36 36" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+                <title>info-standard-solid</title>
+                <path class="clr-i-solid clr-i-solid-path-1" d="M18,2.1a16,16,0,1,0,16,16A16,16,0,0,0,18,2.1Zm-.1,5.28a2,2,0,1,1-2,2A2,2,0,0,1,17.9,7.38Zm3.6,21.25h-7a1.4,1.4,0,1,1,0-2.8h2.1v-9.2H15a1.4,1.4,0,1,1,0-2.8h4.4v12h2.1a1.4,1.4,0,1,1,0,2.8Z"></path>
+                <rect x="0" y="0" width="36" height="36" fill-opacity="0"></rect>
+            </g>
         </svg>
         Đặt hàng tùy chỉnh theo công thức riêng chỉ áp dụng cho đơn hàng trên 5 tấn
     </div>
-    
+
     <!-- Products Selection Section -->
     <div class="mix-products-section">
         <div class="products-row">
@@ -123,7 +129,7 @@ $packaging_options = [
                     <h3 class="product-title"><?php echo esc_html($main_product['item_name']); ?></h3>
                     <p class="product-description"><?php echo esc_html($main_product['description']); ?></p>
                 </div>
-                
+
                 <!-- Tiered Pricing -->
                 <div class="product-sizes">
                     <?php foreach ($product_sizes as $size) : ?>
@@ -133,7 +139,7 @@ $packaging_options = [
                         </div>
                     <?php endforeach; ?>
                 </div>
-                
+
                 <!-- Mix Percentage Control -->
                 <div class="progress-section">
                     <div class="progress-label">
@@ -148,7 +154,7 @@ $packaging_options = [
                     </div> -->
                 </div>
             </div>
-            
+
             <!-- Product 2 (Dropdown Selection) -->
             <div class="product-card secondary-product">
                 <div class="product-header">
@@ -160,9 +166,9 @@ $packaging_options = [
                         <select class="product-dropdown" id="second-product-select">
                             <option value="">Bấm vào để chọn sản phẩm</option>
                             <?php foreach ($other_products as $product): ?>
-                                <option value="<?php echo esc_attr($product['item_code']); ?>" 
-                                        data-name="<?php echo esc_attr($product['item_name']); ?>"
-                                        data-description="<?php echo esc_attr($product['description']); ?>">
+                                <option value="<?php echo esc_attr($product['item_code']); ?>"
+                                    data-name="<?php echo esc_attr($product['item_name']); ?>"
+                                    data-description="<?php echo esc_attr($product['description']); ?>">
                                     <?php echo esc_html($product['item_name']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -171,8 +177,17 @@ $packaging_options = [
                             <polyline points="6,9 12,15 18,9"></polyline>
                         </svg>
                     </div>
+                    <div style="
+                            margin-top: 16px;
+                            height: 47px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        " id="mixsuggest-container-2">
+                        <span style="color:#666471">Đề xuất</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-SET-001">Cát đất sét</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-TRAU-001">Cát vỏ trấu</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-NANH-001">Cát đậu nành</span>
+                    </div>
                 </div>
-                
+
                 <!-- Will be populated when product is selected -->
                 <div class="second-product-content" style="display: none;">
                     <div class="product-sizes">
@@ -184,7 +199,7 @@ $packaging_options = [
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <!-- Mix Percentage Control -->
                     <div class="progress-section">
                         <div class="progress-label">
@@ -200,10 +215,10 @@ $packaging_options = [
                     </div>
                 </div>
             </div>
-            
+
             <!-- Add Product Badge -->
             <div class="add-product-badge" id="add-product-badge">+</div>
-            
+
             <!-- Product 3 (Hidden initially) -->
             <div class="product-card third-product" id="third-product-card">
                 <button class="remove-product-btn" id="remove-product-3">×</button>
@@ -216,9 +231,9 @@ $packaging_options = [
                         <select class="product-dropdown" id="third-product-select">
                             <option value="">Bấm vào để chọn sản phẩm</option>
                             <?php foreach ($other_products as $product): ?>
-                                <option value="<?php echo esc_attr($product['item_code']); ?>" 
-                                        data-name="<?php echo esc_attr($product['item_name']); ?>"
-                                        data-description="<?php echo esc_attr($product['description']); ?>">
+                                <option value="<?php echo esc_attr($product['item_code']); ?>"
+                                    data-name="<?php echo esc_attr($product['item_name']); ?>"
+                                    data-description="<?php echo esc_attr($product['description']); ?>">
                                     <?php echo esc_html($product['item_name']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -228,7 +243,7 @@ $packaging_options = [
                         </svg>
                     </div>
                 </div>
-                
+
                 <!-- Will be populated when product is selected -->
                 <div class="third-product-content" style="display: none;">
                     <div class="product-sizes">
@@ -239,7 +254,7 @@ $packaging_options = [
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <!-- Mix Percentage Control -->
                     <div class="progress-section">
                         <div class="progress-label">
@@ -257,10 +272,10 @@ $packaging_options = [
             </div>
         </div>
     </div>
-    
+
     <!-- Options Section (Hidden initially) -->
     <div class="mix-options-section" id="mix-options" style="display: none;">
-        
+
         <!-- Color Selection - Giống SKU selection -->
         <div class="option-group">
             <h3 class="option-title">Chọn màu</h3>
@@ -270,15 +285,16 @@ $packaging_options = [
                         <div class="color-content">
                             <input type="radio" name="color" value="<?php echo esc_attr($color['id']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
                             <div class="color-image-wrap">
-                                <div style="width: 100%; height: 100%; background-color: <?php echo esc_attr($color['color']); ?>; border-radius: 50%;"></div>
+                                <div style="width: 100%; height: 100%; background-color: <?php echo esc_attr($color['color']); ?>; "></div>
                             </div>
-                            <div class="color-name"><?php echo esc_html($color['name']); ?></div>
+                            <!-- <div class="color-name"><?php //echo esc_html($color['name']); 
+                                                            ?></div> -->
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
-        
+
         <!-- Scent Selection -->
         <div class="option-group">
             <h3 class="option-title">Chọn mùi</h3>
@@ -291,7 +307,7 @@ $packaging_options = [
                 <?php endforeach; ?>
             </div>
         </div>
-        
+
         <!-- Quantity Selection -->
         <div class="option-group">
             <h3 class="option-title">Chọn số lượng</h3>
@@ -304,7 +320,7 @@ $packaging_options = [
                 <?php endforeach; ?>
             </div>
         </div>
-        
+
         <!-- Packaging Selection -->
         <div class="option-group">
             <h3 class="option-title">Chọn loại túi đóng gói</h3>
@@ -316,7 +332,7 @@ $packaging_options = [
                         <div class="packaging-content">
                             <div class="packaging-header">
                                 <span class="packaging-name"><?php echo esc_html($packaging['name']); ?></span>
-                                <span class="packaging-price"><?php echo esc_html($packaging['description']); ?></span>
+                                <span class="packaging-price <?php echo esc_html($packaging['description']) == 'Miễn phí' ? 'gray-text' : ''; ?>"><?php echo esc_html($packaging['description']); ?></span>
                             </div>
                         </div>
                     </label>
@@ -338,9 +354,9 @@ $packaging_options = [
                     Tổng số lượng: <span id="footer-total-quantity">10,000 kg</span>
                 </div>
             </div>
-            
+
             <div class="footer-divider"></div>
-            
+
             <div class="footer-info-group">
                 <div class="footer-top-row">
                     Báo giá dự kiến
@@ -353,7 +369,7 @@ $packaging_options = [
                 </div>
             </div>
         </div>
-        
+
         <div class="footer-right-section">
             <button type="button" class="next-step-btn" id="next-step-button">
                 Qua bước tiếp theo
@@ -362,5 +378,28 @@ $packaging_options = [
         </div>
     </div>
 </div>
+
+<script>
+    (function($) {
+        $(document).ready(function() {
+            $(".sugItems-2").each(function() {
+                $(this).click(function() {
+                    //console.log($("#second-product-select").find('option:eq('+$(this).attr("data-index")+')'));
+                    console.log($(this).attr("data-index"));
+                    $("#second-product-select").val($(this).attr("data-index"));
+                    $("#second-product-select").trigger("change");
+                });
+            });
+            $(".sugItems-3").each(function() {
+                $(this).click(function() {
+                    //console.log($("#second-product-select").find('option:eq('+$(this).attr("data-index")+')'));
+                    console.log($(this).attr("data-index"));
+                    $("#third-product-select").val($(this).attr("data-index"));
+                    $("#third-product-select").trigger("change");
+                });
+            });
+        });
+    })(jQuery);
+</script>
 
 <?php get_footer(); ?>

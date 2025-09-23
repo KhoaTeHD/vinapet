@@ -257,12 +257,34 @@ if (!defined('ABSPATH')) {
                 <form class="auth-form" id="googleRegisterForm" style="display: none;">
                     <?php wp_nonce_field('vinapet_register_action', 'vinapet_google_register_nonce'); ?>
 
+                    <div class="form-group">
+                        <label class="form-label google-label" for="googleRegisterEmail">Bạn đã đăng nhập bằng Google</label>
+                        <input
+                            type="email"
+                            class="form-input google-input"
+                            id="googleRegisterEmail"
+                            name="user_email"
+                            placeholder="Email từ Google"
+                            required
+                            disabled
+                            style="background-color: #f5f5f5; cursor: not-allowed;"
+                            aria-describedby="googleRegisterEmailError">
+                        <div class="error-message" id="googleRegisterEmailError" role="alert">
+                            ⚠ Email không hợp lệ
+                        </div>
+                    </div>
+
                     <div class="register-notice">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0172CB" stroke-width="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="m9 12 2 2 4-4" />
+                        <svg fill="#0172CB" width="18px" height="18px" viewBox="0 0 36 36" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <title>info-standard-solid</title>
+                                <path class="clr-i-solid clr-i-solid-path-1" d="M18,2.1a16,16,0,1,0,16,16A16,16,0,0,0,18,2.1Zm-.1,5.28a2,2,0,1,1-2,2A2,2,0,0,1,17.9,7.38Zm3.6,21.25h-7a1.4,1.4,0,1,1,0-2.8h2.1v-9.2H15a1.4,1.4,0,1,1,0-2.8h4.4v12h2.1a1.4,1.4,0,1,1,0,2.8Z"></path>
+                                <rect x="0" y="0" width="36" height="36" fill-opacity="0"></rect>
+                            </g>
                         </svg>
-                        <span>Hoàn tất thông tin để tạo tài khoản với Google</span>
+                        <span>Vui lòng điền các thông tin bên dưới để hoàn tất việc đăng ký</span>
                     </div>
 
                     <div class="form-group">
@@ -295,23 +317,6 @@ if (!defined('ABSPATH')) {
                             style="resize: vertical; min-height: 80px;"></textarea>
                         <div class="error-message" id="googleRegisterAddressError" role="alert">
                             ⚠ Vui lòng nhập địa chỉ
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="googleRegisterEmail">Email</label>
-                        <input
-                            type="email"
-                            class="form-input"
-                            id="googleRegisterEmail"
-                            name="user_email"
-                            placeholder="Email từ Google"
-                            required
-                            disabled
-                            style="background-color: #f5f5f5; cursor: not-allowed;"
-                            aria-describedby="googleRegisterEmailError">
-                        <div class="error-message" id="googleRegisterEmailError" role="alert">
-                            ⚠ Email không hợp lệ
                         </div>
                     </div>
 
@@ -350,11 +355,6 @@ if (!defined('ABSPATH')) {
                             <span>Đang xử lý...</span>
                         </div>
                     </button>
-
-                    <div class="auth-switch">
-                        <span>Đã có tài khoản?</span>
-                        <a href="#" class="switch-link" id="switchToLogin">Đăng nhập ngay!</a>
-                    </div>
                 </form>
             </div>
         </div>

@@ -272,9 +272,8 @@
          */
         function getShippingDisplayText(value) {
             const texts = {
-                'road_transport': 'Đường bộ',
-                'sea_transport': 'Đường biển', 
-                'air_transport': 'Đường hàng không'
+                'factory_support': 'Nhà máy hỗ trợ vận chuyển',
+                'self_pickup': 'Tự lấy hàng'
             };
             return texts[value] || value;
         }

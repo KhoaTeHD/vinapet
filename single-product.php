@@ -346,14 +346,14 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 
             <!-- Product Actions -->
             <div class="product-actions">
-                <button class="primary-button" id="order-now-btn" data-product="<?php echo esc_attr($product_code); ?>">
+                <button class="primary-button" id="vinapet-order-btn" data-product="<?php echo esc_attr($product_code); ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1" />
                         <circle cx="20" cy="21" r="1" />
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                     </svg>
                     <span class="btn-text">Đặt hàng</span>
-                    <span class="btn-loading" style="display: none;">Đang xử lý...</span>
+                    <span class="btn-loading" style="display:none;">Đang xử lý...</span>
                 </button>
 
                 <button class="secondary-button mix-button">
@@ -423,76 +423,72 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 </div>
 
 <script>
-    jQuery(document).ready(function($) {
-        // Cập nhật nút đặt hàng
-        $('#order-now-btn').off('click').on('click', function(e) {
-            e.preventDefault();
-
-            const $btn = $(this);
-            const $btnText = $btn.find('.btn-text');
-            const $btnLoading = $btn.find('.btn-loading');
-            const productCode = $btn.data('product');
-
-            // Lấy variant được chọn
-            const selectedVariant = $('.variant-option.selected').data('variant') || '';
-
-            // Hiển thị loading
-            $btn.prop('disabled', true);
-            $btnText.hide();
-            $btnLoading.show();
-
-            // Gửi AJAX
-            $.ajax({
-                url: vinapet_data.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'vinapet_store_order_session',
-                    product_code: productCode,
-                    variant: selectedVariant,
-                    nonce: vinapet_data.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        window.location.href = response.data.redirect_url;
+jQuery(document).ready(function($) {
+    // Check nếu vinapet_data tồn tại (từ functions.php hiện tại)
+    const ajaxData = typeof vinapet_data !== 'undefined' ? vinapet_data : 
+                     typeof vinapet_order_ajax !== 'undefined' ? vinapet_order_ajax : null;
+    
+    if (!ajaxData) {
+        console.error('VinaPet: AJAX data not found');
+        return;
+    }
+    
+    // Handler cho button đặt hàng (normal order)
+    $('#vinapet-order-btn').on('click', function(e) {
+        e.preventDefault();
+        processOrder($(this), 'normal');
+    });
+    
+    // Handler cho button mix (mix order)
+    $('.mix-button').on('click', function(e) {
+        e.preventDefault();
+        processOrder($(this), 'mix');
+    });
+    
+    function processOrder($btn, orderType) {
+        const productCode = $('#vinapet-order-btn').data('product');
+        const variant = $('.variant-option.selected').data('variant') || '';
+        
+        // Loading state
+        $btn.prop('disabled', true);
+        const originalHtml = $btn.html();
+        $btn.html('<span>Đang xử lý...</span>');
+        
+        $.ajax({
+            url: ajaxData.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'vinapet_store_order',
+                product_code: productCode,
+                variant: variant,
+                order_type: orderType,
+                nonce: ajaxData.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = response.data.redirect;
+                } else if (response.data.code === 'login_required') {
+                    // Mở popup login
+                    if (typeof VinaPetAuth === 'object' && typeof VinaPetAuth.open === 'function') {
+                        VinaPetAuth.open();
                     } else {
-                        alert('Lỗi: ' + response.data);
-                        resetButton();
+                        alert('Bạn cần đăng nhập để đặt hàng');
                     }
-                },
-                error: function() {
-                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
-                    resetButton();
+                } else {
+                    alert('Lỗi: ' + (response.data.message || 'Không thể xử lý'));
                 }
-            });
-
-            function resetButton() {
+            },
+            error: function() {
+                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            },
+            complete: function() {
+                // Reset button
                 $btn.prop('disabled', false);
-                $btnLoading.hide();
-                $btnText.show();
+                $btn.html(originalHtml);
             }
         });
-
-        // Cập nhật nút mix với hạt khác
-        $('.mix-button').on('click', function(e) {
-            e.preventDefault();
-            redirectToMixPage();
-        });
-
-        function redirectToMixPage() {
-            // Lấy variant được chọn từ data-variant attribute
-            var selectedVariant = $('.variant-option.selected').data('variant') || 'com';
-
-            // Lấy product code
-            var productCode = '<?php echo $product_code; ?>';
-
-            // Redirect với parameters
-            var mixUrl = '<?php echo home_url("/mix-voi-hat-khac"); ?>?product=' + encodeURIComponent(productCode) + '&variant=' + encodeURIComponent(selectedVariant);
-
-            console.log('Redirecting to:', mixUrl);
-            window.location.href = mixUrl;
-        }
-
-    });
+    }
+});
 </script>
 
 

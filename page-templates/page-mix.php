@@ -7,37 +7,55 @@
 
 get_header();
 
-// Lấy sản phẩm chính từ URL parameters
-$main_product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
-$selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
+// Lấy dữ liệu từ session trước
+$session = VinaPet_Order_Session::get_instance();
+$session_data = $session->get();
 
-if (empty($main_product_code)) {
-    wp_redirect(home_url('/san-pham'));
-    exit;
+if ($session_data) {
+    // Dùng session data
+    $main_product_code = $session_data['product_code'];
+    $selected_variant = $session_data['variant'];
+    $order_type = $session_data['order_type'] ?? 'normal';
+    
+    // Nếu là normal order, redirect về order page
+    if ($order_type === 'normal') {
+        wp_redirect(home_url('/dat-hang'));
+        exit;
+    }
+} else {
+    // Fallback sang URL params (giữ nguyên code cũ)
+    $main_product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
+    $selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
+    
+    if (empty($main_product_code)) {
+        wp_redirect(home_url('/san-pham'));
+        exit;
+    }
 }
 
 $main_product_code = strtoupper($main_product_code);
 
 // Nhúng class cung cấp dữ liệu mẫu
-require_once get_template_directory() . '/includes/api/class-sample-product-provider.php';
-$product_provider = new Sample_Product_Provider();
+require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
+$data_manager = new Product_Data_Manager();
 
 // Lấy sản phẩm chính
-$main_product_response = $product_provider->get_product($main_product_code);
-if (!isset($main_product_response['success']) || !$main_product_response['success']) {
+$main_product_response = $data_manager->get_product($main_product_code);
+if (!isset($main_product_response['product']) || !$main_product_response['product']) {
     wp_redirect(home_url('/san-pham'));
     exit;
 }
 
-$main_product = $main_product_response['data'];
+$main_product = $main_product_response['product'];
 
-// Lấy tất cả sản phẩm để hiển thị trong dropdown
-$all_products_response = $product_provider->get_products(['limit' => 100]);
-$all_products = isset($all_products_response['data']) ? $all_products_response['data'] : [];
+// Lấy tất cả sản phẩm cho dropdown (cần sửa trong page-mix.php)
+$all_products_response = $data_manager->get_products(['limit' => 100]);
+$all_products = isset($all_products_response['products']) ? $all_products_response['products'] : [];
 
 // Lọc bỏ sản phẩm chính khỏi danh sách
 $other_products = array_filter($all_products, function ($product) use ($main_product_code) {
-    return $product['item_code'] !== $main_product_code;
+    $product_code = $product['product_code'] ?? $product['item_code'] ?? '';
+    return $product_code !== $main_product_code;
 });
 
 // Breadcrumb data

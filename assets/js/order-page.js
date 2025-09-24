@@ -166,7 +166,7 @@
             sessionStorage.setItem('vinapet_order_data', JSON.stringify(orderData));
             
             // Redirect to summary page
-            window.location.href = '/checkout';
+            window.location.href = '/vinapet/checkout';
         });
         
         // Handle "View bag details" link click

@@ -877,33 +877,55 @@ add_action('switch_theme', 'vinapet_erp_cleanup');
 
 
 // Include Session Handler
-if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-simple-session-handler.php')) {
-    require_once VINAPET_THEME_DIR . '/includes/helpers/class-simple-session-handler.php';
-}
+require_once VINAPET_THEME_DIR . '/includes/helpers/class-order-session.php';
 
 /**
- * AJAX: Lưu order data vào session
+ * Localize order data cho order page
  */
-function vinapet_store_order_session() {
+function vinapet_localize_order_data() {
+    if (is_page_template('page-templates/page-order.php')) {
+        wp_localize_script('vinapet-order-page', 'vinapet_order_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('vinapet_nonce'),
+            'is_logged_in' => is_user_logged_in()
+        ));
+    }
+    
+    // Localize cho single-product.php
+    if (get_query_var('product_code')) {
+        wp_localize_script('vinapet-product-detail', 'vinapet_data', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('vinapet_nonce'),
+            'is_logged_in' => is_user_logged_in()
+        ));
+    }
+}
+add_action('wp_enqueue_scripts', 'vinapet_localize_order_data', 25);
+
+/**
+ * AJAX: Store order trong session
+ */
+function vinapet_ajax_store_order() {
     check_ajax_referer('vinapet_nonce', 'nonce');
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['code' => 'login_required']);
+    }
     
     $product_code = sanitize_text_field($_POST['product_code'] ?? '');
     $variant = sanitize_text_field($_POST['variant'] ?? '');
+    $order_type = sanitize_text_field($_POST['order_type'] ?? 'normal'); // normal hoặc mix
     
     if (empty($product_code)) {
-        wp_send_json_error('Mã sản phẩm không hợp lệ');
+        wp_send_json_error(['message' => 'Mã sản phẩm không hợp lệ']);
     }
     
-    $session = VinaPet_Simple_Session::get_instance();
+    VinaPet_Order_Session::get_instance()->store($product_code, $variant, $order_type);
     
-    if ($session->store_order($product_code, $variant)) {
-        wp_send_json_success(array(
-            'redirect_url' => home_url('/dat-hang')
-        ));
-    } else {
-        wp_send_json_error('Không thể lưu dữ liệu');
-    }
+    // Redirect dựa theo order_type
+    $redirect_url = ($order_type === 'mix') ? home_url('/mix-voi-hat-khac') : home_url('/dat-hang');
+    
+    wp_send_json_success(['redirect' => $redirect_url]);
 }
-
-add_action('wp_ajax_vinapet_store_order_session', 'vinapet_store_order_session');
-add_action('wp_ajax_nopriv_vinapet_store_order_session', 'vinapet_store_order_session');
+add_action('wp_ajax_vinapet_store_order', 'vinapet_ajax_store_order');
+add_action('wp_ajax_nopriv_vinapet_store_order', 'vinapet_ajax_store_order');

@@ -6,16 +6,23 @@
 
 get_header();
 
-// Include session handler
-//require_once get_template_directory() . '/includes/helpers/class-simple-session-handler.php';
-//$session = VinaPet_Simple_Session::get_instance();
+// Lấy dữ liệu từ session trước
+$session = VinaPet_Order_Session::get_instance();
+$session_data = $session->get();
 
-// Lấy dữ liệu từ session 
-//$order_data = $session->get_order();
-
-
-// Nếu không có session, fallback sang URL params
-if (!$order_data) {
+if ($session_data) {
+    // Dùng session data
+    $product_code = $session_data['product_code'];
+    $selected_variant = $session_data['variant'];
+    $order_type = $session_data['order_type'] ?? 'normal';
+    
+    // Nếu là mix order, redirect về mix page
+    if ($order_type === 'mix') {
+        wp_redirect(home_url('/mix-voi-hat-khac'));
+        exit;
+    }
+} else {
+    // Fallback sang URL params
     $product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
     $selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
     
@@ -23,36 +30,26 @@ if (!$order_data) {
         wp_redirect(home_url('/san-pham'));
         exit;
     }
-    
-    // Tạo order_data từ URL params để compatibility
-    $order_data = array(
-        'product_code' => strtoupper($product_code),
-        'variant' => $selected_variant
-    );
-} else {
-    // Dùng data từ session
-    $product_code = $order_data['product_code'];
-    $selected_variant = $order_data['variant'] ?? '';
 }
 
 $product_code = strtoupper($product_code);
 
 // Nhúng class cung cấp dữ liệu mẫu
-require_once get_template_directory() . '/includes/api/class-sample-product-provider.php';
-$product_provider = new Sample_Product_Provider();
-$product_response = $product_provider->get_product($product_code);
+require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
+$data_manager = new Product_Data_Manager();
+$product_response = $data_manager->get_product($product_code);
 
-if (!isset($product_response['success']) || !$product_response['success']) {
+if (!isset($product_response['product']) || !$product_response['product']) {
     wp_redirect(home_url('/san-pham'));
     exit;
 }
 
-$product = $product_response['data'];
+$product = $product_response['product'];
 
-// Lấy thông tin sản phẩm
-$product_name = isset($product['item_name']) ? $product['item_name'] : '';
-$product_desc = isset($product['description']) ? $product['description'] : '';
-$product_image = isset($product['image']) ? $product['image'] : '';
+// Lấy thông tin sản phẩm (thống nhất với single-product.php)
+$product_name = isset($product['product_name']) ? $product['product_name'] : '';
+$product_desc = isset($product['short_description']) ? $product['short_description'] : '';
+$product_image = isset($product['thumbnail']) ? $product['thumbnail'] : '';
 
 if (empty($product_image)) {
     $product_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
@@ -137,7 +134,7 @@ $packaging_options = [
         <div class="order-left-column">
             <div class="product-info-card">
                 <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
-                <p class="product-short-desc"><?php echo esc_html($product_desc); ?></p>
+                <p class="product-short-desc"><?php echo $product_desc; ?></p>
                 
                 <!-- Product Sizes - Copy layout from single-product.php -->
                 <div class="product-sizes">

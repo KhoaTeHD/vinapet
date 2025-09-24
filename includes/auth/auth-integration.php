@@ -39,7 +39,10 @@ class VinaPet_Auth_Integration
         add_filter('wp_nav_menu_items', array($this, 'modify_login_menu_item'), 10, 2);
 
         // Nextend Social Login integration
-        add_filter('nsl_register_redirect_url', array($this, 'force_register_redirect'), 10, 2);
+        //add_filter('nsl_register_redirect_url', array($this, 'force_register_redirect'), 10, 2);
+        //add_filter('nsl_login_redirect_url', array($this, 'force_login_redirect'), 10, 2);
+        //add_filter('nextend_social_login_redirect', array($this, 'force_account_redirect'), 10, 2);
+        add_filter('login_redirect', array($this, 'force_account_redirect'), 10, 3);
 
         // AJAX handlers - Google register
         add_action('wp_ajax_nopriv_vinapet_ajax_google_register', array($this, 'handle_ajax_google_register'));
@@ -74,8 +77,25 @@ class VinaPet_Auth_Integration
         return $_SESSION;
     }
 
+    /**
+     * Force redirect cho Nextend hooks
+     */
+    public function force_account_redirect($redirect_url, $provider = null)
+    {
+        error_log('Nextend redirect intercepted - Original: ' . $redirect_url . ', Provider: ' . $provider);
+        $target_url = home_url('/tai-khoan');
+        error_log('Nextend redirect changed to: ' . $target_url);
+        return $target_url;
+    }
+
     public function force_register_redirect($redirect_url, $provider)
     {
+        return home_url('/tai-khoan');
+    }
+
+    public function force_login_redirect($redirect_url, $provider)
+    {
+        // Force redirect đến trang tài khoản sau khi login
         return home_url('/tai-khoan');
     }
 

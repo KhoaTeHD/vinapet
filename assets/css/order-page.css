@@ -281,13 +281,13 @@
 }
 
 /* Quantity Grid with Radio Buttons */
-.quantity-grid {
+.quantity-grid, .grain-size-grid {
     display: flex;
     /* grid-template-columns: repeat(3, 1fr); */
     /* gap: 12px; */
 }
 
-.quantity-option {
+.quantity-option, .grain-size-option {
     flex: auto;
     cursor: pointer;
     border: 1px solid var(--border-color);
@@ -298,7 +298,7 @@
     gap: 8px;
 }
 
-.quantity-option input[type="radio"] {
+.quantity-option, .grain-size-option input[type="radio"] {
     /* Hiển thị radio button thực */
     display: block;
     width: 16px;
@@ -308,12 +308,12 @@
     accent-color: var(--primary-color);
 }
 
-.quantity-option:hover {
+.quantity-option:hover, .grain-size-option:hover {
     border-color: #19457B;
     background-color: #F0FDFF;
 }
 
-.quantity-option:has(input:checked) {
+.quantity-option:has(input:checked), .grain-size-option:has(input:checked) {
     border-color: #19457B;
     background-color: #F0FDFF;
 }
@@ -551,13 +551,14 @@
         grid-template-columns: repeat(2, 1fr);
     }
     
-    .quantity-grid {
+    .quantity-grid, .grain-size-grid {
         grid-template-columns: repeat(2, 1fr);
     }
     
     .variant-option,
     .quantity-option,
-    .packaging-option {
+    .packaging-option, 
+    .grain-size-option {
         padding: 10px;
         gap: 6px;
     }
@@ -606,7 +607,7 @@
         font-size: 18px;
     }
     
-    .quantity-grid {
+    .quantity-grid, .grain-size-grid {
         display: grid;
     }
     

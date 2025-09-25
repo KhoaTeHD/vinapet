@@ -103,6 +103,14 @@ $quantity_options = [
     ['value' => 'khac', 'label' => 'Khác'],
 ];
 
+$grain_size_options = [
+    ['value' => '2.0', 'label' => '2.0'],
+    ['value' => '2.5', 'label' => '2.5'],
+    ['value' => '3.0', 'label' => '3.0'],
+    ['value' => '3.5', 'label' => '3.5'],
+    ['value' => 'dap 3.5', 'label' => 'Đập 3.5'],
+];
+
 // Packaging options
 $packaging_options = [
     [
@@ -322,6 +330,19 @@ $packaging_options = [
                     <label class="scent-option <?php echo $index === 1 ? 'selected' : ''; ?>">
                         <input type="radio" name="scent" value="<?php echo esc_attr($scent['id']); ?>" <?php echo $index === 1 ? 'checked' : ''; ?>>
                         <span class="scent-name"><?php echo esc_html($scent['name']); ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Grain Size Selection -->
+        <div class="option-group">
+            <h3 class="option-title">Chọn kích thước hạt</h3>
+            <div class="grain-size-grid">
+                <?php foreach ($grain_size_options as $index => $grain_size): ?>
+                    <label class="grain-size-option <?php echo $index === 2 ? 'selected' : ''; ?>">
+                        <input type="radio" name="grain_size" value="<?php echo esc_attr($grain_size['value']); ?>" <?php echo $index === 2 ? 'checked' : ''; ?>>
+                        <span class="grain-size-label"><?php echo esc_html($grain_size['label']); ?></span>
                     </label>
                 <?php endforeach; ?>
             </div>

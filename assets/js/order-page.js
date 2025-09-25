@@ -134,11 +134,12 @@
             const formData = {
                 variant: $('input[name="variant"]:checked').val(),
                 quantity: $('input[name="quantity"]:checked').val(),
-                packaging: $('input[name="packaging"]:checked').val()
+                packaging: $('input[name="packaging"]:checked').val(),
+                grainSize: $('input[name="grain_size"]:checked').val()
             };
             
             // Validate form data
-            if (!formData.variant || !formData.quantity || !formData.packaging) {
+            if (!formData.variant || !formData.quantity || !formData.packaging || !formData.grainSize) {
                 alert('Vui lòng chọn đầy đủ thông tin trước khi tiếp tục.');
                 return;
             }

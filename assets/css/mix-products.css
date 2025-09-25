@@ -565,13 +565,13 @@
 }
 
 /* Quantity Options - Như bản chỉnh sửa trước nhưng không radius và gần nhau */
-.quantity-grid {
+.quantity-grid, .grain-size-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 0;
 }
 
-.quantity-option {
+.quantity-option, .grain-size-option {
     cursor: pointer;
     border: 2px solid var(--border-color);
     padding: 12px 16px;
@@ -584,23 +584,23 @@
     position: relative;
 }
 
-.quantity-option:last-child {
+.quantity-option:last-child, .grain-size-option:last-child {
     border-right: 2px solid var(--border-color);
 }
 
-.quantity-option input[type="radio"] {
+.quantity-option, .grain-size-option input[type="radio"] {
     margin: 0;
     flex-shrink: 0;
 }
 
-.quantity-option:hover {
+.quantity-option:hover, .grain-size-option:hover {
     border-color: var(--primary-color);
     background: rgba(46, 134, 171, 0.05);
     z-index: 1;
     position: relative;
 }
 
-.quantity-option.selected {
+.quantity-option.selected, .grain-size-option.selected {
     border-color: var(--primary-color);
     background: rgba(46, 134, 171, 0.05);
     z-index: 1;
@@ -608,7 +608,7 @@
     border-right: 2px solid var(--primary-color);
 }
 
-.quantity-label {
+.quantity-label, .grain-size-label {
     font-size: 14px;
     font-weight: 500;
     flex: 1;
@@ -843,7 +843,7 @@
         flex-wrap: wrap;
     }
     
-    .quantity-grid {
+    .quantity-grid, .grain-size-grid {
         flex-wrap: wrap;
     }
     
@@ -879,12 +879,14 @@
     }
     
     .scent-grid,
-    .quantity-grid {
+    .quantity-grid,
+    .grain-size-grid {
         flex-direction: column;
     }
     
     .scent-option,
-    .quantity-option {
+    .quantity-option,
+    .grain-size-option {
         width: 100%;
     }
     

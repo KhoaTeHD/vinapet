@@ -90,6 +90,14 @@ $quantity_options = [
     ['value' => '5000', 'label' => '5 tấn'],
 ];
 
+$grain_size_options = [
+    ['value' => '2.0', 'label' => '2.0'],
+    ['value' => '2.5', 'label' => '2.5'],
+    ['value' => '3.0', 'label' => '3.0'],
+    ['value' => '3.5', 'label' => '3.5'],
+    ['value' => 'dap 3.5', 'label' => 'Đập 3.5'],
+];
+
 // Loại túi đóng gói
 $packaging_options = [
     [
@@ -180,9 +188,24 @@ $packaging_options = [
                         </div>
                     </div>
                     
-                    <!-- Quantity Selection - Updated with Radio Buttons -->
+                    <!-- size Selection -->
                     <div class="form-section" style="border-top: 1px dashed #C6C5C9; padding-top: 20px;">
                         <h3 class="section-title">Chọn thông số đặt hàng</h3>
+                        <div class="subsection">
+                            <h4 class="subsection-title">Kích thước hạt</h4>
+                            <div class="grain-size-grid">
+                                <?php foreach ($grain_size_options as $index => $option): ?>
+                                    <label class="grain-size-option">
+                                        <input type="radio" name="grain_size" value="<?php echo esc_attr($option['value']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
+                                        <span class="option-label"><?php echo esc_html($option['label']); ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Selection -->
+                    <div class="form-section">
                         <div class="subsection">
                             <h4 class="subsection-title">Số lượng</h4>
                             <div class="quantity-grid">

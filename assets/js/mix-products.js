@@ -391,6 +391,14 @@
       updateFooterSummary();
     });
 
+    $(".grain-size-option").on("click", function () {
+      $(".grain-size-option").removeClass("selected");
+      $(this).addClass("selected");
+      $(this).find('input[type="radio"]').prop("checked", true);
+      mixData.options.grainSize = $(this).find("input").val();
+      updateFooterSummary();
+    });
+
     $(".quantity-option").on("click", function () {
       $(".quantity-option").removeClass("selected");
       $(this).addClass("selected");

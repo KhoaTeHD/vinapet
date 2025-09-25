@@ -509,6 +509,7 @@ class ERP_API_Client
         $customer_data = array(
             'customer_name' => $user->display_name ?: $user->user_login,
             'email' => $user->user_email,
+            'name' => $user->user_email, // Unique identifier
             'phone' => get_user_meta($user_id, 'phone_number', true) ?: '',
             'address' => get_user_meta($user_id, 'user_address', true) ?: '',
             'company_name' => get_user_meta($user_id, 'company_name', true) ?: ''
@@ -519,7 +520,7 @@ class ERP_API_Client
 
         if ($existing_customer && $existing_customer['status'] === 'success') {
             // Update existing customer
-            $result = $this->update_customer_by_email_vinapet($user->user_email, $customer_data);
+            $result = $this->update_customer_vinapet( $customer_data);
 
             if ($result && $result['status'] === 'success') {
                 update_user_meta($user_id, 'erpnext_customer_id', $existing_customer['customer']['name']);

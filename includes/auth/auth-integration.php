@@ -39,8 +39,8 @@ class VinaPet_Auth_Integration
         add_filter('wp_nav_menu_items', array($this, 'modify_login_menu_item'), 10, 2);
 
         // Nextend Social Login integration
-        //add_filter('nsl_register_redirect_url', array($this, 'force_register_redirect'), 10, 2);
-        //add_filter('nsl_login_redirect_url', array($this, 'force_login_redirect'), 10, 2);
+        add_filter('nsl_register_redirect_url', array($this, 'force_register_redirect'), 10, 2);
+        add_filter('nsl_login_redirect_url', array($this, 'force_login_redirect'), 10, 2);
         //add_filter('nextend_social_login_redirect', array($this, 'force_account_redirect'), 10, 2);
         add_filter('login_redirect', array($this, 'force_account_redirect'), 10, 3);
 

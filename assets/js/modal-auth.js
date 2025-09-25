@@ -694,7 +694,7 @@
     const popup = window.open(
       authUrl,
       "googleAuth",
-      "width=500,height=600,scrollbars=yes,resizable=yes"
+      "width=500,height=600,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,status=yes"
     );
 
     socialLoginWindow = popup;

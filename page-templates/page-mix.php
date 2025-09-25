@@ -33,7 +33,7 @@ if ($session_data) {
     }
 }
 
-$main_product_code = strtoupper($main_product_code);
+$main_product = $main_product_response['data'];
 
 // Nhúng class cung cấp dữ liệu mẫu
 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
@@ -54,16 +54,17 @@ $all_products = isset($all_products_response['products']) ? $all_products_respon
 
 // Lọc bỏ sản phẩm chính khỏi danh sách
 $other_products = array_filter($all_products, function ($product) use ($main_product_code) {
-    $product_code = $product['product_code'] ?? $product['item_code'] ?? '';
+    $product_code = $product['ProductID'] ?? $product['ProductID'] ?? '';
     return $product_code !== $main_product_code;
 });
+
 
 // Breadcrumb data
 global $breadcrumb_data;
 $breadcrumb_data = [
     ['name' => 'Trang chủ', 'url' => home_url()],
     ['name' => 'Sản phẩm', 'url' => home_url('/san-pham')],
-    ['name' => $main_product['item_name'], 'url' => home_url('/san-pham/' . $main_product_code)],
+    ['name' => $main_product['product_name'], 'url' => home_url('/san-pham/' . $main_product_code)],
     ['name' => 'Mix với hạt khác', 'url' => '']
 ];
 
@@ -144,8 +145,8 @@ $packaging_options = [
             <div class="product-card main-product">
                 <div class="product-header">
                     <span class="product-label">Sản phẩm 1</span>
-                    <h3 class="product-title"><?php echo esc_html($main_product['item_name']); ?></h3>
-                    <p class="product-description"><?php echo esc_html($main_product['description']); ?></p>
+                    <h3 class="product-title"><?php echo esc_html($main_product['product_name']); ?></h3>
+                    <p class="product-description"><?php echo esc_html($main_product['short_description']); ?></p>
                 </div>
 
                 <!-- Tiered Pricing -->
@@ -184,10 +185,10 @@ $packaging_options = [
                         <select class="product-dropdown" id="second-product-select">
                             <option value="">Bấm vào để chọn sản phẩm</option>
                             <?php foreach ($other_products as $product): ?>
-                                <option value="<?php echo esc_attr($product['item_code']); ?>"
-                                    data-name="<?php echo esc_attr($product['item_name']); ?>"
-                                    data-description="<?php echo esc_attr($product['description']); ?>">
-                                    <?php echo esc_html($product['item_name']); ?>
+                                <option value="<?php echo esc_attr($product['ProductID']); ?>"
+                                    data-name="<?php echo esc_attr($product['Ten_SP']); ?>"
+                                    data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>">
+                                    <?php echo esc_html($product['Ten_SP']); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

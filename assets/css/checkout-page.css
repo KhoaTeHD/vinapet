@@ -341,7 +341,7 @@
 
 /* Text Areas */
 textarea {
-    width: 94%;
+    width: 96%;
     min-height: 100px;
     padding: 12px;
     border: 2px solid var(--border-color);

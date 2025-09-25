@@ -531,7 +531,6 @@
     align-items: center;
     gap: 12px;
     min-width: 120px;
-    border-right: none;
     position: relative;
 }
 
@@ -582,7 +581,6 @@
     align-items: center;
     gap: 12px;
     min-width: 100px;
-    border-right: none;
     position: relative;
 }
 
@@ -788,10 +786,7 @@
 }
 
 .next-step-btn:hover {
-    background: #0da8a1;
-    color: var(--white);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-light);
 }
 
 .next-step-btn:disabled {

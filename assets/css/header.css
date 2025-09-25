@@ -316,6 +316,7 @@
 }
 
 .mobile-menu.active {
+    display: block;
     max-height: 500px;
 }
 
@@ -369,9 +370,9 @@
     }
     
     /* Hiển thị mobile menu container */
-    .mobile-menu {
-        display: block;
-    }
+    /* .mobile-menu {
+        display: non;
+    } */
     
     /* Điều chỉnh nav-actions để hamburger nằm đầu */
     .nav-actions {

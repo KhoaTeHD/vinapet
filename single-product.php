@@ -103,46 +103,46 @@ $product_variants = isset($product['variants']) && !empty($product['variants']) 
 
 
 // Các quy cách đóng gói
-// $product_sizes = [
-//     ['name' => '0,5 - 1 tấn', 'price' => 50000, 'unit' => 'đ/kg'],
-//     ['name' => '1 - 5 tấn', 'price' => 42000, 'unit' => 'đ/kg'],
-//     ['name' => 'Trên 5 tấn', 'price' => 34000, 'unit' => 'đ/kg'],
-// ];
+$product_sizes = [
+    ['name' => '0,5 - 1 tấn', 'price' => 50000, 'unit' => 'đ/kg'],
+    ['name' => '1 - 5 tấn', 'price' => 42000, 'unit' => 'đ/kg'],
+    ['name' => 'Trên 5 tấn', 'price' => 34000, 'unit' => 'đ/kg'],
+];
 // Xử lý variants để hiển thị sizes
-$product_sizes = [];
-if (isset($product['variants']) && !empty($product['variants'])) {
-    foreach ($product['variants'] as $variant) {
-        // Lấy thông tin giá từ standard_rate
-        $price = 0;
-        $currency = 'VND';
-        if (isset($variant['standard_rate']) && !empty($variant['standard_rate'])) {
-            $price = $variant['standard_rate'][0]['price_list_rate'] ?? 0;
-            $currency = $variant['standard_rate'][0]['currency'] ?? 'VND';
-        }
+// $product_sizes = [];
+// if (isset($product['variants']) && !empty($product['variants'])) {
+//     foreach ($product['variants'] as $variant) {
+//         // Lấy thông tin giá từ standard_rate
+//         $price = 0;
+//         $currency = 'VND';
+//         if (isset($variant['standard_rate']) && !empty($variant['standard_rate'])) {
+//             $price = $variant['standard_rate'][0]['price_list_rate'] ?? 0;
+//             $currency = $variant['standard_rate'][0]['currency'] ?? 'VND';
+//         }
 
-        // Kiểm tra tiered pricing từ rules
-        $has_tiered_price = isset($variant['rules']) && !empty($variant['rules']);
-        $min_price = $price;
-        if ($has_tiered_price) {
-            // Lấy giá thấp nhất từ rules
-            foreach ($variant['rules'] as $rule) {
-                if (isset($rule['value']) && $rule['value'] < $min_price) {
-                    $min_price = $rule['value'];
-                }
-            }
-        }
+//         // Kiểm tra tiered pricing từ rules
+//         $has_tiered_price = isset($variant['rules']) && !empty($variant['rules']);
+//         $min_price = $price;
+//         if ($has_tiered_price) {
+//             // Lấy giá thấp nhất từ rules
+//             foreach ($variant['rules'] as $rule) {
+//                 if (isset($rule['value']) && $rule['value'] < $min_price) {
+//                     $min_price = $rule['value'];
+//                 }
+//             }
+//         }
 
-        $product_sizes[] = [
-            'id' => $variant['id'],
-            'name' => $variant['sku'], // Sử dụng SKU làm tên hiển thị
-            'price' => $has_tiered_price ? $min_price : $price,
-            'original_price' => $price,
-            'currency' => $currency,
-            'has_tiered' => $has_tiered_price,
-            'rules' => $variant['rules'] ?? []
-        ];
-    }
-}
+//         $product_sizes[] = [
+//             'id' => $variant['id'],
+//             'name' => $variant['sku'], // Sử dụng SKU làm tên hiển thị
+//             'price' => $has_tiered_price ? $min_price : $price,
+//             'original_price' => $price,
+//             'currency' => $currency,
+//             'has_tiered' => $has_tiered_price,
+//             'rules' => $variant['rules'] ?? []
+//         ];
+//     }
+// }
 
 // Thông số kỹ thuật
 $product_specs = isset($product['specifications']['original']) ? $product['specifications']['original'] : [
@@ -287,46 +287,12 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 
             <!-- Product Sizes -->
             <div class="product-sizes">
-                <?php if (!empty($product_sizes)) : ?>
-                    <?php foreach ($product_sizes as $size) : ?>
-                        <div class="size-option" data-variant-id="<?php echo esc_attr($size['id']); ?>">
-                            <div class="size-name"><?php echo esc_html($size['name']); ?></div>
-                            <div class="size-price">
-                                <?php if ($size['has_tiered']) : ?>
-                                    <span class="price-from">Từ </span>
-                                <?php endif; ?>
-                                <?php echo number_format($size['price'], 0, ',', '.'); ?>
-                                <span class="unit"><?php echo esc_html($size['currency']); ?></span>
-                                <?php if ($size['has_tiered'] && $size['price'] < $size['original_price']) : ?>
-                                    <span class="original-price"><?php echo number_format($size['original_price'], 0, ',', '.'); ?></span>
-                                <?php endif; ?>
-                            </div>
-
-                            <?php if ($size['has_tiered']) : ?>
-                                <div class="tiered-pricing" style="display:none;">
-                                    <div class="pricing-tiers">
-                                        <?php foreach ($size['rules'] as $rule) : ?>
-                                            <div class="tier">
-                                                <span class="qty-range">
-                                                    <?php if (isset($rule['min_qty']) && isset($rule['max_qty'])) : ?>
-                                                        <?php echo $rule['min_qty']; ?>-<?php echo $rule['max_qty']; ?> sản phẩm
-                                                    <?php elseif (isset($rule['min_qty'])) : ?>
-                                                        Từ <?php echo $rule['min_qty']; ?> sản phẩm
-                                                    <?php endif; ?>
-                                                </span>
-                                                <span class="tier-price"><?php echo number_format($rule['value'], 0, ',', '.'); ?> <?php echo $size['currency']; ?></span>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <div class="no-variants">
-                        <p>Chưa có thông tin variants cho sản phẩm này</p>
+                <?php foreach ($product_sizes as $size) : ?>
+                    <div class="size-option">
+                        <div class="size-name"><?php echo esc_html($size['name']); ?></div>
+                        <div class="size-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></div>
                     </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
 
             <!-- Product Variants (Colors) -->
@@ -375,11 +341,13 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
     $related_products = [];
     if (isset($related_products_response['products']) && !empty($related_products_response['products'])) {
         foreach ($related_products_response['products'] as $related) {
-            if (isset($related['product_code']) && $related['product_code'] !== $product_code && count($related_products) < 4) {
+            if (isset($related['ProductID']) && $related['ProductID'] !== $product_code && count($related_products) < 4) {
                 $related_products[] = $related;
             }
         }
     }
+
+    //$related_products[] = $related_products_response;
 
     if (!empty($related_products)):
     ?>
@@ -388,10 +356,10 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 
             <div class="products-grid">
                 <?php foreach ($related_products as $related_product):
-                    $related_name = isset($related_product['product_name']) ? $related_product['product_name'] : '';
-                    $related_desc = isset($related_product['short_description']) ? strip_tags($related_product['short_description']) : '';
-                    $related_image = isset($related_product['thumbnail']) ? $related_product['thumbnail'] : '';
-                    $related_code = isset($related_product['product_code']) ? $related_product['product_code'] : '';
+                    $related_name = isset($related_product['Ten_SP']) ? $related_product['Ten_SP'] : '';
+                    $related_desc = isset($related_product['Mo_ta_ngan']) ? strip_tags($related_product['Mo_ta_ngan']) : '';
+                    $related_image = isset($related_product['Thumbnail_File']) ? $related_product['Thumbnail_File'] : '';
+                    $related_code = isset($related_product['ProductID']) ? $related_product['ProductID'] : '';
                     $related_url = home_url('/san-pham/' . sanitize_title($related_code));
 
                     if (empty($related_image)) {
@@ -443,6 +411,7 @@ jQuery(document).ready(function($) {
     $('.mix-button').on('click', function(e) {
         e.preventDefault();
         processOrder($(this), 'mix');
+        //redirectToMixPage();
     });
     
     function processOrder($btn, orderType) {

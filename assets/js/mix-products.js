@@ -476,70 +476,153 @@
     // Trong phần CHECKOUT AND NAVIGATION của mix-products.js
     // Cập nhật hàm xử lý nút "next-step"
 
-    $("#next-step-button").on("click", function (e) {
-      e.preventDefault();
+    // $("#next-step-button").on("click", function (e) {
+    //   e.preventDefault();
 
-      const activeProducts = getActiveProducts();
-      if (activeProducts.length < 2) {
-        showMessage("Vui lòng chọn ít nhất 2 sản phẩm để tiếp tục.", "error");
-        return;
-      }
+    //   const activeProducts = getActiveProducts();
+    //   if (activeProducts.length < 2) {
+    //     showMessage("Vui lòng chọn ít nhất 2 sản phẩm để tiếp tục.", "error");
+    //     return;
+    //   }
 
-      // Validate total percentage is 100%
-      const totalPercentage = activeProducts.reduce(
-        (sum, product) => sum + mixData[product].percentage,
-        0
-      );
-      if (Math.abs(totalPercentage - 100) > 1) {
-        showMessage(
-          "Tổng tỷ lệ phải bằng 100%. Vui lòng điều chỉnh lại.",
-          "error"
-        );
-        return;
-      }
+    //   // Validate total percentage is 100%
+    //   const totalPercentage = activeProducts.reduce(
+    //     (sum, product) => sum + mixData[product].percentage,
+    //     0
+    //   );
+    //   if (Math.abs(totalPercentage - 100) > 1) {
+    //     showMessage(
+    //       "Tổng tỷ lệ phải bằng 100%. Vui lòng điều chỉnh lại.",
+    //       "error"
+    //     );
+    //     return;
+    //   }
 
-      showLoading($(this));
+    //   showLoading($(this));
 
-      // Calculate totals for order data
-      const quantity =
-        mixData.options.quantity === "khac"
-          ? 10000
-          : parseInt(mixData.options.quantity);
-      const basePrice =
-        basePrices[mixData.options.quantity] || basePrices["10000"];
-      const packagingPrice = packagingPrices[mixData.options.packaging] || 0;
-      const totalPrice = quantity * (basePrice + packagingPrice);
+    //   // Calculate totals for order data
+    //   const quantity =
+    //     mixData.options.quantity === "khac"
+    //       ? 10000
+    //       : parseInt(mixData.options.quantity);
+    //   const basePrice =
+    //     basePrices[mixData.options.quantity] || basePrices["10000"];
+    //   const packagingPrice = packagingPrices[mixData.options.packaging] || 0;
+    //   const totalPrice = quantity * (basePrice + packagingPrice);
 
-      // Store mix data in session storage for next page
-      const orderData = {
-        type: "mix", // QUAN TRỌNG: Đánh dấu đây là mix order
-        products: {
-          product1: mixData.product1,
-          product2: mixData.product2,
-          product3: mixData.product3,
-        },
-        activeProductCount: activeProducts.length,
-        options: mixData.options,
-        quantity_kg: quantity,
-        base_price_per_kg: basePrice,
-        packaging_price_per_kg: packagingPrice,
-        total_price: totalPrice,
-      };
+    //   // Store mix data in session storage for next page
+    //   const orderData = {
+    //     type: "mix", // QUAN TRỌNG: Đánh dấu đây là mix order
+    //     products: {
+    //       product1: mixData.product1,
+    //       product2: mixData.product2,
+    //       product3: mixData.product3,
+    //     },
+    //     activeProductCount: activeProducts.length,
+    //     options: mixData.options,
+    //     quantity_kg: quantity,
+    //     base_price_per_kg: basePrice,
+    //     packaging_price_per_kg: packagingPrice,
+    //     total_price: totalPrice,
+    //   };
 
-      // Lưu dữ liệu mix riêng biệt
-      sessionStorage.setItem("vinapet_mix_data", JSON.stringify(orderData));
-      // Xóa dữ liệu order thông thường nếu có
-      sessionStorage.removeItem("vinapet_order_data");
+    //   // Lưu dữ liệu mix riêng biệt
+    //   sessionStorage.setItem("vinapet_mix_data", JSON.stringify(orderData));
+    //   // Xóa dữ liệu order thông thường nếu có
+    //   sessionStorage.removeItem("vinapet_order_data");
 
-      // Simulate processing
-      setTimeout(() => {
-        hideLoading(
-          $(this),
-          'Qua bước tiếp theo <span class="arrow-icon">→</span>'
-        );
-        window.location.href = "/vinapet/checkout";
-      }, 1500);
+    //   // Simulate processing
+    //   setTimeout(() => {
+    //     hideLoading(
+    //       $(this),
+    //       'Qua bước tiếp theo <span class="arrow-icon">→</span>'
+    //     );
+    //     window.location.href = "/vinapet/checkout";
+    //   }, 1500);
+    // });
+
+    // Submit mix data về server
+    $('#next-step-button').on('click', function(e) {
+        e.preventDefault();
+        
+        // Collect mix data (existing logic)
+        const mixData = {
+            products: {
+                product1: getMixProduct('product1'),
+                product2: getMixProduct('product2'), 
+                product3: getMixProduct('product3')
+            },
+            options: {
+                color: $('input[name="color"]:checked').val(),
+                scent: $('input[name="scent"]:checked').val(),
+                packaging: $('input[name="packaging"]:checked').val(),
+                quantity: $('input[name="quantity"]:checked').val()
+            },
+            quantities: {
+                total: calculateTotalQuantity()
+            },
+            pricing: {
+                total: calculateTotalPrice(),
+                per_kg: calculatePricePerKg()
+            }
+        };
+        
+        // Validate mix data
+        if (!validateMixData(mixData)) {
+            return;
+        }
+        
+        // AJAX call để store mix data trong PHP session
+        $.ajax({
+            url: vinapet_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'vinapet_store_mix_session',
+                nonce: vinapet_ajax.nonce,
+                mix_data: mixData
+            },
+            beforeSend: function() {
+                showLoading($(this));
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Redirect to checkout
+                    window.location.href = '/vinapet/checkout';
+                } else {
+                    alert(response.data || 'Có lỗi xảy ra!');
+                }
+            },
+            error: function() {
+                alert('Lỗi kết nối! Vui lòng thử lại.');
+            },
+            complete: function() {
+                hideLoading($('#next-step-button'));
+            }
+        });
     });
+    
+    // Helper functions (existing)
+    function getMixProduct(productKey) {
+        // Existing logic to get product data
+        return mixData[productKey] || {};
+    }
+    
+    function validateMixData(data) {
+        // Validate total percentage = 100%
+        const activeProducts = Object.values(data.products).filter(p => p.name);
+        if (activeProducts.length < 2) {
+            alert('Cần ít nhất 2 sản phẩm để mix!');
+            return false;
+        }
+        
+        const totalPercentage = activeProducts.reduce((sum, p) => sum + (p.percentage || 0), 0);
+        if (Math.abs(totalPercentage - 100) > 1) {
+            alert('Tổng tỷ lệ phải bằng 100%!');
+            return false;
+        }
+        
+        return true;
+    }
 
     // =============================================================================
     // UTILITY FUNCTIONS

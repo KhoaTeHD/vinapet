@@ -2,7 +2,6 @@
 /**
  * File: includes/helpers/class-order-session.php
  * Enhanced VinaPet_Order_Session - Support both normal và mix orders
- * Giữ nguyên interface cũ, thêm functionality mới
  */
 
 class VinaPet_Order_Session { private static $instance = null;

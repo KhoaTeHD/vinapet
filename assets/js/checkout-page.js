@@ -6,13 +6,13 @@
         let isFromMix = false;
         
         // Load order data from previous page
-        loadOrderData();
+        //loadOrderData();
         
         // Initialize form handlers
         initializeFormHandlers();
         
         // Populate order summary
-        populateOrderSummary();
+        //populateOrderSummary();
         
         /**
          * Load order data from sessionStorage - Xử lý cả mix và order thông thường

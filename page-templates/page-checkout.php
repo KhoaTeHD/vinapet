@@ -5,6 +5,17 @@
  * Description: Trang thanh toán và hoàn tất đơn hàng
  */
 
+// Load order session và get checkout data
+require_once get_template_directory() . '/includes/helpers/class-order-session.php';
+$session = VinaPet_Order_Session::get_instance();
+$checkout_data = $session->get_checkout_data();
+
+// Redirect nếu không có data
+if (!$checkout_data) {
+    wp_redirect(home_url('/san-pham'));
+    exit;
+}
+
 get_header();
 
 // Breadcrumb data
@@ -32,19 +43,56 @@ $breadcrumb_data = [
                         </svg>
                         Quay về Bước 1
                     </button>
-                    <h2 class="summary-title">Đơn hàng</h2>
+                    <h2 class="summary-title <?php echo $checkout_data['type']; ?>-title">
+                        <?php echo esc_html($checkout_data['title']); ?>
+                    </h2>
                 </div>
 
                 <!-- Order Items List -->
                 <div class="order-items-list" id="order-items-list">
-                    <!-- Sẽ được populate bằng JavaScript -->
+                     <?php if ($checkout_data['type'] === 'mix'): ?>
+                        <!-- Mix Products Display -->
+                        <?php foreach ($checkout_data['products'] as $product): ?>
+                            <div class="order-item mix-item">
+                                <div class="item-header">
+                                    <div class="item-name"><?php echo esc_html($product['name']); ?></div>
+                                    <div class="item-quantity percentage">
+                                        <?php echo number_format($product['percentage'], 0); ?>%
+                                    </div>
+                                </div>
+                                <?php if (!empty($product['details'])): ?>
+                                    <div class="item-details">
+                                        <?php foreach ($product['details'] as $detail): ?>
+                                            <div class="item-detail"><?php echo esc_html($detail); ?></div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Normal Product Display -->
+                        <div class="order-item normal-item">
+                            <div class="item-header">
+                                <div class="item-name"><?php echo esc_html($checkout_data['product_name']); ?></div>
+                                <div class="item-quantity">
+                                    <?php echo number_format($checkout_data['quantity']); ?> kg
+                                </div>
+                            </div>
+                            <div class="item-details">
+                                <div class="item-detail">Variant: <?php echo esc_html($checkout_data['variant']); ?></div>
+                                <div class="item-detail">Mã SP: <?php echo esc_html($checkout_data['product_code']); ?></div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Order Summary Table -->
                 <div class="order-summary-table">
                     <div class="summary-row">
                         <span class="summary-label">Tổng số lượng:</span>
-                        <span class="summary-value" id="summary-total-quantity">4000 kg</span>
+                        <span class="summary-value" id="summary-total-quantity">
+                            <?php echo number_format($checkout_data['total_quantity']); ?> kg
+                        </span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Bao bì:</span>
@@ -61,8 +109,16 @@ $breadcrumb_data = [
                     <div class="summary-row">
                         <span class="summary-label">Báo giá dự kiến:</span>
                         <div class="total-price-section">
-                            <span class="total-price" id="summary-total-price">171,800,000 đ</span>
-                            <span class="price-note">(Giá cost: <span id="summary-price-per-kg">42,950 đ/kg</span>)</span>
+                            <span class="total-price" id="summary-total-price">
+                                <?php echo number_format($checkout_data['total_price']); ?> đ
+                            </span>
+                            <span class="price-note">
+                                (Giá cost: 
+                                <span id="summary-price-per-kg">
+                                <?php echo number_format($checkout_data['price_per_kg']); ?> đ/kg
+                                </span>
+                                )
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -328,5 +384,11 @@ $breadcrumb_data = [
     </div>
 </div>
 </div>
+
+<!-- Hidden data for JavaScript -->
+<script type="text/javascript">
+    // Pass PHP data to JavaScript for interactions
+    window.vinapet_checkout_data = <?php echo json_encode($checkout_data); ?>;
+</script>
 
 <?php get_footer(); ?>

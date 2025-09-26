@@ -288,19 +288,19 @@ function vinapet_update_order_status($order_id, $new_status, $user_id = null) {
 /**
  * Get order summary for display
  */
-function vinapet_format_order_summary($order) {
-    $summary = array(
-        'total_items' => count($order['items']),
-        'total_quantity' => $order['summary']['total_quantity'] ?? 'N/A',
-        'packaging' => $order['summary']['packaging'] ?? 'Chưa chọn',
-        'delivery_time' => $order['summary']['delivery_time'] ?? 'Chưa chọn', 
-        'shipping' => $order['summary']['shipping'] ?? 'Chưa chọn',
-        'total_price' => $order['summary']['total_price'] ?? 'N/A',
-        'price_per_kg' => $order['summary']['price_per_kg'] ?? 'N/A'
-    );
+// function vinapet_format_order_summary($order) {
+//     $summary = array(
+//         'total_items' => count($order['items']),
+//         'total_quantity' => $order['summary']['total_quantity'] ?? 'N/A',
+//         'packaging' => $order['summary']['packaging'] ?? 'Chưa chọn',
+//         'delivery_time' => $order['summary']['delivery_time'] ?? 'Chưa chọn', 
+//         'shipping' => $order['summary']['shipping'] ?? 'Chưa chọn',
+//         'total_price' => $order['summary']['total_price'] ?? 'N/A',
+//         'price_per_kg' => $order['summary']['price_per_kg'] ?? 'N/A'
+//     );
     
-    return $summary;
-}
+//     return $summary;
+// }
 
 /**
  * Check if user can manage order

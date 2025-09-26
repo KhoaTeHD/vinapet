@@ -18,6 +18,9 @@
       tui_jumbo: 105,
     };
 
+    let totalPrice;
+    let pricePerKg;
+
     // Handle variant selection - SKU với radio ẩn (như checkout page)
     $(".variant-option").on("click", function () {
       // Uncheck all other variants first
@@ -96,19 +99,19 @@
 
       const totalBasePrice = quantity * basePrice;
       const totalPackagingFee = quantity * packagingPrice;
-      const totalPrice = totalBasePrice + totalPackagingFee;
-      const pricePerKg = totalPrice / quantity;
+      totalPrice = totalBasePrice + totalPackagingFee;
+      pricePerKg = totalPrice / quantity;
 
       // Update footer display
       let quantityText = quantity + " kg";
 
       // Format total price for display
       let formattedTotalPrice;
-      if (totalPrice >= 1000000) {
-        formattedTotalPrice = Math.round(totalPrice / 1000000) + " triệu";
-      } else {
+      // if (totalPrice >= 1000000) {
+      //   formattedTotalPrice = Math.round(totalPrice / 1000000) + " triệu";
+      // } else {
         formattedTotalPrice = formatPrice(totalPrice) + " đ";
-      }
+      // }
 
       // Update footer values
       $("#footer-sku-count").text("1 SKU");
@@ -131,23 +134,26 @@
     // Submit order data về server
     $("#next-step-button").on("click", function (e) {
       e.preventDefault();
-
+      
       // Collect form data
       const formData = {
         variant: $('input[name="variant"]:checked').val(),
         quantity: $('input[name="quantity"]:checked').val(),
         packaging: $('input[name="packaging"]:checked').val(),
         // Additional pricing/calculation data
-        price_per_kg: calculatePricePerKg(),
-        total_price: calculateTotalPrice(),
+        // price_per_kg: calculatePricePerKg(),
+        // total_price: calculateTotalPrice(),
+        total_price: totalPrice,
+        price_per_kg: pricePerKg,
       };
-
+      alert(JSON.stringify(formData));
       // Validate
       if (!formData.variant || !formData.quantity || !formData.packaging) {
         alert("Vui lòng chọn đầy đủ thông tin!");
         return;
       }
 
+      //alert("Đang xử lý... Vui lòng chờ."); 
       // AJAX call để store data trong PHP session
       $.ajax({
         url: vinapet_ajax.ajax_url,
@@ -155,16 +161,16 @@
         data: {
           action: "vinapet_store_order_session",
           nonce: vinapet_ajax.nonce,
-          product_code: getProductCodeFromURL(),
+          product_code: product_code,
           order_data: formData,
         },
-        beforeSend: function () {
-          showLoading($("#next-step-button"));
-        },
+        // beforeSend: function () {
+        //   showLoading($("#next-step-button"));
+        // },
         success: function (response) {
           if (response.success) {
             // Redirect to checkout
-            window.location.href = "/vinapet/checkout";
+            window.location.href = "/checkout";
           } else {
             alert(response.data || "Có lỗi xảy ra!");
           }
@@ -173,7 +179,8 @@
           alert("Lỗi kết nối! Vui lòng thử lại.");
         },
         complete: function () {
-          hideLoading($("#next-step-button"));
+          //hideLoading($("#next-step-button"));
+          alert("Đang xử lý... Vui lòng chờ."); 
         },
       });
     });

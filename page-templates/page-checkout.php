@@ -75,12 +75,12 @@ $breadcrumb_data = [
                             <div class="item-header">
                                 <div class="item-name"><?php echo esc_html($checkout_data['product_name']); ?></div>
                                 <div class="item-quantity">
-                                    <?php echo number_format($checkout_data['quantity']); ?> kg
+                                    x<?php echo number_format($checkout_data['quantity']); ?> kg
                                 </div>
                             </div>
                             <div class="item-details">
-                                <div class="item-detail">Variant: <?php echo esc_html($checkout_data['variant']); ?></div>
-                                <div class="item-detail">Mã SP: <?php echo esc_html($checkout_data['product_code']); ?></div>
+                                <div class="item-detail">SKU: <?php echo esc_html($checkout_data['variant']); ?></div>
+                                <div class="item-detail">Túi: <?php echo esc_html(vinapet_get_mix_option_name('packaging',$checkout_data['packaging'])); ?></div>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -110,7 +110,7 @@ $breadcrumb_data = [
                         <span class="summary-label">Báo giá dự kiến:</span>
                         <div class="total-price-section">
                             <span class="total-price" id="summary-total-price">
-                                <?php echo number_format($checkout_data['total_price']); ?> đ
+                                <?php echo number_format($checkout_data['estimated_price']); ?> đ
                             </span>
                             <span class="price-note">
                                 (Giá cost: 

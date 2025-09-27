@@ -168,9 +168,10 @@ class VinaPet_Order_Session { private static $instance = null;
             'source' => 'order_page',
             'title' => 'Đơn hàng',
             'product_code' => $order_data['product_code'],
-            'product_name' => $product_info['name'] ?? 'Sản phẩm',
+            'product_name' => $product_info['product_name'] ?? 'Sản phẩm',
             'variant' => $order_data['variant'],
             'quantity' => $order_data['additional']['quantity'] ?? 1000,
+            'packaging' => $order_data['additional']['packaging'] ?? '',
             'total_quantity' => $order_data['additional']['quantity'] ?? 1000,
             'estimated_price' => $this->calculate_order_price($order_data),
             'price_per_kg' => $this->calculate_order_price_per_kg($order_data),
@@ -259,6 +260,7 @@ class VinaPet_Order_Session { private static $instance = null;
         if (class_exists('Product_Data_Manager')) {
             $manager = new Product_Data_Manager();
             $response = $manager->get_product($product_code);
+            error_log(print_r($response, true));
             return $response['product'] ?? ['name' => 'Sản phẩm'];
         }
         return ['name' => 'Sản phẩm'];

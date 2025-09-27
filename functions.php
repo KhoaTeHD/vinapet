@@ -1381,14 +1381,14 @@ add_action('init', 'vinapet_debug_session_data');
 /**
  * Add admin notice nếu missing unified session class
  */
-function vinapet_check_unified_session() {
-    if (!class_exists('VinaPet_Unified_Session')) {
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-error"><p>';
-            echo '<strong>VinaPet:</strong> Missing VinaPet_Unified_Session class. ';
-            echo 'Please ensure includes/helpers/class-unified-session.php exists.';
-            echo '</p></div>';
-        });
-    }
-}
-add_action('admin_init', 'vinapet_check_unified_session');
+// function vinapet_check_unified_session() {
+//     if (!class_exists('VinaPet_Unified_Session')) {
+//         add_action('admin_notices', function() {
+//             echo '<div class="notice notice-error"><p>';
+//             echo '<strong>VinaPet:</strong> Missing VinaPet_Unified_Session class. ';
+//             echo 'Please ensure includes/helpers/class-unified-session.php exists.';
+//             echo '</p></div>';
+//         });
+//     }
+// }
+// add_action('admin_init', 'vinapet_check_unified_session');

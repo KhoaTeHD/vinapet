@@ -4,6 +4,8 @@
         let mixData = {};
         let checkoutData = {};
         let isFromMix = false;
+
+        console.log(vinapet_checkout_data);
         
         // Load order data from previous page
         //loadOrderData();

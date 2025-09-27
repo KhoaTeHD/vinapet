@@ -146,7 +146,7 @@
         total_price: totalPrice,
         price_per_kg: pricePerKg,
       };
-      alert(JSON.stringify(formData));
+      alert(JSON.stringify(formData.total_price));
       // Validate
       if (!formData.variant || !formData.quantity || !formData.packaging) {
         alert("Vui lòng chọn đầy đủ thông tin!");

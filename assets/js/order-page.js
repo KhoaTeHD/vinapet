@@ -146,7 +146,7 @@
         total_price: totalPrice,
         price_per_kg: pricePerKg,
       };
-      alert(JSON.stringify(formData.total_price));
+
       // Validate
       if (!formData.variant || !formData.quantity || !formData.packaging) {
         alert("Vui lòng chọn đầy đủ thông tin!");
@@ -170,7 +170,7 @@
         success: function (response) {
           if (response.success) {
             // Redirect to checkout
-            window.location.href = "/checkout";
+            window.location.href = response.data.redirect;
           } else {
             alert(response.data || "Có lỗi xảy ra!");
           }
@@ -180,7 +180,7 @@
         },
         complete: function () {
           //hideLoading($("#next-step-button"));
-          alert("Đang xử lý... Vui lòng chờ."); 
+          //alert("Đang xử lý... Vui lòng chờ."); 
         },
       });
     });

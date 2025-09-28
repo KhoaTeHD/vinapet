@@ -1,516 +1,263 @@
+/**
+ * Fixed checkout-page.js - Pricing theo source VinaPet + Add to Cart handler
+ * Thay thế toàn bộ file checkout-page.js
+ */
+
 (function($) {
     $(document).ready(function() {
-        let orderData = {};
-        let mixData = {};
-        let checkoutData = {};
-        let isFromMix = false;
+        // Pricing modifiers dựa trên source VinaPet
+        const packagingDesignPrices = {
+            'company_design': 0,        // Nhà máy hỗ trợ thiết kế: Miễn phí
+            'custom_file': 0            // File thiết kế riêng: Báo giá sau (0đ hiển thị)
+        };
 
-        console.log(vinapet_checkout_data);
+        const deliveryTimelinePrices = {
+            'urgent': 100000,       // Gấp (dưới 15 ngày): +100,000đ
+            'normal': 20000,        // Trung bình (15-30 ngày): +20,000đ  
+            'flexible': 0           // Linh hoạt (trên 30 ngày): Miễn phí
+        };
+
+        const shippingMethodPrices = {
+            'factory_support': 300000, // Nhà máy hỗ trợ vận chuyển: +3,000,000đ
+            'self_pickup': 0            // Tự lấy hàng: Miễn phí
+        };
         
-        // Load order data from previous page
-        //loadOrderData();
+        // Get initial data từ PHP (đã render sẵn)
+        let checkoutData = window.vinapet_checkout_data || {};
+        let baseQuantity = checkoutData.total_quantity || 1000;
+        let baseTotalPrice = checkoutData.estimated_price || 50000000;
         
-        // Initialize form handlers
+        // Initialize
         initializeFormHandlers();
-        
-        // Populate order summary
-        //populateOrderSummary();
+        updateDynamicPricing();
         
         /**
-         * Load order data from sessionStorage - Xử lý cả mix và order thông thường
+         * Add to Cart button handler
          */
-        function loadOrderData() {
-            // Kiểm tra xem có dữ liệu mix không
-            const storedMixData = sessionStorage.getItem('vinapet_mix_data');
-            const storedOrderData = sessionStorage.getItem('vinapet_order_data');
+        $('.add-to-cart-btn').on('click', function(e) {
+            e.preventDefault();
             
-            if (storedMixData) {
-                // Đây là mix order
-                mixData = JSON.parse(storedMixData);
-                isFromMix = true;
-                console.log('Loaded mix data:', mixData);
-            } else if (storedOrderData) {
-                // Đây là order thông thường
-                orderData = JSON.parse(storedOrderData);
-                isFromMix = false;
-                console.log('Loaded order data:', orderData);
-            } else {
-                // Fallback data for testing
-                orderData = {
-                    variant: 'com',
-                    quantity: '4000',
-                    packaging: 'bao_dua',
-                    quantity_kg: 4000,
-                    base_price_per_kg: 42000,
-                    packaging_price_per_kg: 160,
-                    total_base_price: 168000000,
-                    total_packaging_fee: 640000,
-                    total_price: 171800000,
-                    product_code: 'CAT-TRE-001'
-                };
-                isFromMix = false;
-                console.log('Using fallback order data');
+            // TODO: Implement add to cart functionality
+            // Hiện tại để trống cho tương lai phát triển
+            
+            alert('Tính năng giỏ hàng sẽ được phát triển trong tương lai!');
+            
+            // Template cho tương lai:
+            // const cartData = {
+            //     type: checkoutData.type,
+            //     products: checkoutData.products || [checkoutData],
+            //     total_quantity: baseQuantity,
+            //     total_price: getCurrentTotalPrice(),
+            //     checkout_options: getCurrentCheckoutOptions()
+            // };
+            // 
+            // $.ajax({
+            //     url: vinapet_ajax.ajax_url,
+            //     type: 'POST',
+            //     data: {
+            //         action: 'vinapet_add_to_cart',
+            //         nonce: vinapet_ajax.nonce,
+            //         cart_data: cartData
+            //     },
+            //     success: function(response) {
+            //         if (response.success) {
+            //             alert('Đã thêm vào giỏ hàng!');
+            //             // Update cart count in header
+            //         }
+            //     }
+            // });
+        });
+        
+        /**
+         * Form submit handler (Gửi yêu cầu)
+         */
+        $('#checkout-form').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                packaging_design: $('input[name="packaging_design"]:checked').val(),
+                delivery_timeline: $('input[name="delivery_timeline"]:checked').val(),
+                shipping_method: $('input[name="shipping_method"]:checked').val(),
+                contact_info: {
+                    notes: $('#additional-support').val() || '',
+                    phone: $('#contact-phone').val() || '',
+                    email: $('#contact-email').val() || ''
+                }
+            };
+            
+            // Validate
+            if (!formData.packaging_design || !formData.delivery_timeline || !formData.shipping_method) {
+                alert('Vui lòng chọn đầy đủ thông tin bắt buộc!');
+                return;
             }
-        }
-        
-        /**
-         * Populate order summary section - Xử lý cả mix và order thông thường
-         */
-        function populateOrderSummary() {
-            // Cập nhật title dựa trên loại đơn hàng
-            const titleText = isFromMix ? 'Đơn hàng tùy chỉnh' : 'Đơn hàng';
-            $('.summary-title').text(titleText);
             
-            // Generate order items HTML
-            const orderItems = isFromMix ? generateMixOrderItemsHTML() : generateOrderItemsHTML();
-            $('#order-items-list').html(orderItems);
-            
-            // Update totals
-            updateOrderTotals();
-        }
-        
-        /**
-         * Generate HTML for mix order items - Hiển thị theo tỷ lệ %
-         */
-        function generateMixOrderItemsHTML() {
-            const variantNames = {
-                'com': 'Cát tre: Mùi cốm - Màu xanh non',
-                'sua': 'Cát tre: Mùi sữa - Màu tự nhiên', 
-                'cafe': 'Cát tre: Mùi cà phê - Màu nâu',
-                'sen': 'Cát tre: Mùi sen - Màu hồng',
-                'vanilla': 'Cát tre: Mùi vanilla - Màu vàng'
-            };
-            
-            const colorNames = {
-                'xanh_non': 'Màu xanh non',
-                'hong_nhat': 'Màu hồng nhạt',
-                'vang_dat': 'Màu vàng đất',
-                'do_gach': 'Màu đỏ gạch',
-                'be_nhat': 'Màu be nhạt',
-                'den': 'Màu đen'
-            };
-            
-            const scentNames = {
-                'com': 'Mùi cốm',
-                'tro_xanh': 'Mùi trà xanh',
-                'ca_phe': 'Mùi cà phê',
-                'sen': 'Mùi sen',
-                'sua': 'Mùi sữa',
-                'chanh': 'Mùi chanh'
-            };
-            
-            const packagingNames = {
-                'tui_jumbo_500': 'Túi Jumbo 500 kg',
-                'tui_jumbo_1000': 'Túi Jumbo 1 tấn'
-            };
-            
-            let itemsHTML = '';
-            
-            // Hiển thị từng sản phẩm trong mix
-            const activeProducts = ['products.product1', 'products.product2', 'products.product3'];
-            
-            activeProducts.forEach(productPath => {
-                const product = getNestedProperty(mixData, productPath);
-                if (product && product.name) {
-                    itemsHTML += `
-                        <div class="order-item">
-                            <div class="item-header">
-                                <div class="item-name">${product.name}</div>
-                                <div class="item-quantity">${product.percentage}%</div>
-                            </div>
-                            <div class="item-details">
-                                <div class="item-detail">${colorNames[mixData.options.color] || 'Màu xanh non'}</div>
-                                <div class="item-detail">${scentNames[mixData.options.scent] || 'Mùi trà xanh'}</div>
-                                <div class="item-detail">${packagingNames[mixData.options.packaging] || 'Túi Jumbo 1 tấn'}</div>
-                            </div>
-                        </div>
-                    `;
+            $.ajax({
+                url: vinapet_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'vinapet_submit_checkout',
+                    nonce: vinapet_ajax.nonce,
+                    checkout_form: formData
+                },
+                beforeSend: function() {
+                    $('.submit-request-btn').prop('disabled', true).html(`
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin">
+                            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                        </svg>
+                        Đang gửi yêu cầu...
+                    `);
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.data.message);
+                        window.location.href = response.data.redirect;
+                    } else {
+                        alert(response.data || 'Có lỗi xảy ra! Vui lòng thử lại.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Checkout Error:', error);
+                    if (xhr.status === 403) {
+                        alert('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại!');
+                        window.location.href = '/dang-nhap';
+                    } else {
+                        alert('Lỗi kết nối! Vui lòng kiểm tra mạng và thử lại.');
+                    }
+                },
+                complete: function() {
+                    $('.submit-request-btn').prop('disabled', false).html(`
+                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 1.25C11.3953 1.25 10.8384 1.40029 10.2288 1.65242C9.64008 1.89588 8.95633 2.25471 8.1049 2.70153L6.03739 3.78651C4.99242 4.33487 4.15616 4.77371 3.51047 5.20491C2.84154 5.65164 2.32632 6.12201 1.95112 6.75918C1.57718 7.39421 1.40896 8.08184 1.32829 8.90072C1.24999 9.69558 1.24999 10.6731 1.25 11.9026V12.0974C1.24999 13.3268 1.24999 14.3044 1.32829 15.0993C1.40896 15.9182 1.57718 16.6058 1.95112 17.2408C2.32632 17.878 2.84154 18.3484 3.51047 18.7951C4.15616 19.2263 4.99241 19.6651 6.03737 20.2135L8.10481 21.2984C8.95628 21.7453 9.64006 22.1041 10.2288 22.3476C10.8384 22.5997 11.3953 22.75 12 22.75C12.6047 22.75 13.1616 22.5997 13.7712 22.3476C14.3599 22.1041 15.0437 21.7453 15.8951 21.2985L17.9626 20.2135C19.0076 19.6651 19.8438 19.2263 20.4895 18.7951C21.1585 18.3484 21.6737 17.878 22.0489 17.2408C22.4228 16.6058 22.591 15.9182 22.6717 15.0993C22.75 14.3044 22.75 13.3269 22.75 12.0975V11.9025C22.75 10.6731 22.75 9.69557 22.6717 8.90072C22.591 8.08184 22.4228 7.39421 22.0489 6.75918C21.6737 6.12201 21.1585 5.65164 20.4895 5.20491C19.8438 4.77371 19.0076 4.33487 17.9626 3.7865L15.8951 2.70154C15.0437 2.25472 14.3599 1.89589 13.7712 1.65242C13.1616 1.40029 12.6047 1.25 12 1.25ZM8.7708 4.04608C9.66052 3.57917 10.284 3.2528 10.802 3.03856C11.3062 2.83004 11.6605 2.75 12 2.75C12.3395 2.75 12.6938 2.83004 13.198 3.03856C13.716 3.2528 14.3395 3.57917 15.2292 4.04608L17.2292 5.09563C18.3189 5.66748 19.0845 6.07032 19.6565 6.45232C19.9387 6.64078 20.1604 6.81578 20.3395 6.99174L17.0088 8.65708L8.50895 4.18349L8.7708 4.04608ZM6.94466 5.00439L6.7708 5.09563C5.68111 5.66747 4.91553 6.07032 4.34352 6.45232C4.06131 6.64078 3.83956 6.81578 3.66054 6.99174L12 11.1615L15.3572 9.48289L7.15069 5.16369C7.07096 5.12173 7.00191 5.06743 6.94466 5.00439ZM2.93768 8.30737C2.88718 8.52125 2.84901 8.76413 2.82106 9.04778C2.75084 9.7606 2.75 10.6644 2.75 11.9415V12.0585C2.75 13.3356 2.75084 14.2394 2.82106 14.9522C2.88974 15.6494 3.02022 16.1002 3.24367 16.4797C3.46587 16.857 3.78727 17.1762 4.34352 17.5477C4.91553 17.9297 5.68111 18.3325 6.7708 18.9044L8.7708 19.9539C9.66052 20.4208 10.284 20.7472 10.802 20.9614C10.9656 21.0291 11.1134 21.0832 11.25 21.1255V12.4635L2.93768 8.30737ZM12.75 21.1255C12.8866 21.0832 13.0344 21.0291 13.198 20.9614C13.716 20.7472 14.3395 20.4208 15.2292 19.9539L17.2292 18.9044C18.3189 18.3325 19.0845 17.9297 19.6565 17.5477C20.2127 17.1762 20.5341 16.857 20.7563 16.4797C20.9798 16.1002 21.1103 15.6494 21.1789 14.9522C21.2492 14.2394 21.25 13.3356 21.25 12.0585V11.9415C21.25 10.6644 21.2492 9.7606 21.1789 9.04778C21.151 8.76412 21.1128 8.52125 21.0623 8.30736L17.75 9.96352V13C17.75 13.4142 17.4142 13.75 17 13.75C16.5858 13.75 16.25 13.4142 16.25 13V10.7135L12.75 12.4635V21.1255Z" fill="#ffffff"></path>
+                        </svg>
+                        Gửi yêu cầu
+                    `);
                 }
             });
-            
-            return itemsHTML;
-        }
+        });
         
         /**
-         * Generate HTML for regular order items - Hiển thị theo số lượng
-         */
-        function generateOrderItemsHTML() {
-            const variantNames = {
-                'com': 'Cát tre: Mùi cốm - Màu xanh non',
-                'sua': 'Cát tre: Mùi sữa - Màu tự nhiên', 
-                'cafe': 'Cát tre: Mùi cà phê - Màu nâu',
-                'sen': 'Cát tre: Mùi sen - Màu hồng',
-                'vanilla': 'Cát tre: Mùi vanilla - Màu vàng'
-            };
-            
-            const packagingNames = {
-                'pa_pe_thuong': 'Túi 8 Biên PA / PE Hút Chân Không',
-                'pa_pe_khong': 'Túi 8 Biên PA / PE Hút Chân Không',
-                'pa_pe_decal': 'Túi PA / PE Trong + Decal',
-                'bao_dua': 'Bao Tải Dừa + Lót 1 lớp PE',
-                'tui_jumbo': 'Túi Jumbo'
-            };
-            
-            // Generate items HTML matching the design (2 items with specific quantities)
-            let itemsHTML = '';
-            
-            // First item - 1000kg
-            itemsHTML += `
-                <div class="order-item">
-                    <div class="item-header">
-                        <div class="item-name">${variantNames['com']}</div>
-                        <div class="item-quantity">x1000 kg</div>
-                    </div>
-                    <div class="item-details">
-                        <div class="item-detail">• Túi 8 Biên PA / PE Hút Chân Không</div>
-                    </div>
-                </div>
-            `;
-            
-            // Second item - 3000kg
-            itemsHTML += `
-                <div class="order-item">
-                    <div class="item-header">
-                        <div class="item-name">${variantNames['sen']}</div>
-                        <div class="item-quantity">x3000 kg</div>
-                    </div>
-                    <div class="item-details">
-                        <div class="item-detail">• Bao Tải Dừa + Lót 1 lớp PE</div>
-                    </div>
-                </div>
-            `;
-            
-            return itemsHTML;
-        }
-        
-        /**
-         * Helper function to get nested property safely
-         */
-        function getNestedProperty(obj, path) {
-            return path.split('.').reduce((current, key) => current && current[key], obj);
-        }
-        
-        /**
-         * Update order totals display - Xử lý cả mix và order thông thường
-         */
-        function updateOrderTotals() {
-            if (isFromMix) {
-                // Hiển thị thông tin cho mix order
-                const totalQuantity = mixData.quantity_kg || 10000;
-                let quantityText = totalQuantity.toLocaleString('vi-VN') + ' kg';
-
-                $('#summary-total-quantity').text(quantityText);
-                
-                // Update total price
-                const totalPrice = mixData.total_price || 340000000;
-                let formattedTotalPrice;
-                if (totalPrice >= 1000000000) {
-                    formattedTotalPrice = Math.round(totalPrice / 1000000000) + ' tỷ';
-                } else if (totalPrice >= 1000000) {
-                    formattedTotalPrice = Math.round(totalPrice / 1000000) + ' triệu';
-                } else {
-                    formattedTotalPrice = formatPrice(totalPrice) + ' đ';
-                }
-                
-                const pricePerKg = (mixData.base_price_per_kg || 34000) + (mixData.packaging_price_per_kg || 0);
-                
-                $('#summary-total-price').text(formattedTotalPrice);
-                $('#summary-price-per-kg').text(formatPrice(pricePerKg) + ' đ/kg');
-                
-            } else {
-                // Hiển thị thông tin cho order thông thường
-                $('#summary-total-quantity').text('4000 kg');
-                $('#summary-total-price').text('171,800,000 đ');
-                $('#summary-price-per-kg').text('42,950 đ/kg');
-            }
-            
-            // Update packaging info
-            const packagingText = checkoutData.packaging_design ? 
-                getPackagingDisplayText(checkoutData.packaging_design) : 
-                'Vui lòng chọn';
-            $('#summary-packaging').text(packagingText);
-            $('#summary-packaging').toggleClass('highlight-text', !checkoutData.packaging_design);
-            
-            // Update delivery time
-            const deliveryText = checkoutData.delivery_timeline ? 
-                getDeliveryDisplayText(checkoutData.delivery_timeline) : 
-                'Vui lòng chọn';
-            $('#summary-delivery').text(deliveryText);
-            $('#summary-delivery').toggleClass('highlight-text', !checkoutData.delivery_timeline);
-            
-            // Update shipping
-            const shippingText = checkoutData.shipping_method ? 
-                getShippingDisplayText(checkoutData.shipping_method) : 
-                'Vui lòng chọn';
-            $('#summary-shipping').text(shippingText);
-            $('#summary-shipping').toggleClass('highlight-text', !checkoutData.shipping_method);
-        }
-        
-        /**
-         * Get display text for packaging design
-         */
-        function getPackagingDisplayText(value) {
-            const texts = {
-                'company_design': 'Thiết kế của nhà máy',
-                'custom_file': 'File thiết kế riêng'
-            };
-            return texts[value] || value;
-        }
-        
-        /**
-         * Get display text for delivery timeline
-         */
-        function getDeliveryDisplayText(value) {
-            const texts = {
-                'urgent': 'Gấp (< 15 ngày)',
-                'normal': 'Trung bình (15-30 ngày)',
-                'flexible': 'Linh hoạt (> 30 ngày)'
-            };
-            return texts[value] || value;
-        }
-        
-        /**
-         * Get display text for shipping method
-         */
-        function getShippingDisplayText(value) {
-            const texts = {
-                'factory_support': 'Nhà máy hỗ trợ vận chuyển',
-                'self_pickup': 'Tự lấy hàng'
-            };
-            return texts[value] || value;
-        }
-        
-        /**
-         * Initialize form event handlers
+         * Initialize form handlers
          */
         function initializeFormHandlers() {
-            // Packaging design change
-            $('input[name="packaging_design"]').on('change', function() {
-                checkoutData.packaging_design = $(this).val();
-                updateOrderTotals();
-            });
-            
-            // Delivery timeline change
-            $('input[name="delivery_timeline"]').on('change', function() {
-                checkoutData.delivery_timeline = $(this).val();
-                updateOrderTotals();
-            });
-            
-            // Shipping method change
-            $('input[name="shipping_method"]').on('change', function() {
-                checkoutData.shipping_method = $(this).val();
-                updateOrderTotals();
-            });
-            
-            // Design request text change
-            $('#design-request').on('input', function() {
-                checkoutData.design_request = $(this).val();
-            });
-            
-            // Additional support text change
-            $('#additional-support').on('input', function() {
-                checkoutData.additional_support = $(this).val();
-            });
-            
-            // Add to cart button
-            $('.add-to-cart-btn').on('click', function(e) {
-                e.preventDefault();
-                handleAddToCart();
-            });
-            
-            // Submit request button
-            $('.submit-request-btn').on('click', function(e) {
-                e.preventDefault();
-                handleSubmitRequest();
+            // Update pricing khi user chọn options
+            $('input[name="packaging_design"], input[name="delivery_timeline"], input[name="shipping_method"]').change(function() {
+                updateSummaryDisplay();
+                updateDynamicPricing();
             });
         }
         
         /**
-         * Handle add to cart action - Xử lý cả mix và order thông thường
+         * Update summary display text
          */
-        function handleAddToCart() {
-            if (!validateForm()) {
-                return;
+        function updateSummaryDisplay() {
+            // Update packaging text  
+            const packagingValue = $('input[name="packaging_design"]:checked').val();
+            let packagingText = 'Vui lòng chọn';
+            if (packagingValue === 'company_design') {
+                packagingText = 'Nhà máy hỗ trợ thiết kế decal/ túi đơn giản';
+            } else if (packagingValue === 'custom_file') {
+                packagingText = 'File thiết kế riêng';
+            }
+            $('#summary-packaging').text(packagingText).toggleClass('highlight-text', !packagingValue);
+            
+            // Update delivery text
+            const deliveryValue = $('input[name="delivery_timeline"]:checked').val();
+            let deliveryText = 'Vui lòng chọn';
+            if (deliveryValue === 'urgent') {
+                deliveryText = 'Gấp (dưới 15 ngày)';
+            } else if (deliveryValue === 'normal') {
+                deliveryText = 'Trung bình (15-30 ngày)';
+            } else if (deliveryValue === 'flexible') {
+                deliveryText = 'Linh hoạt (trên 30 ngày)';
+            }
+            $('#summary-delivery').text(deliveryText).toggleClass('highlight-text', !deliveryValue);
+            
+            // Update shipping text
+            const shippingValue = $('input[name="shipping_method"]:checked').val();
+            let shippingText = 'Vui lòng chọn';
+            if (shippingValue === 'factory_support') {
+                shippingText = 'Nhà máy hỗ trợ vận chuyển';
+            } else if (shippingValue === 'self_pickup') {
+                shippingText = 'Tự vận chuyển';
+            }
+            $('#summary-shipping').text(shippingText).toggleClass('highlight-text', !shippingValue);
+        }
+        
+        /**
+         * Calculate và update dynamic pricing
+         */
+        function updateDynamicPricing() {
+            // Get current selections
+            const packagingDesign = $('input[name="packaging_design"]:checked').val();
+            const deliveryTimeline = $('input[name="delivery_timeline"]:checked').val();
+            const shippingMethod = $('input[name="shipping_method"]:checked').val();
+            
+            // Start với base price từ order/mix data
+            let additionalCosts = 0;
+            
+            // Add packaging design cost (hiện tại cả 2 đều = 0 theo source)
+            if (packagingDesign && packagingDesignPrices[packagingDesign] !== undefined) {
+                additionalCosts += packagingDesignPrices[packagingDesign];
             }
             
-            // Combine data based on order type
-            const cartData = isFromMix ? 
-                { ...mixData, ...checkoutData, action_type: 'add_to_cart' } :
-                { ...orderData, ...checkoutData, action_type: 'add_to_cart' };
-            
-            // Store in sessionStorage for cart processing
-            sessionStorage.setItem('vinapet_cart_item', JSON.stringify(cartData));
-            
-            // Show success message
-            showMessage('Đã thêm vào giỏ hàng thành công!', 'success');
-        }
-        
-        /**
-         * Handle submit request action - Xử lý cả mix và order thông thường
-         */
-        function handleSubmitRequest() {
-            if (!validateForm()) {
-                return;
+            // Add delivery timeline cost (fixed amount, không per kg)
+            if (deliveryTimeline && deliveryTimelinePrices[deliveryTimeline] !== undefined) {
+                additionalCosts += deliveryTimelinePrices[deliveryTimeline];
             }
             
-            // Combine data based on order type
-            const requestData = isFromMix ?
-                { ...mixData, ...checkoutData, action_type: 'submit_request' } :
-                { ...orderData, ...checkoutData, action_type: 'submit_request' };
-            
-            // Here you would typically send to server
-            console.log('Submitting request:', requestData);
-            
-            // Show loading state
-            $('.submit-request-btn').prop('disabled', true).html(`
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin">
-                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
-                </svg>
-                Đang gửi yêu cầu...
-            `);
-            
-            // Simulate API call
-            setTimeout(() => {
-                $('.submit-request-btn').prop('disabled', false).html(`
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 16.92V19.92C22 20.4728 21.5523 20.92 21 20.92H18C8.059 20.92 0 12.861 0 2.92V2.92C0 1.36772 1.34772 0.02 3 0.02H6L8 4.02L6.5 5.52C7.5 7.52 9.48 9.5 11.48 10.5L13 9.02L17 11.02V14.02C17 15.5728 15.5523 17.02 14 17.02H13C12.4477 17.02 12 16.5728 12 16.02V14.52C10.34 13.85 8.15 12.17 7.48 10.51H6C5.44772 10.51 5 10.0628 5 9.51V8.02C5 7.46772 5.44772 7.02 6 7.02H7.5C8.88 4.64 11.12 3.02 14 3.02C16.21 3.02 18 4.81 18 7.02V8.52C18 9.07228 17.5523 9.52 17 9.52H15.5C14.83 11.18 13.15 12.86 11.49 13.53V15.02C11.49 15.5728 11.9377 16.02 12.49 16.02H14C15.5523 16.02 17 14.5728 17 13.02V11.02L22 16.92Z"/>
-                    </svg>
-                    Gửi yêu cầu
-                `);
-                
-                const successMessage = isFromMix ? 
-                    'Yêu cầu đơn hàng tùy chỉnh đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.' :
-                    'Yêu cầu đã được gửi thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.';
-                
-                showMessage(successMessage, 'success');
-                
-                // Clear form data
-                if (isFromMix) {
-                    sessionStorage.removeItem('vinapet_mix_data');
-                } else {
-                    sessionStorage.removeItem('vinapet_order_data');
-                }
-            }, 2000);
-        }
-        
-        /**
-         * Validate form before submission
-         */
-        function validateForm() {
-            const requiredFields = [
-                'packaging_design',
-                'delivery_timeline', 
-                'shipping_method'
-            ];
-            
-            for (let field of requiredFields) {
-                if (!checkoutData[field]) {
-                    showMessage('Vui lòng điền đầy đủ thông tin bắt buộc.', 'error');
-                    return false;
-                }
+            // Add shipping cost (fixed amount)
+            if (shippingMethod && shippingMethodPrices[shippingMethod] !== undefined) {
+                additionalCosts += shippingMethodPrices[shippingMethod];
             }
             
-            return true;
+            // Calculate final totals
+            const newTotalPrice = baseTotalPrice + additionalCosts;
+            const newPricePerKg = newTotalPrice / baseQuantity;
+            
+            // Update display
+            $('#summary-total-price').text(formatPrice(newTotalPrice) + ' đ');
+            $('#summary-price-per-kg').text(formatPrice(newPricePerKg) + ' đ/kg');
         }
         
         /**
-         * Show message to user
+         * Get current total price (for add to cart)
          */
-        function showMessage(message, type = 'info') {
-            // Remove existing messages
-            $('.message-popup').remove();
+        function getCurrentTotalPrice() {
+            const packagingDesign = $('input[name="packaging_design"]:checked').val();
+            const deliveryTimeline = $('input[name="delivery_timeline"]:checked').val();
+            const shippingMethod = $('input[name="shipping_method"]:checked').val();
             
-            const messageClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
-            const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
+            let additionalCosts = 0;
+            if (packagingDesign && packagingDesignPrices[packagingDesign] !== undefined) {
+                additionalCosts += packagingDesignPrices[packagingDesign];
+            }
+            if (deliveryTimeline && deliveryTimelinePrices[deliveryTimeline] !== undefined) {
+                additionalCosts += deliveryTimelinePrices[deliveryTimeline];
+            }
+            if (shippingMethod && shippingMethodPrices[shippingMethod] !== undefined) {
+                additionalCosts += shippingMethodPrices[shippingMethod];
+            }
             
-            const popup = $(`
-                <div class="message-popup ${messageClass}">
-                    <span class="message-icon">${icon}</span>
-                    <span class="message-text">${message}</span>
-                </div>
-            `);
-            
-            $('body').append(popup);
-            
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                popup.fadeOut(300, function() {
-                    $(this).remove();
-                });
-            }, 5000);
+            return baseTotalPrice + additionalCosts;
         }
         
         /**
-         * Format price with thousands separator
+         * Get current checkout options (for add to cart)
+         */
+        function getCurrentCheckoutOptions() {
+            return {
+                packaging_design: $('input[name="packaging_design"]:checked').val(),
+                delivery_timeline: $('input[name="delivery_timeline"]:checked').val(),
+                shipping_method: $('input[name="shipping_method"]:checked').val(),
+                additional_support: $('#additional-support').val()
+            };
+        }
+        
+        /**
+         * Format price với thousands separator
          */
         function formatPrice(price) {
             return Math.round(price).toLocaleString('vi-VN');
-        }
-        
-        // Add CSS for message popup and animations
-        if (!$('#message-popup-styles').length) {
-            $('head').append(`
-                <style id="message-popup-styles">
-                    .message-popup {
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        padding: 12px 16px;
-                        border-radius: 8px;
-                        font-weight: 500;
-                        z-index: 9999;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                        animation: slideInRight 0.3s ease;
-                    }
-                    
-                    .message-popup.success {
-                        background: #10B981;
-                        color: white;
-                    }
-                    
-                    .message-popup.error {
-                        background: #EF4444;
-                        color: white;
-                    }
-                    
-                    .message-popup.info {
-                        background: #3B82F6;
-                        color: white;
-                    }
-                    
-                    .message-icon {
-                        font-weight: bold;
-                        font-size: 16px;
-                    }
-                    
-                    @keyframes slideInRight {
-                        from {
-                            transform: translateX(100%);
-                            opacity: 0;
-                        }
-                        to {
-                            transform: translateX(0);
-                            opacity: 1;
-                        }
-                    }
-                    
-                    .animate-spin {
-                        animation: spin 1s linear infinite;
-                    }
-                    
-                    @keyframes spin {
-                        from {
-                            transform: rotate(0deg);
-                        }
-                        to {
-                            transform: rotate(360deg);
-                        }
-                    }
-                </style>
-            `);
         }
     });
 })(jQuery);

@@ -503,6 +503,15 @@ class VinaPet_Auth_Integration
         $user_email = sanitize_email($_POST['user_email']);
         $user_phone = sanitize_text_field($_POST['user_phone']);
         $agree_terms = isset($_POST['agree_terms']) && $_POST['agree_terms'] === 'true';
+        $user_region = sanitize_text_field($_POST['user_region'] ?? '');
+        $user_province = sanitize_text_field($_POST['user_province'] ?? '');
+        $user_ward = sanitize_text_field($_POST['user_ward'] ?? '');
+
+        // Validate required fields
+        if (empty($user_region) || empty($user_province) || empty($user_ward)) {
+            wp_send_json_error(['message' => 'Vui lòng điền đầy đủ thông tin địa chỉ']);
+            return;
+        }
 
         // Validation
         if (empty($user_name) || empty($user_address) || empty($user_phone)) {
@@ -546,6 +555,9 @@ class VinaPet_Auth_Integration
         update_user_meta($user_id, 'google_registered', true);
         update_user_meta($user_id, 'google_id', $google_data['google_id']);
         update_user_meta($user_id, 'custom_google_register', true);
+        add_user_meta($user_id, 'user_region', $user_region);
+        add_user_meta($user_id, 'user_province', $user_province);
+        add_user_meta($user_id, 'user_ward', $user_ward);
 
         // Link với Nextend Social Login
         if (class_exists('NextendSocialLogin')) {

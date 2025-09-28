@@ -42,10 +42,104 @@
     }
   }
 
+  // API functions for location
+  async function loadProvinces() {
+    try {
+      const response = await fetch("https://provinces.open-api.vn/api/v2/p/");
+      const provinces = await response.json();
+      return provinces;
+    } catch (error) {
+      console.error("Error loading provinces:", error);
+      return [];
+    }
+  }
+
+  async function loadWards(provinceCode) {
+    try {
+      const response = await fetch("https://provinces.open-api.vn/api/v2/w");
+      const allWards = await response.json();
+      return allWards.filter((ward) => ward.province_code == provinceCode);
+    } catch (error) {
+      console.error("Error loading wards:", error);
+      return [];
+    }
+  }
+
+  function populateProvinces(provinceSelectId) {
+    loadProvinces().then((provinces) => {
+      const $select = $(provinceSelectId);
+      $select.empty().append('<option value="">Chọn tỉnh/thành phố</option>');
+
+      provinces.forEach((province) => {
+        $select.append(
+          `<option value="${province.code}" data-name="${province.name}">${province.name}</option>`
+        );
+      });
+    });
+  }
+
+  function populateWards(provinceCode, wardSelectId) {
+    const $wardSelect = $(wardSelectId);
+    $wardSelect
+      .prop("disabled", true)
+      .empty()
+      .append('<option value="">Đang tải...</option>');
+
+    loadWards(provinceCode).then((wards) => {
+      $wardSelect.empty().append('<option value="">Chọn phường/xã</option>');
+      wards.forEach((ward) => {
+        $wardSelect.append(
+          `<option value="${ward.code}" data-name="${ward.name}">${ward.name}</option>`
+        );
+      });
+
+      $wardSelect.prop("disabled", false);
+    });
+  }
+
+  // Function chung để validate location fields
+  function validateLocationFields(formPrefix) {
+    let isValid = true;
+
+    const region = $(`#${formPrefix}Region`).val();
+    const province = $(`#${formPrefix}Province`).val();
+    const ward = $(`#${formPrefix}Ward`).val();
+
+    if (!region) {
+      showFieldError($(`#${formPrefix}Region`), "Vui lòng chọn khu vực");
+      isValid = false;
+    }
+
+    if (!province) {
+      showFieldError(
+        $(`#${formPrefix}Province`),
+        "Vui lòng chọn tỉnh/thành phố"
+      );
+      isValid = false;
+    }
+
+    if (!ward) {
+      showFieldError($(`#${formPrefix}Ward`), "Vui lòng chọn phường/xã");
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  // Function chung để lấy full address
+  function getFullAddress(formPrefix, addressFieldName) {
+    const provinceName = $(`#${formPrefix}Province option:selected`).data(
+      "name"
+    );
+    const wardName = $(`#${formPrefix}Ward option:selected`).data("name");
+    const address = $(`[name="${addressFieldName}"]`).val().trim();
+
+    return `${address}, ${wardName}, ${provinceName}`;
+  }
+
   function bindPopupMessageListener() {
     // Listen for messages from Google OAuth popup
     window.addEventListener("message", function (event) {
-
       // Kiểm tra message type
       if (event.data && event.data.type === "google_register_required") {
         console.log(
@@ -72,7 +166,6 @@
       } else {
       }
     });
-
   }
 
   function bindModalEvents() {
@@ -266,6 +359,10 @@
     $("#registerForm").show().addClass("fade-in");
     $("#modalTitle").text("Đăng ký");
     $(".modal-subtitle").text("Tạo tài khoản mới");
+
+    // Load provinces using shared function
+    populateProvinces("#registerProvince");
+
     clearAllErrors();
     clearAllNotifications();
 
@@ -304,6 +401,9 @@
     if (name) {
       $("#googleRegisterName").val(name);
     }
+
+    // Load provinces using shared function
+    populateProvinces("#googleRegisterProvince");
 
     clearAllErrors();
     clearAllNotifications();
@@ -438,19 +538,27 @@
   function validateRegisterForm($form) {
     let isValid = true;
 
-    // Validate each field
+    // Validate basic required fields
     $form.find(".form-input").each(function () {
-      if (!validateField($(this))) {
-        isValid = false;
+      const $field = $(this);
+      if ($field.attr("required") && !$field.prop("disabled")) {
+        if (!validateField($field)) {
+          isValid = false;
+        }
       }
     });
 
-    // Check password match
+    // Validate location fields using shared function
+    if (!validateLocationFields("register")) {
+      isValid = false;
+    }
+
+    // Password validation
     if (!validatePasswordMatch()) {
       isValid = false;
     }
 
-    // Check terms agreement
+    // Terms agreement
     if (!$("#agreeTerms").is(":checked")) {
       showNotification("Vui lòng đồng ý với điều khoản sử dụng", "error");
       isValid = false;
@@ -531,13 +639,19 @@
     const $submitBtn = $("#registerSubmit");
     showButtonLoading($submitBtn, "Đang đăng ký...");
 
+    // Get full address using shared function
+    const fullAddress = getFullAddress("register", "user_address");
+
     const formData = {
       action: "vinapet_ajax_register",
       nonce: vinapet_auth_data.register_nonce,
       user_name: $form.find('input[name="user_name"]').val().trim(),
-      user_address: $form.find('textarea[name="user_address"]').val().trim(),
+      user_address: fullAddress,
       user_email: $form.find('input[name="user_email"]').val().trim(),
       user_phone: $form.find('input[name="user_phone"]').val().trim(),
+      user_region: $form.find('select[name="user_region"]').val(),
+      user_province: $("#registerProvince option:selected").data("name"),
+      user_ward: $("#registerWard option:selected").data("name"),
       user_password: $form.find('input[name="user_password"]').val(),
       agree_terms: $form.find("#agreeTerms").is(":checked"),
     };
@@ -601,13 +715,19 @@
     const $submitBtn = $("#googleRegisterSubmit");
     showButtonLoading($submitBtn, "Đang tạo tài khoản...");
 
+    // Get full address using shared function
+    const fullAddress = getFullAddress('googleRegister', 'guser_address');
+
     const formData = {
       action: "vinapet_ajax_google_register",
       nonce: vinapet_auth_data.register_nonce,
       user_name: $form.find('input[name="user_name"]').val().trim(),
-      user_address: $form.find('textarea[name="user_address"]').val().trim(),
+      user_address: fullAddress,
       user_email: $form.find('input[name="user_email"]').val().trim(),
       user_phone: $form.find('input[name="user_phone"]').val().trim(),
+      user_region: $form.find('select[name="user_region"]').val(),
+      user_province: $('#googleRegisterProvince option:selected').data('name'),
+      user_ward: $('#googleRegisterWard option:selected').data('name'),
       registration_type: "google",
       agree_terms: $form.find("#googleAgreeTerms").is(":checked"),
     };
@@ -666,6 +786,11 @@
         }
       }
     });
+
+    // Validate location fields using shared function
+    if (!validateLocationFields("googleRegister")) {
+      isValid = false;
+    }
 
     // Check terms agreement
     if (!$("#googleAgreeTerms").is(":checked")) {
@@ -964,4 +1089,27 @@
       }
     }
   });
+
+  $(document).on(
+    "change",
+    "#registerProvince, #googleRegisterProvince",
+    function () {
+      const provinceCode = $(this).val();
+      const formType = $(this).attr("id").includes("google")
+        ? "googleRegister"
+        : "register";
+      const wardSelectId = `#${formType}Ward`;
+
+      if (provinceCode) {
+        //alert("Province selected: " + wardSelectId);
+        populateWards(provinceCode, wardSelectId);
+        clearFieldError($(wardSelectId));
+      } else {
+        $(wardSelectId)
+          .prop("disabled", true)
+          .empty()
+          .append('<option value="">Chọn phường/xã</option>');
+      }
+    }
+  );
 })(jQuery);

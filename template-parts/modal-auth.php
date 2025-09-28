@@ -148,6 +148,56 @@ if (!defined('ABSPATH')) {
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label" for="registerRegion">Khu vực</label>
+                        <select
+                            class="form-input"
+                            id="registerRegion"
+                            name="user_region"
+                            required
+                            aria-describedby="registerRegionError">
+                            <option value="">Chọn khu vực</option>
+                            <option value="Miền Bắc">Miền Bắc</option>
+                            <option value="Miền Trung">Miền Trung</option>
+                            <option value="Miền Nam">Miền Nam</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                        <div class="error-message" id="registerRegionError" role="alert">
+                            ⚠ Vui lòng chọn khu vực
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="registerProvince">Tỉnh/Thành phố</label>
+                        <select
+                            class="form-input"
+                            id="registerProvince"
+                            name="user_province"
+                            required
+                            aria-describedby="registerProvinceError">
+                            <option value="">Chọn tỉnh/thành phố</option>
+                        </select>
+                        <div class="error-message" id="registerProvinceError" role="alert">
+                            ⚠ Vui lòng chọn tỉnh/thành phố
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="registerWard">Phường/Xã</label>
+                        <select
+                            class="form-input"
+                            id="registerWard"
+                            name="user_ward"
+                            required
+                            aria-describedby="registerWardError"
+                            disabled>
+                            <option value="">Chọn phường/xã</option>
+                        </select>
+                        <div class="error-message" id="registerWardError" role="alert">
+                            ⚠ Vui lòng chọn phường/xã
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label" for="registerAddress">Địa chỉ</label>
                         <textarea
                             class="form-input"
@@ -304,11 +354,61 @@ if (!defined('ABSPATH')) {
                     </div>
 
                     <div class="form-group">
+                        <label class="form-label" for="googleRegisterRegion">Khu vực</label>
+                        <select
+                            class="form-input"
+                            id="googleRegisterRegion"
+                            name="user_region"
+                            required
+                            aria-describedby="googleRegisterRegionError">
+                            <option value="">Chọn khu vực</option>
+                            <option value="Miền Bắc">Miền Bắc</option>
+                            <option value="Miền Trung">Miền Trung</option>
+                            <option value="Miền Nam">Miền Nam</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                        <div class="error-message" id="googleRegisterRegionError" role="alert">
+                            ⚠ Vui lòng chọn khu vực
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="googleRegisterProvince">Tỉnh/Thành phố</label>
+                        <select
+                            class="form-input"
+                            id="googleRegisterProvince"
+                            name="user_province"
+                            required
+                            aria-describedby="googleRegisterProvinceError">
+                            <option value="">Chọn tỉnh/thành phố</option>
+                        </select>
+                        <div class="error-message" id="googleRegisterProvinceError" role="alert">
+                            ⚠ Vui lòng chọn tỉnh/thành phố
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="googleRegisterWard">Phường/Xã</label>
+                        <select
+                            class="form-input"
+                            id="googleRegisterWard"
+                            name="user_ward"
+                            required
+                            aria-describedby="googleRegisterWardError"
+                            disabled>
+                            <option value="">Chọn phường/xã</option>
+                        </select>
+                        <div class="error-message" id="googleRegisterWardError" role="alert">
+                            ⚠ Vui lòng chọn phường/xã
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label class="form-label" for="googleRegisterAddress">Địa chỉ</label>
                         <textarea
                             class="form-input"
                             id="googleRegisterAddress"
-                            name="user_address"
+                            name="guser_address"
                             placeholder="Nhập địa chỉ đầy đủ"
                             required
                             autocomplete="street-address"

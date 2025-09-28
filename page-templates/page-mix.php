@@ -13,8 +13,7 @@ $session_data = $session->get_mix();
 
 if ($session_data) {
     // Dùng session data
-    $main_product_code = $session_data['product_code'];
-    $selected_variant = $session_data['variant'];
+    $main_product_code = $session_data['products'];
     $order_type = $session_data['order_type'] ?? 'normal';
     
     // Nếu là normal order, redirect về order page
@@ -33,7 +32,7 @@ if ($session_data) {
     }
 }
 
-$main_product = $main_product_response['data'];
+//$main_product = $main_product_response['data'];
 
 // Nhúng class cung cấp dữ liệu mẫu
 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
@@ -258,10 +257,10 @@ $packaging_options = [
                         <select class="product-dropdown" id="third-product-select">
                             <option value="">Bấm vào để chọn sản phẩm</option>
                             <?php foreach ($other_products as $product): ?>
-                                <option value="<?php echo esc_attr($product['item_code']); ?>"
-                                    data-name="<?php echo esc_attr($product['item_name']); ?>"
-                                    data-description="<?php echo esc_attr($product['description']); ?>">
-                                    <?php echo esc_html($product['item_name']); ?>
+                                <option value="<?php echo esc_attr($product['ProductID']); ?>"
+                                    data-name="<?php echo esc_attr($product['Ten_SP']); ?>"
+                                    data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>">
+                                    <?php echo esc_html($product['Ten_SP']); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

@@ -1291,19 +1291,22 @@ function vinapet_ajax_store_product_order() {
         wp_send_json_error(['message' => 'Mã sản phẩm không hợp lệ']);
     }
     
-    // Store using unified session
     $session = VinaPet_Order_Session::get_instance();
-    if($order_type == 'normal'){
+    
+    if ($order_type === 'normal') {
         $session->store_order($product_code, $variant, []);
+        $redirect_url = home_url('/dat-hang');
     } else {
-        $session->store_mix(['products' => [
-            'product1' => ['name' => $product_code, 'percentage' => 100]
-        ]]);
+        $mix_data = [
+            'products' => $product_code,
+            'variant' => $variant,
+            'order_type' => 'mix',
+            'source' => 'single_product'  // ← THÊM để biết nguồn
+        ];
+        
+        $session->store_mix($mix_data);
+        $redirect_url = home_url('/mix-voi-hat-khac');
     }
-    
-    
-    // Redirect URL dựa theo order type
-    $redirect_url = ($order_type === 'mix') ? home_url('/mix-voi-hat-khac') : home_url('/dat-hang');
     
     wp_send_json_success(['redirect' => $redirect_url]);
 }

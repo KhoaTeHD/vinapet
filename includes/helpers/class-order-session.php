@@ -26,7 +26,7 @@ class VinaPet_Order_Session { private static $instance = null;
      */
     public function store_order($product_code, $variant = '', $additional_data = []) {
         $_SESSION[$this->order_key] = [
-            'type' => 'normal',
+            'order_type' => 'normal',
             'product_code' => sanitize_text_field($product_code),
             'variant' => sanitize_text_field($variant),
             'user_id' => get_current_user_id(),
@@ -43,7 +43,7 @@ class VinaPet_Order_Session { private static $instance = null;
      */
     public function store_mix($mix_data) {
         $_SESSION[$this->mix_key] = [
-            'type' => 'mix',
+            'order_type' => 'mix',
             'products' => $mix_data['products'] ?? [],
             'options' => $mix_data['options'] ?? [],
             'quantities' => $mix_data['quantities'] ?? [],

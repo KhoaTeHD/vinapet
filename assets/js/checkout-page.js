@@ -71,7 +71,7 @@
         /**
          * Form submit handler (Gửi yêu cầu)
          */
-        $('#checkout-form').on('submit', function(e) {
+        $('.submit-request-btn').on('click', function(e) {
             e.preventDefault();
             
             const formData = {

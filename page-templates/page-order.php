@@ -60,7 +60,7 @@ global $breadcrumb_data;
 $breadcrumb_data = [
     ['name' => 'Trang chủ', 'url' => home_url()],
     ['name' => 'Sản phẩm', 'url' => home_url('/san-pham')],
-    ['name' => $product_name, 'url' => home_url('/san-pham/' . $product_code)],
+    ['name' => $product_name, 'url' => Smart_URL_Router::generate_product_url($product)],
     ['name' => 'Đặt hàng', 'url' => '']
 ];
 

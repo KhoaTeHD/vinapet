@@ -9,7 +9,7 @@ get_header();
 
 // Lấy dữ liệu từ session trước
 $session = VinaPet_Order_Session::get_instance();
-$session_data = $session->get();
+$session_data = $session->get_mix();
 
 if ($session_data) {
     // Dùng session data

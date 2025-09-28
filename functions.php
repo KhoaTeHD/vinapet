@@ -83,7 +83,7 @@ function vinapet_scripts() {
     }
     
     // CSS cho trang chi tiết sản phẩm
-    if (get_query_var('product_code')) {
+    if (get_query_var('product_slug')) {
         wp_enqueue_style('vinapet-product-detail', VINAPET_THEME_URI . '/assets/css/product-detail.css', array(), VINAPET_VERSION);
     }
 
@@ -114,7 +114,7 @@ function vinapet_scripts() {
     }
     
     // JavaScript cho trang chi tiết sản phẩm
-    if (get_query_var('product_code')) {
+    if (get_query_var('product_slug')) {
         wp_enqueue_script('vinapet-product-detail', VINAPET_THEME_URI . '/assets/js/product-detail.js', array('jquery'), VINAPET_VERSION, true);
     }
     
@@ -127,27 +127,68 @@ function vinapet_scripts() {
 add_action('wp_enqueue_scripts', 'vinapet_scripts');
 
 /**
- * Thiết lập rewrite rules cho trang sản phẩm
- * Điều này sẽ cho phép URL có dạng: /san-pham/ten-san-pham
+ * Smart URL Rewrite Rules
  */
-function vinapet_rewrite_rules() {
-    // Rewrite rule cho trang chi tiết sản phẩm
+function vinapet_smart_rewrite_rules() {
+    // Product detail rule: /san-pham/{slug-hash}/
     add_rewrite_rule(
-        'san-pham/([^/]+)/?$',
-        'index.php?product_code=$matches[1]',
+        '^san-pham/([^/]+)/?$',
+        'index.php?product_slug=$matches[1]',
         'top'
     );
-    
-    // Đăng ký query var mới
-    add_rewrite_tag('%product_code%', '([^&]+)');
 }
-add_action('init', 'vinapet_rewrite_rules');
+add_action('init', 'vinapet_smart_rewrite_rules');
+
+/**
+ * Add custom query vars
+ */
+function vinapet_smart_query_vars($vars) {
+    $vars[] = 'product_slug';
+    return $vars;
+}
+add_filter('query_vars', 'vinapet_smart_query_vars');
+
+/**
+ * Load Smart URL Router
+ */
+function vinapet_load_smart_router() {
+    require_once get_template_directory() . '/includes/helpers/class-smart-url-router.php';
+}
+add_action('init', 'vinapet_load_smart_router', 5);
+
+/**
+ * Smart URL Cache Management
+ */
+function vinapet_smart_url_cache_groups() {
+    wp_cache_add_global_groups(['vinapet_products']);
+}
+add_action('init', 'vinapet_smart_url_cache_groups');
+
+/**
+ * Clear cache khi cần
+ */
+function vinapet_clear_smart_url_cache() {
+    wp_cache_flush_group('vinapet_products');
+}
+
+// Clear cache AJAX endpoint
+add_action('wp_ajax_clear_cache', 'vinapet_clear_smart_url_cache');
+add_action('wp_ajax_nopriv_clear_cache', 'vinapet_clear_smart_url_cache');
+
+// Thêm vào functions.php (temporary)
+function vinapet_flush_rules_once() {
+    if (!get_option('vinapet_smart_rules_flushed')) {
+        flush_rewrite_rules();
+        update_option('vinapet_smart_rules_flushed', true);
+    }
+}
+add_action('init', 'vinapet_flush_rules_once', 999);
 
 /**
  * Xử lý template cho trang chi tiết sản phẩm
  */
 function vinapet_template_include($template) {
-    if (get_query_var('product_code')) {
+    if (get_query_var('product_slug')) {
         $new_template = locate_template('single-product.php');
         if (!empty($new_template)) {
             return $new_template;
@@ -356,9 +397,9 @@ add_action('switch_theme', 'vinapet_theme_deactivation');
 /**
  * Custom body classes
  */
-function vinapet_body_classes($classes) {
+function vinapet_smart_body_classes($classes) {
     // Add class for product detail pages
-    if (get_query_var('product_code')) {
+    if (get_query_var('product_slug') || get_query_var('product_code')) {
         $classes[] = 'single-product-page';
     }
     
@@ -374,16 +415,8 @@ function vinapet_body_classes($classes) {
     
     return $classes;
 }
-add_filter('body_class', 'vinapet_body_classes');
+add_filter('body_class', 'vinapet_smart_body_classes');
 
-/**
- * Add custom query vars
- */
-function vinapet_query_vars($vars) {
-    $vars[] = 'product_code';
-    return $vars;
-}
-add_filter('query_vars', 'vinapet_query_vars');
 
 /**
  * Security enhancements
@@ -892,7 +925,7 @@ function vinapet_localize_order_data() {
     }
     
     // Localize cho single-product.php
-    if (get_query_var('product_code')) {
+    if (get_query_var('product_slug')) {
         wp_localize_script('vinapet-product-detail', 'vinapet_data', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('vinapet_nonce'),
@@ -1260,7 +1293,14 @@ function vinapet_ajax_store_product_order() {
     
     // Store using unified session
     $session = VinaPet_Order_Session::get_instance();
-    $session->store_order($product_code, $variant, ['order_type' => $order_type]);
+    if($order_type == 'normal'){
+        $session->store_order($product_code, $variant, []);
+    } else {
+        $session->store_mix(['products' => [
+            'product1' => ['name' => $product_code, 'percentage' => 100]
+        ]]);
+    }
+    
     
     // Redirect URL dựa theo order type
     $redirect_url = ($order_type === 'mix') ? home_url('/mix-voi-hat-khac') : home_url('/dat-hang');
@@ -1303,48 +1343,13 @@ function vinapet_localize_unified_data() {
     }
     
     // Single product page
-    if (get_query_var('product_code')) {
+    if (get_query_var('product_slug')) {
         wp_localize_script('vinapet-product-detail', 'vinapet_data', $common_data);
     }
 }
 // Replace old localize function
 remove_action('wp_enqueue_scripts', 'vinapet_localize_order_data', 25);
 add_action('wp_enqueue_scripts', 'vinapet_localize_unified_data', 25);
-
-/**
- * Enhanced body classes với session detection
- */
-function vinapet_enhanced_body_classes($classes) {
-    // Add existing classes
-    if (get_query_var('product_code')) {
-        $classes[] = 'single-product-page';
-    }
-    
-    if (is_page_template('page-templates/page-checkout.php')) {
-        $classes[] = 'checkout-page';
-        
-        // Add specific class based on order type
-        $session = VinaPet_Order_Session::get_instance();
-        $checkout_data = $session->get_checkout_data();
-        
-        if ($checkout_data) {
-            $classes[] = $checkout_data['type'] . '-checkout-page';
-        }
-    }
-    
-    if (is_page_template('page-templates/page-order.php')) {
-        $classes[] = 'order-page';
-    }
-    
-    if (is_page_template('page-templates/page-mix.php')) {
-        $classes[] = 'mix-page';
-    }
-    
-    return $classes;
-}
-// Replace old body classes function
-remove_filter('body_class', 'vinapet_body_classes');
-add_filter('body_class', 'vinapet_enhanced_body_classes');
 
 /**
  * Session cleanup on user logout

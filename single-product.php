@@ -9,14 +9,30 @@
 get_header();
 
 // Lấy mã sản phẩm từ URL
-$product_code = get_query_var('product_code', '');
+//$product_code = get_query_var('product_code', '');
 
-if (empty($product_code)) {
+// Lấy product slug từ URL
+$product_slug = get_query_var('product_slug', '');
+
+if (empty($product_slug)) {
+    // Fallback: check old query var
+    $product_slug = get_query_var('product_code', '');
+}
+
+if (empty($product_slug)) {
     wp_redirect(home_url('/san-pham'));
     exit;
 }
 
-$product_code = strtoupper($product_code);
+// Resolve product code từ smart URL
+$product_code = Smart_URL_Router::resolve_product($product_slug);
+    
+if (!$product_code) {
+    // Show 404 với suggestions
+    get_template_part('template-parts/content', 'none');
+    get_footer();
+    return;
+}
 
 // Nhúng class Product Data Manager
 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
@@ -193,7 +209,6 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
                 </div>
             </div>
 
-            <!-- Product Description -->
             <!-- Product Description -->
             <div class="product-description-section">
                 <h2 class="section-title">Mô tả</h2>

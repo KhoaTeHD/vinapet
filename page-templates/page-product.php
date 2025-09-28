@@ -108,7 +108,8 @@ $breadcrumb_data = [
                 $product_image = $product['Thumbnail_File'] ?? $product['image'] ?? '';
                 $product_code = $product['Ma_SP'] ?? $product['ProductID'] ?? $product['item_code'] ?? '';
                 $product_price = floatval($product['Gia_ban_le'] ?? $product['standard_rate'] ?? 0);
-                $product_url = home_url('/san-pham/' . sanitize_title($product_code));
+                $product_url = Smart_URL_Router::generate_product_url($product);
+
 
                 // Handle image
                 if (empty($product_image)) {

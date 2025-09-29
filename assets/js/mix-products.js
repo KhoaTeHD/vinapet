@@ -55,7 +55,7 @@
         updateMixSliders();
         showFooterSummary();
         $(".secondary-product").addClass("has-selection");
-        $("#mixsuggest-container-2").slideUp();  
+        $("#mixsuggest-container-2").slideUp();
       } else {
         resetProduct2();
       }
@@ -181,7 +181,7 @@
       $(".secondary-product").removeClass("has-selection");
       $(".progress-section").removeClass("show");
       $("#mixsuggest-container-2").slideDown(300);
-		  $("#mixsuggest-container-3").slideDown(300);
+      $("#mixsuggest-container-3").slideDown(300);
 
       mixData.product1.percentage = 100;
       updateMixSliders();
@@ -416,6 +416,50 @@
     });
 
     // =============================================================================
+    // CALCULATION HELPERS
+    // =============================================================================
+
+    /**
+     * Tính tổng số lượng (kg) dựa trên option được chọn
+     * @returns {number} Tổng số lượng tính bằng kg
+     */
+    function calculateTotalQuantity() {
+      if (!mixData || !mixData.options || !mixData.options.quantity) {
+        console.warn("Quantity option not selected");
+        return 0;
+      }
+
+      return mixData.options.quantity === "khac"
+        ? 10000
+        : parseInt(mixData.options.quantity);
+    }
+
+    /**
+     * Tính giá mỗi kg dựa trên số lượng và loại bao bì
+     * @returns {number} Giá mỗi kg (đ/kg)
+     */
+    function calculatePricePerKg() {
+      const quantity = mixData.options.quantity || "10000";
+      const packaging = mixData.options.packaging || "normal";
+
+      const basePrice = basePrices[quantity] || basePrices["10000"];
+      const packagingPrice = packagingPrices[packaging] || 0;
+
+      return basePrice + packagingPrice;
+    }
+
+    /**
+     * Tính tổng giá trị đơn hàng
+     * @returns {number} Tổng giá trị (đồng)
+     */
+    function calculateTotalPrice() {
+      const quantity = calculateTotalQuantity();
+      const pricePerKg = calculatePricePerKg();
+
+      return quantity * pricePerKg;
+    }
+
+    // =============================================================================
     // FOOTER AND PRICING
     // =============================================================================
 
@@ -423,16 +467,10 @@
       const activeProducts = getActiveProducts();
       if (activeProducts.length < 2) return;
 
-      const quantity =
-        mixData.options.quantity === "khac"
-          ? 10000
-          : parseInt(mixData.options.quantity);
-      const basePrice =
-        basePrices[mixData.options.quantity] || basePrices["10000"];
-      const packagingPrice = packagingPrices[mixData.options.packaging] || 0;
-
-      const totalPrice = quantity * (basePrice + packagingPrice);
-      const pricePerKg = basePrice + packagingPrice;
+      // ✅ Sử dụng các hàm helper
+      const quantity = calculateTotalQuantity();
+      const totalPrice = calculateTotalPrice();
+      const pricePerKg = calculatePricePerKg();
 
       // Update quantity display
       let quantityText;
@@ -474,86 +512,89 @@
     // =============================================================================
 
     // Submit mix data về server
-    $('#next-step-button').on('click', function(e) {
-        e.preventDefault();
-        
-        // Collect mix data (existing logic)
-        const mixData = {
-            products: {
-                product1: getMixProduct('product1'),
-                product2: getMixProduct('product2'), 
-                product3: getMixProduct('product3')
-            },
-            options: {
-                color: $('input[name="color"]:checked').val(),
-                scent: $('input[name="scent"]:checked').val(),
-                packaging: $('input[name="packaging"]:checked').val(),
-                quantity: $('input[name="quantity"]:checked').val()
-            },
-            quantities: {
-                total: calculateTotalQuantity()
-            },
-            pricing: {
-                total: calculateTotalPrice(),
-                per_kg: calculatePricePerKg()
-            }
-        };
-        
-        // Validate mix data
-        if (!validateMixData(mixData)) {
-            return;
-        }
-        
-        // AJAX call để store mix data trong PHP session
-        $.ajax({
-            url: vinapet_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'vinapet_store_mix_session',
-                nonce: vinapet_ajax.nonce,
-                mix_data: mixData
-            },
-            beforeSend: function() {
-                showLoading($(this));
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Redirect to checkout
-                    window.location.href = '/vinapet/checkout';
-                } else {
-                    alert(response.data || 'Có lỗi xảy ra!');
-                }
-            },
-            error: function() {
-                alert('Lỗi kết nối! Vui lòng thử lại.');
-            },
-            complete: function() {
-                hideLoading($('#next-step-button'));
-            }
-        });
+    $("#next-step-button").on("click", function (e) {
+      e.preventDefault();
+
+      // Collect mix data (existing logic)
+      const mixData = {
+        products: {
+          product1: getMixProduct("product1"),
+          product2: getMixProduct("product2"),
+          product3: getMixProduct("product3"),
+        },
+        options: {
+          color: $('input[name="color"]:checked').val(),
+          scent: $('input[name="scent"]:checked').val(),
+          packaging: $('input[name="packaging"]:checked').val(),
+          quantity: $('input[name="quantity"]:checked').val(),
+        },
+        quantities: {
+          total: calculateTotalQuantity(),
+        },
+        pricing: {
+          total: calculateTotalPrice(),
+          per_kg: calculatePricePerKg(),
+        },
+      };
+
+      // Validate mix data
+      if (!validateMixData(mixData)) {
+        return;
+      }
+
+      // AJAX call để store mix data trong PHP session
+      $.ajax({
+        url: vinapet_ajax.ajax_url,
+        type: "POST",
+        data: {
+          action: "vinapet_store_mix_session",
+          nonce: vinapet_ajax.nonce,
+          mix_data: mixData,
+        },
+        beforeSend: function () {
+          showLoading($(this));
+        },
+        success: function (response) {
+          if (response.success) {
+            // Redirect to checkout
+            window.location.href = "/vinapet/checkout";
+          } else {
+            alert(response.data || "Có lỗi xảy ra!");
+          }
+        },
+        error: function () {
+          alert("Lỗi kết nối! Vui lòng thử lại.");
+        },
+        complete: function () {
+          hideLoading($("#next-step-button"));
+        },
+      });
     });
-    
+
     // Helper functions (existing)
     function getMixProduct(productKey) {
-        // Existing logic to get product data
-        return mixData[productKey] || {};
+      // Existing logic to get product data
+      return mixData[productKey] || {};
     }
-    
+
     function validateMixData(data) {
-        // Validate total percentage = 100%
-        const activeProducts = Object.values(data.products).filter(p => p.name);
-        if (activeProducts.length < 2) {
-            alert('Cần ít nhất 2 sản phẩm để mix!');
-            return false;
-        }
-        
-        const totalPercentage = activeProducts.reduce((sum, p) => sum + (p.percentage || 0), 0);
-        if (Math.abs(totalPercentage - 100) > 1) {
-            alert('Tổng tỷ lệ phải bằng 100%!');
-            return false;
-        }
-        
-        return true;
+      // Validate total percentage = 100%
+      const activeProducts = Object.values(data.products).filter((p) => p.name);
+      if (activeProducts.length < 2) {
+        alert("Cần ít nhất 2 sản phẩm để mix!");
+        return false;
+      }
+
+      const totalPercentage = activeProducts.reduce(
+        (sum, p) => sum + (p.percentage || 0),
+        0
+      );
+      if (Math.abs(totalPercentage - 100) > 1) {
+        alert("Tổng tỷ lệ phải bằng 100%!");
+        return false;
+      }
+
+      return true;
     }
 
     // =============================================================================

@@ -12,8 +12,8 @@ $session_data = $session->get_order();
 
 if ($session_data) {
     // Dùng session data
-    $product_code = $session_data['product_code'];
-    $selected_variant = $session_data['variant'];
+    $product_code = $session_data['products'][0]['product_code'];
+    $selected_variant = $session_data['products'][0]['variant'];
     $order_type = $session_data['order_type'] ?? 'normal';
     
     // Nếu là mix order, redirect về mix page

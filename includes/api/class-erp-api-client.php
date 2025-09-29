@@ -520,7 +520,7 @@ class ERP_API_Client
 
         if ($existing_customer && $existing_customer['status'] === 'success') {
             // Update existing customer
-            $result = $this->update_customer_vinapet( $customer_data);
+            $result = $this->update_customer_vinapet($customer_data);
 
             if ($result && $result['status'] === 'success') {
                 update_user_meta($user_id, 'erpnext_customer_id', $existing_customer['customer']['name']);
@@ -548,28 +548,71 @@ class ERP_API_Client
     // ============================================================================
 
     /**
-     * Tạo order
+     * Tạo quotation trong ERPNext
+     * 
+     * @param array $quotation_data Dữ liệu quotation theo format yêu cầu
+     * @return array|false Response từ ERPNext hoặc false nếu lỗi
      */
-    public function create_order($order_data)
+    public function create_quotation($quotation_data)
     {
         if (!$this->is_configured()) {
             return false;
         }
 
-        $endpoint = $this->get_endpoint('create_order');
-        $response = $this->make_request('POST', $endpoint, $order_data);
+        // Validate required fields
+        $required_fields = ['customer', 'items'];
+        foreach ($required_fields as $field) {
+            if (empty($quotation_data[$field])) {
+                return false;
+            }
+        }
+
+        // Validate items structure
+        if (!is_array($quotation_data['items']) || empty($quotation_data['items'])) {
+            return false;
+        }
+
+        // Set headers theo yêu cầu
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-ERP-Topic' => 'quotation_create'
+        ];
+
+        // Thêm authentication headers nếu có
+        if ($this->has_authentication()) {
+            $headers['Authorization'] = 'token ' . $this->api_key . ':' . $this->api_secret;
+        }
+
+        // Endpoint theo yêu cầu của bạn
+        $endpoint = 'method/vinapet.vinapet.connections.store_request_data';
+
+        $response = $this->make_request_with_custom_headers('POST', $endpoint, $quotation_data, $headers);
 
         if (!is_wp_error($response)) {
+            $response_code = wp_remote_retrieve_response_code($response);
             $body = wp_remote_retrieve_body($response);
             $data = json_decode($body, true);
 
-            // Clear orders cache
-            $this->clear_cache_by_pattern('erp_orders_*');
+            if (in_array($response_code, self::HTTP_STATUS['SUCCESS'])) {
+                return [
+                    'status' => 'success',
+                    'data' => $data,
+                    'response_code' => $response_code
+                ];
+            }
 
-            return $data;
+            return [
+                'status' => 'error',
+                'message' => $data['message'] ?? 'Unknown error occurred',
+                'response_code' => $response_code
+            ];
         }
 
-        return false;
+        return [
+            'status' => 'error',
+            'message' => $response->get_error_message(),
+            'response_code' => 0
+        ];
     }
 
     /**
@@ -752,6 +795,46 @@ class ERP_API_Client
         }
 
         return $response;
+    }
+
+    /**
+     * Make request với custom headers
+     * 
+     * @param string $method HTTP method
+     * @param string $endpoint API endpoint  
+     * @param array $params Request parameters
+     * @param array $custom_headers Custom headers
+     * @return WP_Error|array Response
+     */
+    private function make_request_with_custom_headers($method, $endpoint, $params = [], $custom_headers = [])
+    {
+        if (!$this->is_configured()) {
+            return new WP_Error('not_configured', 'ERPNext API URL chưa được cấu hình');
+        }
+
+        // Build full URL - sử dụng URL cụ thể theo yêu cầu
+        $url = trailingslashit($this->api_url) . 'api/' . ltrim($endpoint, '/');
+
+        $args = [
+            'method' => strtoupper($method),
+            'timeout' => 30,
+            'headers' => array_merge([
+                'Content-Type' => 'application/json',
+            ], $custom_headers),
+            'sslverify' => false
+        ];
+
+        if (in_array(strtoupper($method), ['POST', 'PUT', 'PATCH']) && !empty($params)) {
+            $args['body'] = json_encode($params);
+        } elseif (strtoupper($method) === 'GET' && !empty($params)) {
+            $url = add_query_arg($params, $url);
+        }
+
+        // Log request for debugging
+        error_log('VinaPet ERP API Request: ' . $method . ' ' . $url);
+        error_log('VinaPet ERP API Data: ' . json_encode($params));
+
+        return wp_remote_request($url, $args);
     }
 
     // ============================================================================

@@ -27,11 +27,15 @@ class VinaPet_Order_Session { private static $instance = null;
     public function store_order($product_code, $variant = '', $additional_data = []) {
         $_SESSION[$this->order_key] = [
             'order_type' => 'normal',
-            'product_code' => sanitize_text_field($product_code),
-            'variant' => sanitize_text_field($variant),
+            'products' => [ // Store as array for consistency
+                [
+                    'product_code' => sanitize_text_field($product_code),
+                    'variant' => sanitize_text_field($variant),
+                    'additional' => $additional_data
+                ]
+            ],
             'user_id' => get_current_user_id(),
-            'timestamp' => time(),
-            'additional' => $additional_data
+            'timestamp' => time()
         ];
         
         // Clear mix data khi store order
@@ -162,18 +166,18 @@ class VinaPet_Order_Session { private static $instance = null;
      * Format order data for checkout display
      */
     private function format_order_checkout($order_data, $checkout_data = null) {
-        $product_info = $this->get_product_info($order_data['product_code']);
+        $product_info = $this->get_product_info($order_data['products'][0]['product_code']);
         
         return [
             'type' => 'normal',
             'source' => 'order_page',
             'title' => 'Đơn hàng',
-            'product_code' => $order_data['product_code'],
+            'product_code' => $order_data['products'][0]['product_code'],
             'product_name' => $product_info['product_name'] ?? 'Sản phẩm',
-            'variant' => $order_data['variant'],
-            'quantity' => $order_data['additional']['quantity'] ?? 1000,
-            'packaging' => $order_data['additional']['packaging'] ?? '',
-            'total_quantity' => $order_data['additional']['quantity'] ?? 1000,
+            'variant' => $order_data['products'][0]['variant'],
+            'quantity' => $order_data['products'][0]['additional']['quantity'] ?? 1000,
+            'packaging' => $order_data['products'][0]['additional']['packaging'] ?? '',
+            'total_quantity' => $order_data['products'][0]['additional']['quantity'] ?? 1000,
             'estimated_price' => $this->calculate_order_price($order_data),
             'price_per_kg' => $this->calculate_order_price_per_kg($order_data),
             'checkout_form' => $checkout_data,
@@ -247,13 +251,13 @@ class VinaPet_Order_Session { private static $instance = null;
     }
     
     private function calculate_order_price($order_data) {
-        $quantity = $order_data['additional']['quantity'] ?? 1000;
-        $price_per_kg = $order_data['additional']['price_per_kg'] ?? 50000;
+        $quantity = $order_data['products'][0]['additional']['quantity'] ?? 1000;
+        $price_per_kg = $order_data['products'][0]['additional']['price_per_kg'] ?? 50000;
         return $quantity * $price_per_kg;
     }
     
     private function calculate_order_price_per_kg($order_data) {
-        return $order_data['additional']['price_per_kg'] ?? 50000;
+        return $order_data['products'][0]['additional']['price_per_kg'] ?? 50000;
     }
     
     private function get_product_info($product_code) {

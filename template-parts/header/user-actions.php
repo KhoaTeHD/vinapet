@@ -8,7 +8,10 @@ $is_logged_in = is_user_logged_in();
 
 <div class="header-user-actions">
     <!-- Language Switcher - hiển thị cho cả logged in và chưa logged in -->
-    <div class="language-switcher">
+     <div class="language-switcher">
+		<?php echo do_shortcode('[gtranslate]');  ?>
+	</div>
+    <!-- <div class="language-switcher">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -22,7 +25,7 @@ $is_logged_in = is_user_logged_in();
         </svg>
         <span class="lang-text-full">Tiếng Việt</span>
         <span class="lang-text-short">VI</span>
-    </div>
+    </div> -->
     <?php if ($is_logged_in): ?>
         <!-- Đã đăng nhập: Hiển thị tài khoản + giỏ hàng -->
 

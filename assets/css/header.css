@@ -166,7 +166,7 @@
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
     font-size: 16px;
-    padding: 8px 16px;
+    padding: 8px 8px;
     border-radius: var(--border-radius);
     /* transition: var(--transition); */
     position: relative;

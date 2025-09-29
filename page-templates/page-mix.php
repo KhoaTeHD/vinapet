@@ -40,7 +40,7 @@ $data_manager = new Product_Data_Manager();
 
 // Lấy sản phẩm chính
 $main_product_response = $data_manager->get_product($main_product_code);
-if (!isset($main_product_response['product']) || !$main_product_response['product']) {
+if (!isset($main_product_response['product'])) {
     wp_redirect(home_url('/san-pham'));
     exit;
 }
@@ -63,7 +63,7 @@ global $breadcrumb_data;
 $breadcrumb_data = [
     ['name' => 'Trang chủ', 'url' => home_url()],
     ['name' => 'Sản phẩm', 'url' => home_url('/san-pham')],
-    ['name' => $main_product['product_name'], 'url' => home_url('/san-pham/' . $main_product_code)],
+    ['name' => $main_product['product_name'], 'url' => Smart_URL_Router::generate_product_url($main_product)],
     ['name' => 'Mix với hạt khác', 'url' => '']
 ];
 
@@ -419,6 +419,7 @@ $packaging_options = [
 </div>
 
 <script>
+    mainMixProduct = <?php echo json_encode($main_product); ?>;
     (function($) {
         $(document).ready(function() {
             $(".sugItems-2").each(function() {

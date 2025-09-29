@@ -152,6 +152,7 @@ class VinaPet_Order_Session { private static $instance = null;
             'total_quantity' => $this->calculate_mix_quantity($mix_data),
             'estimated_price' => $this->calculate_mix_price($mix_data),
             'price_per_kg' => $this->calculate_mix_price_per_kg($mix_data),
+            'details' => $mix_data['options'] ?? [],
             'checkout_form' => $checkout_data,
             'raw_data' => $mix_data
         ];

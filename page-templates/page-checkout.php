@@ -52,7 +52,7 @@ $breadcrumb_data = [
                 <div class="order-items-list" id="order-items-list">
                      <?php if ($checkout_data['type'] === 'mix'): ?>
                         <!-- Mix Products Display -->
-                        <?php foreach ($checkout_data['products'] as $product): ?>
+                        <?php foreach ($checkout_data['products'] as $key => $product): ?>
                             <div class="order-item mix-item">
                                 <div class="item-header">
                                     <div class="item-name"><?php echo esc_html($product['name']); ?></div>
@@ -60,10 +60,12 @@ $breadcrumb_data = [
                                         <?php echo number_format($product['percentage'], 0); ?>%
                                     </div>
                                 </div>
-                                <?php if (!empty($product['details'])): ?>
+                                <?php if (!empty($checkout_data['details']) && $key === array_key_last($checkout_data['products'])): ?>
                                     <div class="item-details">
-                                        <?php foreach ($product['details'] as $detail): ?>
-                                            <div class="item-detail"><?php echo esc_html($detail); ?></div>
+                                        <?php foreach ($checkout_data['details'] as $key => $detail): ?>
+                                            <?php if ($key !== 'quantity'): ?>
+                                                <div class="item-detail"><?php echo esc_html(vinapet_get_mix_option_name($key, $detail)); ?></div>
+                                            <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 <?php endif; ?>

@@ -699,12 +699,10 @@
     // =============================================================================
 
     // Auto-select main product if passed from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const mainProduct = urlParams.get("product");
-    const selectedVariant = urlParams.get("variant");
 
-    if (mainProduct) {
-      mixData.product1.code = mainProduct.toUpperCase();
+    if (mainMixProduct) {
+      mixData.product1.code = mainMixProduct.ProductID.toUpperCase();
+      mixData.product1.name = mainMixProduct.ProductName;
     }
 
     // Initialize UI

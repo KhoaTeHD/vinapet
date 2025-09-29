@@ -10,8 +10,8 @@ class Smart_URL_Router {
      * Tạo URL từ product data
      */
     public static function generate_product_url($product) {
-        $product_code = $product['Ma_SP'] ?? $product['item_code'] ?? '';
-        $product_name = $product['Ten_SP'] ?? $product['item_name'] ?? '';
+        $product_code = $product['Ma_SP'] ?? $product['product_id'] ?? '';
+        $product_name = $product['Ten_SP'] ?? $product['product_name'] ?? '';
         
         if (empty($product_code)) {
             return home_url('/san-pham/');

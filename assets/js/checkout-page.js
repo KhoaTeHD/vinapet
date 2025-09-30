@@ -69,7 +69,128 @@
     });
 
     /**
-     * Form submit handler (Gửi yêu cầu) - Hoàn chỉnh với customer data VÀ items
+     * Prepare items array theo đúng format ERPNext API
+     * @param {Object} checkoutData - Data từ PHP session
+     * @returns {Array} items - Mảng items đã format chuẩn
+     */
+
+    function prepareItemsForAPI(checkoutData) {
+      const items = [];
+
+      // Kiểm tra loại đơn hàng
+      if (!checkoutData || !checkoutData.type) {
+        console.error("Invalid checkoutData:", checkoutData);
+        return items;
+      }
+
+      if (checkoutData.type === "mix") {
+        // ============ XỬ LÝ MIX ORDER ============
+        console.log("Processing MIX order:", checkoutData);
+
+        if (!checkoutData.products || !Array.isArray(checkoutData.products)) {
+          console.error("Mix order missing products array");
+          return items;
+        }
+
+        // Lấy tổng số lượng từ total_quantity
+        const totalQty = parseInt(checkoutData.total_quantity);
+
+        const packet_item = checkoutData.details.packaging;
+
+        const rate = parseInt(checkoutData.rate);
+
+        // Convert mỗi product thành item format
+        checkoutData.products.forEach((product, index) => {
+          if (!product.code || !product.percentage) {
+            console.warn(
+              `Product ${index} missing code or percentage:`,
+              product
+            );
+            return; // Skip invalid product
+          }
+
+          const item = {
+            item_code: product.code,
+            packet_item: packet_item || "SPTUI01",
+            mix_percent: parseFloat(product.percentage) || 0.0,
+            qty: totalQty, // Tất cả items trong mix có cùng qty
+            uom: "Nos",
+            rate: rate || 25000,
+            is_free_item: 0,
+          };
+
+          // Thêm item_name nếu có
+          if (product.name) {
+            item.item_name = product.name;
+          }
+
+          // Generate additional_notes cho mix
+          const productNames = checkoutData.products
+            .map((p) => p.code)
+            .filter(Boolean)
+            .join(" + ");
+          item.additional_notes = `Mix ${productNames}`;
+
+          items.push(item);
+          console.log(`Added mix item ${index + 1}:`, item);
+        });
+      } else {
+        // ============ XỬ LÝ NORMAL ORDER ============
+        console.log("Processing NORMAL order:", checkoutData);
+
+        // Xử lý nếu có products array
+        if (checkoutData.products && Array.isArray(checkoutData.products)) {
+          checkoutData.products.forEach((product, index) => {
+            if (!product.code) {
+              console.warn(`Product ${index} missing code:`, product);
+              return; // Skip invalid product
+            }
+
+            const item = {
+              item_code: product.code,
+              item_name: product.name || product.code,
+              qty: parseInt(product.quantity) || 1000,
+              uom: "Nos",
+              rate: parseInt(product.price) || 50000,
+              packet_item: product.packet_item || "SPTUI01",
+              mix_percent: 0.0,
+              is_free_item: 0,
+              additional_notes: product.notes || "",
+            };
+
+            items.push(item);
+            console.log(`Added normal item ${index + 1}:`, item);
+          });
+        }
+        // Xử lý nếu chỉ có 1 sản phẩm (checkoutData chính là product)
+        else if (checkoutData.product_code) {
+          const item = {
+            item_code: checkoutData.product_code,
+            item_name: checkoutData.product_name || checkoutData.code,
+            qty: parseInt(checkoutData.quantity) || 1000,
+            uom: "Nos",
+            rate: parseInt(checkoutData.rate) || 50000,
+            packet_item: checkoutData.packet_item || "SPTUI01",
+            mix_percent: 0.0,
+            is_free_item: 0,
+            additional_notes: checkoutData.notes || "",
+          };
+
+          items.push(item);
+          console.log("Added single product item:", item);
+        } else {
+          console.error("Normal order has no valid products:", checkoutData);
+        }
+      }
+
+      console.log(`Total items prepared: ${items.length}`, items);
+      return items;
+    }
+
+    /**
+     * ===================================================================
+     * SỬA HÀM SUBMIT BUTTON HANDLER
+     * ===================================================================
      */
     $(".submit-request-btn").on("click", function (e) {
       e.preventDefault();
@@ -77,7 +198,7 @@
       const $button = $(this);
       const originalText = $button.html();
 
-      // Get customer email
+      // ======== 1. VALIDATE CUSTOMER ========
       const customerEmail = vinapet_ajax.current_user.email;
       if (!customerEmail) {
         vinapet_show_message(
@@ -87,7 +208,7 @@
         return;
       }
 
-      // Check if we have order data (items) from session/PHP
+      // ======== 2. CHECK CHECKOUT DATA ========
       if (!checkoutData) {
         vinapet_show_message(
           "error",
@@ -98,47 +219,65 @@
         }, 2000);
         return;
       }
-      if(checkoutData.type == 'order'){
-        items = checkoutData.items || [checkoutData];
+
+      // ======== 3. PREPARE ITEMS (QUAN TRỌNG) ========
+      const items = prepareItemsForAPI(checkoutData);
+
+      if (items.length === 0) {
+        vinapet_show_message(
+          "error",
+          "Không có sản phẩm hợp lệ trong đơn hàng!"
+        );
+        console.error("No valid items prepared from:", checkoutData);
+        return;
       }
 
-      // Collect form data với đầy đủ thông tin cho API
+      // ======== 4. COLLECT FORM DATA ========
       const formData = {
-        // Customer information
+        // ✅ Customer information
         customer: customerEmail,
 
-        // Pricing information
+        // ✅ Items array - ĐÃ FORMAT CHUẨN
+        items: items,
+
+        // ✅ Pricing information
         shipping_cost: parseInt($("#shipping-cost").val()) || 50000,
         desired_delivery_time_amount:
           parseInt($("#delivery-time-cost").val()) || 30000,
         date_to_receive: parseInt($("#date-to-receive").val()) || 15,
 
-        // Method information
+        // ✅ Method information
         delivery_method: mapShippingMethodToAPI(
           $('input[name="shipping_method"]:checked').val()
         ),
         ship_method: getShipMethodIfAvailable(),
 
-        // Form selections (for internal processing)
+        // ✅ Form selections (for internal processing)
         packaging_design: $('input[name="packaging_design"]:checked').val(),
         delivery_timeline: $('input[name="delivery_timeline"]:checked').val(),
         shipping_method: $('input[name="shipping_method"]:checked').val(),
 
-        // Contact information
+        // ✅ Contact information
         contact_info: {
           notes: $("#additional-support").val() || "",
           phone: $("#contact-phone").val() || "",
           email: $("#contact-email").val() || customerEmail,
         },
 
-        // ORDER DATA - Thông tin sản phẩm từ session
-        order_data: checkoutData,
+        // ✅ Metadata (for internal tracking)
+        order_type: checkoutData.type || "normal",
+        original_checkout_data: checkoutData, // Giữ lại để log/debug
       };
 
-      console.log("Complete form data for API (including items):", formData);
-      console.log("Order data (items):", checkoutData);
+      // ======== 5. LOG ĐỂ DEBUG ========
+      console.log("=== FINAL FORM DATA TO SEND ===");
+      console.log("Customer:", formData.customer);
+      console.log("Items count:", formData.items.length);
+      console.log("Items detail:", formData.items);
+      console.log("Order type:", formData.order_type);
+      console.log("Full formData:", formData);
 
-      // Validate required fields
+      // ======== 6. VALIDATE REQUIRED FIELDS ========
       if (
         !formData.packaging_design ||
         !formData.delivery_timeline ||
@@ -157,102 +296,67 @@
         return;
       }
 
-      // Show loading state
-      $button.prop("disabled", true).html(`
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin inline-block mr-2">
-                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
-                </svg>
-                Đang tạo báo giá...
-            `);
+      // ======== 7. SEND AJAX REQUEST ========
+      $button
+        .prop("disabled", true)
+        .html('<span class="spinner"></span> Đang gửi...');
 
-      // Call AJAX
       $.ajax({
         url: vinapet_ajax.ajax_url,
         type: "POST",
+        dataType: "json",
         data: {
           action: "vinapet_submit_checkout_with_erp",
           nonce: vinapet_ajax.nonce,
-          checkout_form: JSON.stringify(formData),
+          checkout_form: JSON.stringify(formData), // ✅ Gửi toàn bộ formData đã format
         },
-        timeout: 30000, // 30 seconds timeout
         success: function (response) {
-          console.log("AJAX Success Response:", response);
+          console.log("AJAX Response:", response);
 
           if (response.success) {
             vinapet_show_message("success", response.data.message);
 
-            // Log quotation details
+            // Log quotation info
             if (response.data.quotation_id) {
-              console.log("Quotation created successfully:");
-              console.log("- ID:", response.data.quotation_id);
-              console.log("- Type:", response.data.order_type);
-              console.log("- Summary:", response.data.summary);
+              console.log("Quotation created:", response.data.quotation_id);
             }
 
-            // Redirect after delay
-            setTimeout(() => {
-              if (response.data.redirect) {
-                window.location.href = response.data.redirect;
-              } else {
-                window.location.reload();
-              }
+            // Redirect sau 2 giây
+            setTimeout(function () {
+              window.location.href =
+                response.data.redirect || vinapet_ajax.home_url + "/tai-khoan";
             }, 2000);
           } else {
-            console.error("Checkout Error Details:", response.data);
-            let errorMessage =
-              response.data.message || "Có lỗi xảy ra khi tạo báo giá!";
-
-            // Handle specific error codes
-            if (response.data.code === "AUTH_REQUIRED") {
-              errorMessage = "Vui lòng đăng nhập để tiếp tục!";
-              setTimeout(() => {
-                window.location.href = "/dang-nhap";
-              }, 2000);
-            } else if (response.data.code === "NO_ORDER_DATA") {
-              errorMessage =
-                "Không tìm thấy dữ liệu đơn hàng! Vui lòng đặt hàng lại.";
-              setTimeout(() => {
-                window.location.href = vinapet_ajax.home_url + "/dat-hang";
-              }, 3000);
-            }
-
-            vinapet_show_message("error", errorMessage);
-
-            // Restore button
+            vinapet_show_message(
+              "error",
+              response.data.message || "Có lỗi xảy ra khi gửi yêu cầu!"
+            );
             $button.prop("disabled", false).html(originalText);
           }
         },
         error: function (xhr, status, error) {
-          console.error("AJAX Error:", { xhr, status, error });
+          console.error("AJAX Error:", {
+            status: status,
+            error: error,
+            response: xhr.responseText,
+          });
 
-          let errorMessage = "Lỗi kết nối! Vui lòng kiểm tra mạng và thử lại.";
-
-          if (xhr.status === 403) {
-            errorMessage = "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại!";
-            setTimeout(() => {
-              window.location.href = "/dang-nhap";
-            }, 2000);
-          } else if (xhr.status >= 500) {
-            errorMessage = "Lỗi server! Vui lòng thử lại sau.";
-          } else if (status === "timeout") {
-            errorMessage = "Yêu cầu hết thời gian chờ. Vui lòng thử lại!";
-          }
-
-          vinapet_show_message("error", errorMessage);
-
-          // Restore button
+          vinapet_show_message(
+            "error",
+            "Có lỗi kết nối! Vui lòng kiểm tra và thử lại."
+          );
           $button.prop("disabled", false).html(originalText);
         },
       });
     });
 
     /**
-         * Validate email format
-         */
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
+     * Validate email format
+     */
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
 
     /**
      * Get current user email (từ PHP hoặc form)
@@ -265,8 +369,6 @@
       if (!userEmail && typeof window.current_user !== "undefined") {
         userEmail = window.current_user.email;
       }
-
-      
 
       return userEmail || "";
     }

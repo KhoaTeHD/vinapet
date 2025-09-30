@@ -145,6 +145,7 @@
         // total_price: calculateTotalPrice(),
         total_price: totalPrice,
         price_per_kg: pricePerKg,
+        rate: basePrices[$('input[name="quantity"]:checked').val()],
       };
 
       // Validate
@@ -152,6 +153,8 @@
         alert("Vui lòng chọn đầy đủ thông tin!");
         return;
       }
+
+      alert(formData.rate);
 
       //alert("Đang xử lý... Vui lòng chờ."); 
       // AJAX call để store data trong PHP session

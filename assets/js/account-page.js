@@ -296,16 +296,16 @@
     // Orders functionality
     loadOrders() {
       // Load sample orders data
-      this.renderCreatingRequestOrders();
+      this.renderSentRequestOrders();
     }
 
-    renderCreatingRequestOrders() {
+    renderSentRequestOrders() {
       const sampleOrders = this.getSampleOrders();
-      const container = $("#creating-request-orders");
+      const container = $("#sent-request-orders");
 
       if (sampleOrders.length === 0) {
         container.html(
-          '<div class="empty-orders"><p>Chưa có đơn hàng đang tạo yêu cầu</p></div>'
+          '<div class="empty-orders"><p>Chưa có đơn hàng đã gửi yêu cầu</p></div>'
         );
         return;
       }

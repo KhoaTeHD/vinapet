@@ -25,6 +25,8 @@ $breadcrumb_data = [
     ['name' => 'Sản phẩm', 'url' => home_url('/san-pham')],
     ['name' => 'Đặt hàng', 'url' => '']
 ];
+
+error_log('Checkout Data from checkout page: ' . print_r($checkout_data, true));
 ?>
 
 <div class="container">

@@ -532,6 +532,7 @@
           total: calculateTotalQuantity(),
         },
         pricing: {
+          rate: basePrices[$('input[name="quantity"]:checked').val()],
           total: calculateTotalPrice(),
           per_kg: calculatePricePerKg(),
         },
@@ -541,6 +542,7 @@
       if (!validateMixData(mixData)) {
         return;
       }
+
 
       // AJAX call để store mix data trong PHP session
       $.ajax({
@@ -701,8 +703,8 @@
     // Auto-select main product if passed from URL
 
     if (mainMixProduct) {
-      mixData.product1.code = mainMixProduct.ProductID.toUpperCase();
-      mixData.product1.name = mainMixProduct.ProductName;
+      mixData.product1.code = mainMixProduct.product_id;
+      mixData.product1.name = mainMixProduct.product_name;
     }
 
     // Initialize UI

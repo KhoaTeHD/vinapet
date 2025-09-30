@@ -790,7 +790,9 @@ function vinapet_ajax_store_order_session() {
         'quantity' => intval($order_data['quantity'] ?? 0),
         'packaging' => sanitize_text_field($order_data['packaging'] ?? ''),
         'price_per_kg' => floatval($order_data['price_per_kg'] ?? 0),
-        'total_price' => floatval($order_data['total_price'] ?? 0)
+        'rate' => floatval($order_data['rate'] ?? 0),
+        'total_price' => floatval($order_data['total_price'] ?? 0),
+        
     ];
     
     // Store in unified session
@@ -834,6 +836,7 @@ function vinapet_ajax_store_mix_session() {
         foreach ($mix_data['products'] as $key => $product) {
             if (!empty($product['name'])) {
                 $clean_data['products'][$key] = [
+                    'code' => sanitize_text_field($product['code']),
                     'name' => sanitize_text_field($product['name']),
                     'percentage' => floatval($product['percentage'] ?? 0),
                     'details' => array_map('sanitize_text_field', $product['details'] ?? [])
@@ -841,6 +844,8 @@ function vinapet_ajax_store_mix_session() {
             }
         }
     }
+
+    //error_log('VinaPet Mix Products Sanitized: ' . json_encode($clean_data['products']));
     
     // Sanitize options
     if (isset($mix_data['options'])) {
@@ -856,6 +861,7 @@ function vinapet_ajax_store_mix_session() {
     $clean_data['quantities']['total'] = intval($mix_data['quantities']['total'] ?? 0);
     $clean_data['pricing']['total'] = floatval($mix_data['pricing']['total'] ?? 0);
     $clean_data['pricing']['per_kg'] = floatval($mix_data['pricing']['per_kg'] ?? 0);
+    $clean_data['pricing']['rate'] = floatval($mix_data['pricing']['rate'] ?? 0);
     
     // Validate mix data
     $active_products = array_filter($clean_data['products'], function($p) {
@@ -871,6 +877,7 @@ function vinapet_ajax_store_mix_session() {
         wp_send_json_error('Tổng tỷ lệ các sản phẩm phải bằng 100%!');
     }
     
+    //error_log('VinaPet Mix Data to Store: ' . json_encode($clean_data));
     // Store in unified session
     $session = VinaPet_Order_Session::get_instance();
     $session->store_mix($clean_data);

@@ -31,6 +31,7 @@ class VinaPet_Order_Session { private static $instance = null;
                 [
                     'product_code' => sanitize_text_field($product_code),
                     'variant' => sanitize_text_field($variant),
+                    'rate' => floatval($additional_data['rate'] ?? 0),
                     'additional' => $additional_data
                 ]
             ],
@@ -153,6 +154,7 @@ class VinaPet_Order_Session { private static $instance = null;
             'source' => 'mix_page',
             'title' => 'Đơn hàng tùy chỉnh',
             'products' => $this->format_mix_products($mix_data['products']),
+            'rate' => $mix_data['pricing']['rate'] ?? 0,
             'total_quantity' => $this->calculate_mix_quantity($mix_data),
             'estimated_price' => $this->calculate_mix_price($mix_data),
             'price_per_kg' => $this->calculate_mix_price_per_kg($mix_data),
@@ -180,6 +182,7 @@ class VinaPet_Order_Session { private static $instance = null;
             'total_quantity' => $order_data['products'][0]['additional']['quantity'] ?? 1000,
             'estimated_price' => $this->calculate_order_price($order_data),
             'price_per_kg' => $this->calculate_order_price_per_kg($order_data),
+            'rate' => $order_data['products'][0]['rate'] ?? 0,
             'checkout_form' => $checkout_data,
             'raw_data' => $order_data
         ];
@@ -227,6 +230,7 @@ class VinaPet_Order_Session { private static $instance = null;
         foreach ($products as $key => $product) {
             if (!empty($product['name'])) {
                 $formatted[] = [
+                    'code' => $product['code'] ?? '',
                     'name' => $product['name'],
                     'percentage' => $product['percentage'] ?? 0,
                     'details' => $product['details'] ?? []

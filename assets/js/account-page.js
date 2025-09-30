@@ -295,8 +295,7 @@
 
     // Orders functionality
     loadOrders() {
-      // Load sample orders data
-      this.renderSentRequestOrders();
+      this.loadQuotationsFromERP();
     }
 
     renderSentRequestOrders() {
@@ -447,6 +446,284 @@
       ];
     }
 
+    /**
+     * Load quotations từ ERP API
+     */
+    loadQuotationsFromERP() {
+      //this.showLoading();
+
+      $.ajax({
+        url: vinapet_ajax.ajax_url,
+        type: "POST",
+        data: {
+          action: "vinapet_get_quotations",
+          nonce: vinapet_ajax.nonce,
+        },
+        success: (response) => {
+          this.hideLoading();
+
+          if (response.success) {
+            this.renderQuotations(response.data.quotations);
+          } else {
+            this.showEmptyQuotations(response.data.message);
+          }
+        },
+        error: (error) => {
+          this.hideLoading();
+          this.showEmptyQuotations("Có lỗi xảy ra khi tải báo giá");
+          console.error("AJAX error:", error);
+        },
+      });
+    }
+
+    /**
+     * Render quotations vào tab "Đã gửi yêu cầu"
+     */
+    renderQuotations(quotations) {
+      const container = $("#sent-request-orders");
+
+      if (!quotations || quotations.length === 0) {
+        this.showEmptyQuotations("Chưa có báo giá nào");
+        return;
+      }
+
+      //console.log("Loaded quotations:", quotations);
+      let html = "";
+      quotations.quotations.forEach((quotation) => {
+        html += this.generateQuotationCardHTML(quotation);
+      });
+
+      container.html(html);
+    }
+
+    /**
+     * Generate HTML cho từng quotation card
+     */
+    generateQuotationCardHTML(quotation) {
+      // Format thời gian
+      const createdAt = this.formatDateTime(quotation.transaction_date);
+
+      // Generate items HTML
+      const itemsHTML = this.generateQuotationItemsHTML(quotation.items);
+
+      // Calculate totals
+      const totalQuantity = this.calculateTotalQuantity(quotation.items);
+
+      // Build summary values
+      const packaging = quotation.packaging || "Vui lòng chọn";
+      const deliveryTime = quotation.delivery_time || "Vui lòng chọn";
+      const shipping = quotation.shipping_cost
+        ? `${this.formatNumber(quotation.shipping_cost)} đ`
+        : "Vui lòng chọn";
+      const totalPrice = quotation.grand_total
+        ? `${this.formatNumber(quotation.grand_total)} đ`
+        : "0 đ";
+      const pricePerKg = this.formatNumber((quotation.grand_total / this.calculateTotalQuantityAsNumber(quotation.items)).toFixed(0)) + " đ/kg";
+
+      return `
+    <div class="order-card" data-order-id="${quotation.name}">
+        <div class="order-header">
+            <h3 class="order-title">${this.escapeHtml(
+              quotation.title || "Báo giá"
+            )}</h3>
+            <div class="order-header-right">
+                <span class="order-date">Tạo lúc ${createdAt}</span>
+                <button class="order-toggle">▼</button>
+            </div>
+        </div>
+        <div class="order-body">
+            <div class="order-content">
+                <div class="order-items">
+                    ${itemsHTML}
+                </div>
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">Tổng số lượng:</span>
+                        <span class="summary-value">${totalQuantity}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Bao bì:</span>
+                        <span class="summary-value highlight-text">${packaging}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Thời gian nhận hàng:</span>
+                        <span class="summary-value highlight-text">${deliveryTime}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Vận chuyển:</span>
+                        <span class="summary-value highlight-text">${shipping}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Báo giá dự kiến:</span>
+                        <div class="total-price-section">
+                            <span class="total-price">${totalPrice}</span>
+                            <span class="price-note">(Giá cost: ${pricePerKg})</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  `;
+    }
+
+    /**
+     * Generate HTML cho items trong quotation
+     * Xử lý logic hiển thị % cho mix type
+     */
+    generateQuotationItemsHTML(items) {
+      if (!items || items.length === 0) {
+        return "<p>Không có sản phẩm</p>";
+      }
+
+      return items
+        .map((item) => {
+          // Check if mix type (mix_percent > 0)
+          const isMixItem =
+            item.mix_percent && parseFloat(item.mix_percent) > 0;
+
+          // Display quantity or percentage
+          const quantityDisplay = isMixItem
+            ? `tỷ lệ ${item.mix_percent}%`
+            : `${this.formatNumber(item.qty)} kg`;
+
+          // Build details array
+          const details = [];
+          if (item.item_name) {
+            details.push(item.item_name);
+          }
+          if (item.uom) {
+            details.push(`Đơn vị: ${item.custom_packet_item_name}`);
+          }
+
+          const detailsHTML =
+            details.length > 0
+              ? `<div class="item-details">
+                ${details
+                  .map(
+                    (d) =>
+                      `<div class="item-detail">• ${this.escapeHtml(d)}</div>`
+                  )
+                  .join("")}
+               </div>`
+              : "";
+
+          return `
+            <div class="order-item">
+                <div class="item-header">
+                    <span class="item-name">${this.escapeHtml(
+                      item.item_code || item.item_name
+                    )}</span>
+                    <span class="item-quantity">${quantityDisplay}</span>
+                </div>
+                ${detailsHTML}
+            </div>
+        `;
+        })
+        .join("");
+    }
+
+    /**
+     * Check if quotation is mix type
+     */
+    isMixQuotation(items) {
+      return items.some(
+        (item) => item.mix_percent && parseFloat(item.mix_percent) > 0
+      );
+    }
+
+    /**
+     * Calculate total quantity
+     */
+    calculateTotalQuantity(items) {
+      const isMix = this.isMixQuotation(items);
+
+      if (isMix) {
+        // Với mix type, hiển thị tổng kg nếu có total field
+        const firstItem = items[0];
+        if (firstItem && firstItem.total_qty) {
+          return `${this.formatNumber(firstItem.total_qty)} kg`;
+        }
+        return "Mix";
+      }
+
+      // Tính tổng quantity cho non-mix
+      const total = items.reduce((sum, item) => {
+        return sum + (parseFloat(item.qty) || 0);
+      }, 0);
+
+      return `${this.formatNumber(total)} kg`;
+    }
+
+    calculateTotalQuantityAsNumber(items) {
+      const isMix = this.isMixQuotation(items);
+
+      if (isMix) {
+        // Với mix type, hiển thị tổng kg nếu có total field
+        const firstItem = items[0];
+        if (firstItem && firstItem.total_qty) {
+          return `${this.formatNumber(firstItem.total_qty)} kg`;
+        }
+        return "Mix";
+      }
+
+      // Tính tổng quantity cho non-mix
+      const total = items.reduce((sum, item) => {
+        return sum + (parseFloat(item.qty) || 0);
+      }, 0);
+
+      return total;
+    }
+
+    /**
+     * Format datetime
+     */
+    formatDateTime(datetime) {
+      if (!datetime) return "";
+
+      const date = new Date(datetime);
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      return `${hours}:${minutes} ngày ${day}/${month}/${year}`;
+    }
+
+    /**
+     * Format number with thousand separator
+     */
+    formatNumber(num) {
+      return new Intl.NumberFormat("vi-VN").format(num);
+    }
+
+    /**
+     * Escape HTML để prevent XSS
+     */
+    escapeHtml(text) {
+      const map = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
+      };
+      return String(text).replace(/[&<>"']/g, (m) => map[m]);
+    }
+
+    /**
+     * Show empty quotations message
+     */
+    showEmptyQuotations(message) {
+      const container = $("#sent-request-orders");
+      container.html(`
+        <div class="empty-orders">
+            <p>${this.escapeHtml(message || "Chưa có báo giá nào")}</p>
+        </div>
+    `);
+    }
+
     cancelOrder(orderId) {
       if (confirm("Bạn có chắc muốn hủy đơn hàng này?")) {
         this.showMessage("Đơn hàng đã được hủy!", "success");
@@ -497,9 +774,6 @@ function wp_logout_url() {
   function initERPIntegration() {
     // Load customer data từ ERP khi vào trang
     loadCustomerFromERP();
-
-    // Add sync button
-    //addERPSyncButton();
   }
 
   /**
@@ -552,23 +826,6 @@ function wp_logout_url() {
       const addressString = customer.address;
       //$("#user_address").val(addressString);
     }
-  }
-
-  /**
-   * Format address từ ERP
-   */
-  function formatERPAddress(addressData) {
-    if (typeof addressData === "string") {
-      return addressData;
-    }
-
-    const parts = [];
-    if (addressData.address_line1) parts.push(addressData.address_line1);
-    if (addressData.city && addressData.city !== "Unknow")
-      parts.push(addressData.city);
-    if (addressData.country) parts.push(addressData.country);
-
-    return parts.join(", ");
   }
 
   /**

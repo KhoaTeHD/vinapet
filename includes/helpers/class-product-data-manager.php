@@ -246,7 +246,26 @@ class Product_Data_Manager {
             'error' => ''
         ];
     }
-    
+
+    /**
+     * Get packages
+     */
+    public function get_packages() {
+        $packages = $this->erp_client->get_packages();
+
+        $result = [];
+        foreach ($packages as $package) {
+            $result[] = [
+                'id' => $package['PacketID'] ?? '',
+                'name' => $package['Ten_SP'] ?? '',
+                'description' => $package['Mo_ta_ngan'] ?? '',
+                'price' => floatval($package['Gia_ban_le'] ?? 0)
+            ];
+        }
+
+        return $result;
+    }
+
     /**
      * Get connection status
      */

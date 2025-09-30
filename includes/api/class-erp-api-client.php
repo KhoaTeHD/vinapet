@@ -41,8 +41,12 @@ class ERP_API_Client
         // Order endpoints
         'create_order'          => 'method/vinapet.api.order.order.create_order',
         'get_orders'            => 'method/vinapet.api.order.order.get_orders',
-        'update_order'          => 'method/vinapet.api.order.order.update_order',
-        'get_order_detail'      => 'method/vinapet.api.order.order.get_order_detail',
+
+        // Quotation endpoints
+        'get_quotations'        => 'method/vinapet.vinapet.quotation.get_quotations',
+
+        // Package endpoints
+        'get_packages'        => 'method/vinapet.api.item.item.get_list_packets',
 
         // General endpoints
         'health_check'          => 'method/ping',
@@ -63,8 +67,8 @@ class ERP_API_Client
         'get_leads'             => 1800,    // 30 phút
         'get_customer_by_email' => 1800,    // 30 phút
         'create_customer'       => 0,       // No cache
-        'get_orders'            => 900,     // 15 phút
-        'get_order_detail'      => 1800,    // 30 phút
+        'get_quotations'        => 600,     // 10 phút
+        'get_packages'          => 0,    // No cache
         'get_settings'          => 86400,   // 24 giờ
     ];
 
@@ -616,6 +620,60 @@ class ERP_API_Client
     }
 
     /**
+     * Lấy danh sách quotations theo email customer
+     * 
+     * @param string $customer_email Email của customer
+     * @param string $status Status filter (Draft, Submitted, etc.)
+     * @return array|false Danh sách quotations hoặc false nếu lỗi
+     */
+    public function get_quotations($customer_email, $status = 'Draft')
+    {
+        if (!$this->is_configured() || empty($customer_email)) {
+            return false;
+        }
+
+        // Cache key theo email và status
+        $cache_key = 'erp_quotations_' . md5($customer_email . '_' . $status);
+        $quotations = get_transient($cache_key);
+
+        if (false === $quotations) {
+            $endpoint = $this->get_endpoint('get_quotations');
+
+            $params = [
+                'customer' => sanitize_email($customer_email)
+            ];
+
+            // Thêm status filter nếu có
+            if (!empty($status)) {
+                $params['status'] = sanitize_text_field($status);
+            }
+
+            $response = $this->make_request('GET', $endpoint, $params);
+
+            if (!is_wp_error($response)) {
+                $response_code = wp_remote_retrieve_response_code($response);
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+
+                if (in_array($response_code, self::HTTP_STATUS['SUCCESS']) && isset($data['message'])) {
+                    $quotations = $data['message'];
+
+                    // Cache theo thời gian cấu hình
+                    $cache_time = $this->get_cache_time('get_quotations');
+                    set_transient($cache_key, $quotations, $cache_time);
+                } else {
+                    $quotations = [];
+                }
+            } else {
+                error_log('VinaPet: Error getting quotations - ' . $response->get_error_message());
+                return false;
+            }
+        }
+
+        return $quotations;
+    }
+
+    /**
      * Lấy danh sách orders
      */
     public function get_orders($params = [])
@@ -651,39 +709,41 @@ class ERP_API_Client
         return $orders;
     }
 
-    /**
-     * Lấy chi tiết order
-     */
-    public function get_order_detail($order_id)
+    // ============================================================================
+    // PACKAGE METHODS
+    // ============================================================================
+
+    public function get_packages($params = [])
     {
-        if (!$this->is_configured() || empty($order_id)) {
+        if (!$this->is_configured()) {
             return false;
         }
 
-        $cache_key = 'erp_order_detail_' . sanitize_key($order_id);
-        $order = get_transient($cache_key);
+        $cache_key = 'erp_packages_' . md5(serialize($params));
+        $packages = get_transient($cache_key);
 
-        if (false === $order) {
-            $endpoint = $this->get_endpoint('get_order_detail');
-            $params = ['order_id' => $order_id];
+        if (false === $packages) {
+            $endpoint = $this->get_endpoint('get_packages');
             $response = $this->make_request('GET', $endpoint, $params);
 
             if (!is_wp_error($response)) {
                 $body = wp_remote_retrieve_body($response);
                 $data = json_decode($body, true);
 
-                if (isset($data['message'])) {
-                    $order = $data['message'];
-
-                    $cache_time = $this->get_cache_time('get_order_detail');
-                    set_transient($cache_key, $order, $cache_time);
+                if (isset($data['message']['success']) && $data['message']['success'] && isset($data['message']['data'])) {
+                    $packages = $data['message']['data'];
+                } else {
+                    $packages = [];
                 }
+
+                $cache_time = $this->get_cache_time('get_packages');
+                set_transient($cache_key, $packages, $cache_time);
             } else {
                 return false;
             }
         }
 
-        return $order;
+        return $packages;
     }
 
     // ============================================================================

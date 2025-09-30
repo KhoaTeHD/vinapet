@@ -10,13 +10,13 @@
       5000: 34000, // 5 tấn = 34,000/kg
     };
 
-    const packagingPrices = {
-      pa_pe_thuong: 2600,
-      pa_pe_khong: 2600,
-      pa_pe_decal: 2350,
-      bao_dua: 160,
-      tui_jumbo: 105,
-    };
+    // let packagingPrices = {
+    //   pa_pe_thuong: 2600,
+    //   pa_pe_khong: 2600,
+    //   pa_pe_decal: 2350,
+    //   bao_dua: 160,
+    //   tui_jumbo: 105,
+    // };
 
     let totalPrice;
     let pricePerKg;

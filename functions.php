@@ -611,6 +611,10 @@ if (file_exists(VINAPET_THEME_DIR . '/includes/account-functions.php')) {
     require_once VINAPET_THEME_DIR . '/includes/account-functions.php';
 }
 
+// if(file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-account.php')) {
+//     require_once VINAPET_THEME_DIR . '/includes/ajax/ajax-account.php';
+// }
+
 // footer
 
 // Include footer initialization

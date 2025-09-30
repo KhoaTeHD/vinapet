@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template Name: Order Page
  * Description: Trang đặt hàng sản phẩm
@@ -15,7 +16,7 @@ if ($session_data) {
     $product_code = $session_data['products'][0]['product_code'];
     $selected_variant = $session_data['products'][0]['variant'];
     $order_type = $session_data['order_type'] ?? 'normal';
-    
+
     // Nếu là mix order, redirect về mix page
     if ($order_type === 'mix') {
         wp_redirect(home_url('/mix-voi-hat-khac'));
@@ -25,7 +26,7 @@ if ($session_data) {
     // Fallback sang URL params
     $product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
     $selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
-    
+
     if (empty($product_code)) {
         wp_redirect(home_url('/san-pham'));
         exit;
@@ -98,52 +99,59 @@ $grain_size_options = [
     ['value' => 'dap 3.5', 'label' => 'Đập 3.5'],
 ];
 
+$packages = $data_manager->get_packages();
+
 // Loại túi đóng gói
-$packaging_options = [
-    [
-        'id' => 'pa_pe_thuong',
-        'name' => 'Túi PA/PE in màu thường',
-        'description' => 'Trọng tải: 2.2~2.4kg/túi - Đã bao gồm chi phí thùng carton dùng cho vận chuyển (800đ/kg)',
-        'price' => 2600
-    ],
-    [
-        'id' => 'pa_pe_khong',
-        'name' => 'Túi PA/PE in màu hút chân không',
-        'description' => 'Trọng tải: 2.2~2.4kg/túi - Đã bao gồm chi phí thùng carton dùng cho vận chuyển (800đ/kg)',
-        'price' => 2600
-    ],
-    [
-        'id' => 'pa_pe_decal',
-        'name' => 'Túi PA/PE trong và dán decal',
-        'description' => 'Trọng tải: 2.2~2.4kg/túi - Đã bao gồm chi phí thùng carton dùng cho vận chuyển (800đ/kg)',
-        'price' => 2350
-    ],
-    [
-        'id' => 'bao_dua',
-        'name' => 'Bao tải dừa + 1 lót PE',
-        'description' => 'Trọng tải: 20~25kg/túi',
-        'price' => 160
-    ],
-    [
-        'id' => 'tui_jumbo',
-        'name' => 'Túi Jumbo (chỉ áp dụng từ 1 tấn)',
-        'description' => 'Trọng tải: 500kg - 1 tấn/túi',
-        'price' => 105
-    ]
-];
+if ($packages) {
+    $packaging_options = $packages;
+} else {
+    $packaging_options = [
+        [
+            'id' => 'pa_pe_thuong',
+            'name' => 'Túi PA/PE in màu thường',
+            'description' => 'Trọng tải: 2.2~2.4kg/túi - Đã bao gồm chi phí thùng carton dùng cho vận chuyển (800đ/kg)',
+            'price' => 2600
+        ],
+        [
+            'id' => 'pa_pe_khong',
+            'name' => 'Túi PA/PE in màu hút chân không',
+            'description' => 'Trọng tải: 2.2~2.4kg/túi - Đã bao gồm chi phí thùng carton dùng cho vận chuyển (800đ/kg)',
+            'price' => 2600
+        ],
+        [
+            'id' => 'pa_pe_decal',
+            'name' => 'Túi PA/PE trong và dán decal',
+            'description' => 'Trọng tải: 2.2~2.4kg/túi - Đã bao gồm chi phí thùng carton dùng cho vận chuyển (800đ/kg)',
+            'price' => 2350
+        ],
+        [
+            'id' => 'bao_dua',
+            'name' => 'Bao tải dừa + 1 lót PE',
+            'description' => 'Trọng tải: 20~25kg/túi',
+            'price' => 160
+        ],
+        [
+            'id' => 'tui_jumbo',
+            'name' => 'Túi Jumbo (chỉ áp dụng từ 1 tấn)',
+            'description' => 'Trọng tải: 500kg - 1 tấn/túi',
+            'price' => 105
+        ]
+    ];
+}
+
 ?>
 
 <div class="container">
     <!-- Breadcrumb -->
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
-    
+
     <div class="order-page-container">
         <!-- Left Column - Product Info (40%) -->
         <div class="order-left-column">
             <div class="product-info-card">
                 <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
                 <p class="product-short-desc"><?php echo $product_desc; ?></p>
-                
+
                 <!-- Product Sizes - Copy layout from single-product.php -->
                 <div class="product-sizes">
                     <?php foreach ($product_sizes as $index => $size) : ?>
@@ -153,19 +161,19 @@ $packaging_options = [
                         </div>
                     <?php endforeach; ?>
                 </div>
-                
+
                 <!-- Product Image -->
                 <div class="product-image-container">
                     <img src="<?php echo esc_url($product_image); ?>" alt="<?php echo esc_attr($product_name); ?>" class="product-image">
                 </div>
-                
+
                 <!-- Store Logo -->
                 <div class="store-logo">
                     <img src="<?php echo get_template_directory_uri(); ?>/assets/images/vinapet-logo.png" alt="VinaPet Logo" class="logo">
                 </div>
             </div>
         </div>
-        
+
         <!-- Right Column - Order Form (60%) -->
         <div class="order-right-column">
             <div class="order-form-card">
@@ -181,13 +189,14 @@ $packaging_options = [
                                         <div class="variant-image">
                                             <img src="<?php echo esc_url($variant['image']); ?>" alt="<?php echo esc_attr($variant['name']); ?>">
                                         </div>
-                                        <!-- <div class="variant-label"><?php //echo esc_html($variant['name']); ?></div> -->
+                                        <!-- <div class="variant-label"><?php //echo esc_html($variant['name']); 
+                                                                        ?></div> -->
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    
+
                     <!-- size Selection -->
                     <div class="form-section" style="border-top: 1px dashed #C6C5C9; padding-top: 20px;">
                         <h3 class="section-title">Chọn thông số đặt hàng</h3>
@@ -218,7 +227,7 @@ $packaging_options = [
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Packaging Selection - Updated with Radio Buttons -->
                     <div class="form-section">
                         <div class="subsection">
@@ -261,9 +270,9 @@ $packaging_options = [
                     Tổng số lượng: <span id="footer-total-quantity">1000 kg</span>
                 </div>
             </div>
-            
+
             <div class="footer-divider"></div>
-            
+
             <!-- Info Group 2: Pricing -->
             <div class="footer-info-group">
                 <div class="footer-top-row">
@@ -277,7 +286,7 @@ $packaging_options = [
                 </div>
             </div>
         </div>
-        
+
         <div class="footer-right-section">
             <button type="button" class="next-step-btn" id="next-step-button">
                 Qua bước tiếp theo
@@ -288,6 +297,7 @@ $packaging_options = [
 </div>
 
 <script>
-    const product_code = <?php echo json_encode($product_code); ?>;                          
+    let packagingPrices = <?php echo json_encode(array_column($packaging_options, 'price', 'id')); ?>;
+    const product_code = <?php echo json_encode($product_code); ?>;
 </script>
 <?php get_footer(); ?>

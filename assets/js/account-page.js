@@ -463,6 +463,7 @@
           this.hideLoading();
 
           if (response.success) {
+            console.log("Loaded quotations from ERP:", response.data.quotations);
             this.renderQuotations(response.data.quotations);
           } else {
             this.showEmptyQuotations(response.data.message);

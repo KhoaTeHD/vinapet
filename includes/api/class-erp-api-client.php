@@ -67,7 +67,7 @@ class ERP_API_Client
         'get_leads'             => 1800,    // 30 phút
         'get_customer_by_email' => 1800,    // 30 phút
         'create_customer'       => 0,       // No cache
-        'get_quotations'        => 600,     // 10 phút
+        'get_quotations'        => 0,     // 2 phút
         'get_packages'          => 0,    // No cache
         'get_settings'          => 86400,   // 24 giờ
     ];
@@ -633,8 +633,10 @@ class ERP_API_Client
         }
 
         // Cache key theo email và status
-        $cache_key = 'erp_quotations_' . md5($customer_email . '_' . $status);
-        $quotations = get_transient($cache_key);
+        // $cache_key = 'erp_quotations_' . md5($customer_email . '_' . $status);
+        // $quotations = get_transient($cache_key);
+
+        $quotations = false; // Disable caching for real-time data
 
         if (false === $quotations) {
             $endpoint = $this->get_endpoint('get_quotations');

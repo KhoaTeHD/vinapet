@@ -95,7 +95,7 @@
         // Lấy tổng số lượng từ total_quantity
         const totalQty = parseInt(checkoutData.total_quantity);
 
-        const packet_item = checkoutData.details.packaging;
+        const packet_item = checkoutData.packaging;
 
         const rate = parseInt(checkoutData.rate);
 
@@ -152,7 +152,7 @@
               qty: parseInt(product.quantity) || 1000,
               uom: "Nos",
               rate: parseInt(product.price) || 50000,
-              packet_item: product.packet_item || "SPTUI01",
+              packet_item: product.packaging || "SPTUI01",
               mix_percent: 0.0,
               is_free_item: 0,
               additional_notes: product.notes || "",
@@ -164,13 +164,14 @@
         }
         // Xử lý nếu chỉ có 1 sản phẩm (checkoutData chính là product)
         else if (checkoutData.product_code) {
+          alert(checkoutData.packaging);
           const item = {
             item_code: checkoutData.product_code,
             item_name: checkoutData.product_name || checkoutData.code,
             qty: parseInt(checkoutData.quantity) || 1000,
             uom: "Nos",
             rate: parseInt(checkoutData.rate) || 50000,
-            packet_item: checkoutData.packet_item || "SPTUI01",
+            packet_item: checkoutData.packaging || "SPTUI01",
             mix_percent: 0.0,
             is_free_item: 0,
             additional_notes: checkoutData.notes || "",

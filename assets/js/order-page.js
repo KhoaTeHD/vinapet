@@ -154,9 +154,6 @@
         return;
       }
 
-      alert(formData.rate);
-
-      //alert("Đang xử lý... Vui lòng chờ."); 
       // AJAX call để store data trong PHP session
       $.ajax({
         url: vinapet_ajax.ajax_url,

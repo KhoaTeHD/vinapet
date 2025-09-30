@@ -393,6 +393,7 @@ error_log('Checkout Data from checkout page: ' . print_r($checkout_data, true));
 <script type="text/javascript">
     // Pass PHP data to JavaScript for interactions
     window.vinapet_checkout_data = <?php echo json_encode($checkout_data); ?>;
+    console.log(window.vinapet_checkout_data);
 </script>
 
 <?php get_footer(); ?>

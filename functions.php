@@ -799,6 +799,7 @@ function vinapet_ajax_store_order_session() {
         
     ];
     
+    //error_log('VinaPet Order Data Sanitized: ' . json_encode($clean_data));
     // Store in unified session
     $session = VinaPet_Order_Session::get_instance();
     $session->store_order($product_code, $clean_data['variant'], $clean_data);

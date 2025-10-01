@@ -594,7 +594,7 @@
             details.push(item.item_name);
           }
           if (item.uom) {
-            details.push(`Đơn vị: ${item.custom_packet_item_name}`);
+            details.push(item.custom_packet_item_name);
           }
 
           const detailsHTML =

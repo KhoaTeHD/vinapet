@@ -633,7 +633,7 @@ class ERP_API_Client
         }
 
         // Cache key theo email và status
-        // $cache_key = 'erp_quotations_' . md5($customer_email . '_' . $status);
+         $cache_key = 'erp_quotations_' . md5($customer_email . '_' . $status);
         // $quotations = get_transient($cache_key);
 
         $quotations = false; // Disable caching for real-time data

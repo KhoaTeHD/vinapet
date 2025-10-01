@@ -109,22 +109,26 @@ $grain_size_options = [
     ['value' => '3.5', 'label' => '3.5'],
     ['value' => 'dap 3.5', 'label' => 'Đập 3.5'],
 ];
+$packages = $data_manager->get_packages();
 
-// Packaging options
-$packaging_options = [
-    [
-        'id' => 'tui_jumbo_500',
-        'name' => 'Túi Jumbo 500 kg',
-        'description' => '+800 đ/kg',
-        'price' => 800
-    ],
-    [
-        'id' => 'tui_jumbo_1000',
-        'name' => 'Túi Jumbo 1 tấn',
-        'description' => 'Miễn phí',
-        'price' => 0
-    ],
-];
+if($packages){
+    $packaging_options = $packages;
+} else {
+    $packaging_options = [
+        [
+            'id' => 'tui_jumbo_500',
+            'name' => 'Túi Jumbo 500 kg',
+            'description' => '+800 đ/kg',
+            'price' => 800
+        ],
+        [
+            'id' => 'tui_jumbo_1000',
+            'name' => 'Túi Jumbo 1 tấn',
+            'description' => 'Miễn phí',
+            'price' => 0
+        ],
+    ];
+}
 ?>
 
 <div class="container">
@@ -371,7 +375,7 @@ $packaging_options = [
                         <div class="packaging-content">
                             <div class="packaging-header">
                                 <span class="packaging-name"><?php echo esc_html($packaging['name']); ?></span>
-                                <span class="packaging-price <?php echo esc_html($packaging['description']) == 'Miễn phí' ? 'gray-text' : ''; ?>"><?php echo esc_html($packaging['description']); ?></span>
+                                <span class="packaging-price <?php echo esc_html($packaging['price']) == 0 ? 'gray-text' : ''; ?>"><?php echo $packaging['price'] != 0 ? number_format($packaging['price'], 0, ',', '.') . ' đ' : 'Miễn phí'; ?></span>
                             </div>
                         </div>
                     </label>

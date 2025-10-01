@@ -95,7 +95,7 @@
         // Lấy tổng số lượng từ total_quantity
         const totalQty = parseInt(checkoutData.total_quantity);
 
-        const packet_item = checkoutData.packaging;
+        const packet_item = checkoutData.details.packaging;
 
         const rate = parseInt(checkoutData.rate);
 

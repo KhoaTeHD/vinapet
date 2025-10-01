@@ -21,12 +21,20 @@
     let totalPrice;
     let pricePerKg;
 
+    let selectedVariant = $('input[name="variant"]:checked');
+    if (selectedVariant.length) {
+      $('.variant-label').text(selectedVariant.parent().attr('value'));
+    }
+    
+
     // Handle variant selection - SKU với radio ẩn (như checkout page)
     $(".variant-option").on("click", function () {
       // Uncheck all other variants first
       $('.variant-option input[type="radio"]').prop("checked", false);
       // Check this variant
       $(this).find('input[type="radio"]').prop("checked", true);
+
+      $('.variant-label').text(this.getAttribute('value'));
       updateFooterSummary();
     });
 
@@ -192,17 +200,18 @@
     });
 
     // Auto-select variant if passed from product page
-    const urlParams = new URLSearchParams(window.location.search);
-    const selectedVariant = urlParams.get("variant");
-    if (selectedVariant) {
-      const targetVariant = $(
-        'input[name="variant"][value="' + selectedVariant + '"]'
-      );
-      if (targetVariant.length) {
-        targetVariant.prop("checked", true);
-        updateFooterSummary();
-      }
-    }
+    //const urlParams = new URLSearchParams(window.location.search);
+    // const selectedVariant = urlParams.get("variant");
+    // if (selectedVariant) {
+    //   const targetVariant = $(
+    //     'input[name="variant"][value="' + selectedVariant + '"]'
+    //   );
+    //   if (targetVariant.length) {
+    //     targetVariant.prop("checked", true);
+    //     updateFooterSummary();
+    //   }
+    // }
+    
 
     // Handle keyboard navigation for accessibility
     $(document).on("keydown", function (e) {

@@ -82,6 +82,7 @@ $color_options = [
     ['id' => 'do_gach', 'name' => 'Màu đỏ gạch', 'color' => '#CD5C5C'],
     ['id' => 'be_nhat', 'name' => 'Màu be nhạt', 'color' => '#F5F5DC'],
     ['id' => 'den', 'name' => 'Màu đen', 'color' => '#333333'],
+    ['id' => 'mau_khac', 'name' => 'Màu khác', 'color' => 'rgba(33, 149, 243, 0)'],
 ];
 
 // Scent options
@@ -92,6 +93,7 @@ $scent_options = [
     ['id' => 'sen', 'name' => 'Mùi sen'],
     ['id' => 'sua', 'name' => 'Mùi sữa'],
     ['id' => 'chanh', 'name' => 'Mùi chanh'],
+    ['id' => 'khac', 'name' => 'Mùi khác'],
 ];
 
 // Quantity options
@@ -311,7 +313,7 @@ if($packages){
             <h3 class="option-title">Chọn màu</h3>
             <div class="color-grid">
                 <?php foreach ($color_options as $index => $color): ?>
-                    <div class="color-option <?php echo $index === 0 ? 'selected' : ''; ?>">
+                    <div class="color-option <?php echo $index === 0 ? 'selected' : ''; ?>" value="<?php echo esc_attr($color['name']); ?>">
                         <div class="color-content">
                             <input type="radio" name="color" value="<?php echo esc_attr($color['id']); ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
                             <div class="color-image-wrap">
@@ -323,6 +325,7 @@ if($packages){
                     </div>
                 <?php endforeach; ?>
             </div>
+            <div class="color-name"><?php echo esc_html($color_options[0]['name']); ?></div>
         </div>
 
         <!-- Scent Selection -->

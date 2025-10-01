@@ -507,10 +507,10 @@
 }
 
 .color-name {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 500;
-    color: var(--text-primary);
     margin: 0;
+    margin-top: 15px;
     line-height: 1.3;
 }
 

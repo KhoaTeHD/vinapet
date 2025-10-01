@@ -79,6 +79,7 @@ $product_variants = [
     ['id' => 'cafe', 'name' => 'Mùi cà phê - Màu nâu', 'image' => get_template_directory_uri() . '/assets/images/variants/brown.jpg'],
     ['id' => 'sen', 'name' => 'Mùi sen - Màu hồng', 'image' => get_template_directory_uri() . '/assets/images/variants/pink.jpg'],
     ['id' => 'vanilla', 'name' => 'Mùi vanilla - Màu vàng', 'image' => get_template_directory_uri() . '/assets/images/variants/yellow.jpg'],
+    ['id' => 'other', 'name' => 'Mùi khác - Màu khác', 'image' => get_template_directory_uri() . '/assets/images/variants/other.jpg'],
 ];
 
 // Số lượng options
@@ -183,7 +184,7 @@ if ($packages) {
                         <h3 class="section-title">Chọn SKU (Mùi - Màu)</h3>
                         <div class="variant-grid">
                             <?php foreach ($product_variants as $index => $variant): ?>
-                                <div class="variant-option">
+                                <div class="variant-option" value="<?php echo esc_attr($variant['name']); ?>">
                                     <input type="radio" name="variant" value="<?php echo esc_attr($variant['id']); ?>" <?php echo ($variant['id'] === $selected_variant) ? 'checked' : ''; ?>>
                                     <div class="variant-content">
                                         <div class="variant-image">
@@ -195,6 +196,7 @@ if ($packages) {
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <div class="variant-label"></div>
                     </div>
 
                     <!-- size Selection -->

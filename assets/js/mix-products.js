@@ -379,6 +379,7 @@
       $(".color-option").removeClass("selected");
       $(this).addClass("selected");
       $(this).find('input[type="radio"]').prop("checked", true);
+      $(".color-name").text(this.getAttribute("value"));
       mixData.options.color = $(this).find("input").val();
       updateFooterSummary();
     });

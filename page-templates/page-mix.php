@@ -48,7 +48,7 @@ if (!isset($main_product_response['product'])) {
 $main_product = $main_product_response['product'];
 
 // Lấy tất cả sản phẩm cho dropdown (cần sửa trong page-mix.php)
-$all_products_response = $data_manager->get_products(['limit' => 100]);
+$all_products_response = $data_manager->get_products();
 $all_products = isset($all_products_response['products']) ? $all_products_response['products'] : [];
 
 // Lọc bỏ sản phẩm chính khỏi danh sách
@@ -56,7 +56,6 @@ $other_products = array_filter($all_products, function ($product) use ($main_pro
     $product_code = $product['ProductID'] ?? $product['ProductID'] ?? '';
     return $product_code !== $main_product_code;
 });
-
 
 // Breadcrumb data
 global $breadcrumb_data;
@@ -66,6 +65,25 @@ $breadcrumb_data = [
     ['name' => $main_product['product_name'], 'url' => Smart_URL_Router::generate_product_url($main_product)],
     ['name' => 'Mix với hạt khác', 'url' => '']
 ];
+
+$product_prices = $data_manager->get_product_price_detail($main_product_code);
+
+// if (!empty($product_prices['price_detail']) && is_array($product_prices['price_detail']) && count($product_prices['price_detail']) > 0 && isset($product_prices['price_detail'][0])) {
+//     error_log("Product Prices: " . print_r($product_prices['price_detail'][0], true));
+// } else {
+//     error_log("Product Prices: No price detail available.");
+// }
+
+$prices = [];
+
+foreach ($product_prices['price_detail'] as $price) {
+    $prices[]  = [
+        'name' => $price['title'],
+        'price' => $price['value'],
+        'unit' => $price['unit'],
+        'min_quantity' => $price['min_qty']
+    ];
+}
 
 // Tiered pricing
 $product_sizes = [
@@ -217,9 +235,9 @@ if ($packages) {
                             gap: 8px;
                         " id="mixsuggest-container-2">
                         <span style="color:#666471">Đề xuất</span> 
-                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-SET-001">Cát tre xanh lá trà xanh</span> 
-                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-TRAU-001">Cát tofu xanh lá trà xanh</span> 
-                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-NANH-001">Cát tofu trắng lavender</span>
+                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tre XLTX">Cát tre xanh lá trà xanh</span> 
+                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span> 
+                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu TLVD">Cát tofu trắng lavender</span>
                     </div>
                 </div>
 

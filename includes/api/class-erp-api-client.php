@@ -26,7 +26,7 @@ class ERP_API_Client
         'products_list'         => 'method/vinapet.api.item.item.get_products',
         'product_detail'        => 'method/vinapet.api.item.item.get_item_detail',
         'categories'            => 'resource/Item Group',
-        'item_price_detail'     => 'method/vinapet.api.item.item.get_item_price',
+        'item_price_detail'     => 'method/vinapet.api.item.item.get_item_price_detail',
 
         // Lead endpoints  
         'create_lead'           => 'method/vinapet.api.lead.lead.create_lead',
@@ -215,6 +215,38 @@ class ERP_API_Client
         }
 
         return $product;
+    }
+
+    public function get_product_price_detail($item_code)
+    {
+        if (!$this->is_configured() || empty($item_code)) {
+            return false;
+        }
+
+    
+            $endpoint = $this->get_endpoint('item_price_detail');
+
+            $query_params = [
+                'product_id' => $item_code
+            ];
+
+            $response = $this->make_request('GET', $endpoint, $query_params);
+
+            if (!is_wp_error($response)) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+
+                if (isset($data['message'])) {
+                    $price_detail = $data['message'];
+                } else {
+                    $price_detail = null;
+                }
+            }
+            else {
+                    return false;
+            }
+
+        return $price_detail;
     }
 
     /**

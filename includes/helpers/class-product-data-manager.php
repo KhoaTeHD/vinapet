@@ -248,6 +248,36 @@ class Product_Data_Manager {
         ];
     }
 
+    public function get_product_price_detail($item_code) {
+        $result = [
+            'price_detail' => null,
+            'source' => 'none',
+            'error' => ''
+        ];
+        
+        if (empty($item_code)) {
+            $result['error'] = 'Mã sản phẩm không hợp lệ';
+            return $result;
+        }
+        
+        // Try ERP first
+        if ($this->erp_client && $this->erp_client->is_configured()) {
+            try {
+                $erp_response = $this->erp_client->get_product_price_detail($item_code);
+                if ($erp_response !== false) {
+                    $result['price_detail'] = $erp_response;
+                    $result['source'] = 'erp';
+                    return $result;
+                }
+            } catch (Exception $e) {
+                $result['error'] = 'ERPNext Error: ' . $e->getMessage();
+            }
+        }
+        
+        $result['error'] = 'Không tìm thấy chi tiết giá';
+        return $result;
+    }
+
     /**
      * Get packages
      */

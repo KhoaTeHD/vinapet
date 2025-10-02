@@ -15,7 +15,7 @@ if ($session_data) {
     // Dùng session data
     $main_product_code = $session_data['products'];
     $order_type = $session_data['order_type'] ?? 'normal';
-    
+
     // Nếu là normal order, redirect về order page
     if ($order_type === 'normal') {
         wp_redirect(home_url('/dat-hang'));
@@ -25,7 +25,7 @@ if ($session_data) {
     // Fallback sang URL params (giữ nguyên code cũ)
     $main_product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
     $selected_variant = isset($_GET['variant']) ? sanitize_text_field($_GET['variant']) : '';
-    
+
     if (empty($main_product_code)) {
         wp_redirect(home_url('/san-pham'));
         exit;
@@ -113,7 +113,7 @@ $grain_size_options = [
 ];
 $packages = $data_manager->get_packages();
 
-if($packages){
+if ($packages) {
     $packaging_options = $packages;
 } else {
     $packaging_options = [
@@ -216,7 +216,10 @@ if($packages){
                             align-items: center;
                             gap: 8px;
                         " id="mixsuggest-container-2">
-                        <span style="color:#666471">Đề xuất</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-SET-001">Cát tre xanh lá trà xanh/span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-TRAU-001">Cát tofu xanh lá trà xanh</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-NANH-001">Cát tofu trắng lavender</span>
+                        <span style="color:#666471">Đề xuất</span> 
+                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-SET-001">Cát tre xanh lá trà xanh</span> 
+                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-TRAU-001">Cát tofu xanh lá trà xanh</span> 
+                        <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-NANH-001">Cát tofu trắng lavender</span>
                     </div>
                 </div>
 

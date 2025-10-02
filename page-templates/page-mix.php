@@ -216,7 +216,7 @@ if($packages){
                             align-items: center;
                             gap: 8px;
                         " id="mixsuggest-container-2">
-                        <span style="color:#666471">Đề xuất</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-SET-001">Cát đất sét</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-TRAU-001">Cát vỏ trấu</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-NANH-001">Cát đậu nành</span>
+                        <span style="color:#666471">Đề xuất</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-SET-001">Cát tre xanh lá trà xanh/span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-TRAU-001">Cát tofu xanh lá trà xanh</span> <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="CAT-NANH-001">Cát tofu trắng lavender</span>
                     </div>
                 </div>
 

@@ -244,7 +244,7 @@ if ($packages) {
                                         <div class="option-content">
                                             <div class="option-header">
                                                 <span class="option-name"><?php echo esc_html($option['name']); ?></span>
-                                                <span class="option-price">+<?php echo number_format($option['price'], 0, ',', '.'); ?> đ/kg</span>
+                                                <span class="option-price <?php echo esc_html($option['price']) == 0 ? 'gray-text' : ''; ?>"><?php echo $option['price'] != 0 ? number_format($option['price'], 0, ',', '.') . ' đ/kg' : 'Miễn phí'; ?></span>
                                             </div>
                                             <div class="option-description"><?php echo esc_html($option['description']); ?></div>
                                         </div>

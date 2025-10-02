@@ -343,6 +343,10 @@
     gap: 12px;
 }
 
+.gray-text{
+    color: #8C8A94 !important;
+}
+
 .packaging-option input[type="radio"] {
     /* Hiển thị radio button thực */
     display: block;

@@ -32,3 +32,64 @@
             }
         });
     })(jQuery);
+
+    /* ================================================================
+   SIDEBAR FILTER FUNCTIONALITY
+   ================================================================ */
+
+(function($) {
+    'use strict';
+    
+    $(document).ready(function() {
+        
+        // Toggle Sidebar
+        $('#sidebarToggle').on('click', function() {
+            const $sidebar = $('#productSidebar');
+            const $icon = $(this).find('.toggle-icon');
+            
+            $sidebar.toggleClass('collapsed');
+            
+            if ($sidebar.hasClass('collapsed')) {
+                $icon.text('+');
+                $(this).attr('aria-label', 'Mở rộng sidebar');
+            } else {
+                $icon.text('−');
+                $(this).attr('aria-label', 'Thu gọn sidebar');
+            }
+        });
+        
+        // Category Filter Change
+        $('.category-checkbox').on('change', function() {
+            filterProducts();
+        });
+        
+        // Clear Filters
+        $('#clearFilters').on('click', function() {
+            $('.category-checkbox').prop('checked', false);
+            filterProducts();
+        });
+        
+        // Filter Products Function
+        function filterProducts() {
+            const selectedCategories = [];
+            
+            $('.category-checkbox:checked').each(function() {
+                selectedCategories.push($(this).val());
+            });
+            
+            // Build URL
+            const currentUrl = new URL(window.location.href);
+            
+            if (selectedCategories.length > 0) {
+                currentUrl.searchParams.set('category', selectedCategories.join(','));
+            } else {
+                currentUrl.searchParams.delete('category');
+            }
+            
+            // Reload page with new filters
+            window.location.href = currentUrl.toString();
+        }
+        
+    });
+    
+})(jQuery);

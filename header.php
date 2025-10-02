@@ -16,6 +16,13 @@
     <header class="site-header vinapet-header" id="site-header">
         <nav class="main-navigation">
             <div class="nav-container">
+                <!-- Hamburger Button - Thay thế mobile-menu-toggle cũ -->
+                <button class="hamburger-btn" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
                 <!-- Logo Section (20%) -->
                 <div class="site-branding">
                     <a href="<?php echo home_url(); ?>" class="site-logo">
@@ -52,12 +59,6 @@
 
                 <!-- Header Actions (22%) -->
                 <div class="nav-actions">
-                    <!-- Hamburger Button - Thay thế mobile-menu-toggle cũ -->
-                    <button class="hamburger-btn" id="mobile-menu-toggle">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
 
                     <!-- Login Button -->
                     <?php get_template_part('template-parts/header/user-actions'); ?>

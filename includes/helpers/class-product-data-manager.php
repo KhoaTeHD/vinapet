@@ -32,9 +32,10 @@ class Product_Data_Manager {
         // Clean params
         $search = isset($params['search']) ? trim($params['search']) : '';
         $sort = isset($params['sort']) ? $params['sort'] : 'default';
+        $key = isset($params['key']) ? trim($params['key']) : '';
         
         // Cache key
-        $cache_key = $this->cache_prefix . md5(serialize(compact('search', 'sort')));
+        $cache_key = $this->cache_prefix . md5(serialize(compact('search', 'sort', 'key')));
         $cached = get_transient($cache_key);
         
         if ($cached !== false) {

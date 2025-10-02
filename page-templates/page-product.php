@@ -14,9 +14,11 @@ $sort_by = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'default'
 // Sử dụng Product Data Manager
 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
 $product_manager = new Product_Data_Manager();
+$selected_categories = isset($_GET['category']) ? explode(',', sanitize_text_field($_GET['category'])) : [];
 
 // Prepare params
 $params = [
+    'key' => $selected_categories[0] ?? '', // Lấy category đầu tiên để lọc (nếu có)
     'search' => $search_query,
     'sort' => $sort_by,
     'limit' => 50,
@@ -77,45 +79,44 @@ $breadcrumb_data = [
                     <span class="toggle-icon">−</span>
                 </button>
             </div>
-            
+
             <div class="sidebar-content" id="sidebarContent">
                 <form id="categoryFilterForm" class="category-filter-form">
                     <?php
                     // Lấy category hiện tại từ URL
-                    $selected_categories = isset($_GET['category']) ? explode(',', sanitize_text_field($_GET['category'])) : [];
-                    
+                    //$selected_categories = isset($_GET['category']) ? explode(',', sanitize_text_field($_GET['category'])) : [];
+
                     // 3 danh mục cố định
                     $categories = [
-                        ['name' => 'cat-tre', 'label' => 'Cát tre', 'count' => 0],
-                        ['name' => 'cat-tofu', 'label' => 'Cát tofu', 'count' => 0],
-                        ['name' => 'sap', 'label' => 'SAP', 'count' => 0]
+                        ['name' => 'Cát tre', 'label' => 'Cát tre', 'count' => 0],
+                        ['name' => 'Cát tofu', 'label' => 'Cát tofu', 'count' => 0],
+                        ['name' => 'S.A.P', 'label' => 'SAP', 'count' => 0],
                     ];
-                    
+
                     // Đếm số lượng sản phẩm theo danh mục
-                    if (!empty($products)) {
-                        foreach ($products as $product) {
-                            $cat = strtolower($product['Nhom_hang'] ?? $product['item_group'] ?? '');
-                            
-                            foreach ($categories as &$category) {
-                                if (strpos($cat, str_replace('-', ' ', $category['name'])) !== false) {
-                                    $category['count']++;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    // if (!empty($products)) {
+                    //     foreach ($products as $product) {
+                    //         $cat = strtolower($product['Nhom_hang'] ?? $product['item_group'] ?? '');
+
+                    //         foreach ($categories as &$category) {
+                    //             if (strpos($cat, str_replace('-', ' ', $category['name'])) !== false) {
+                    //                 $category['count']++;
+                    //                 break;
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     ?>
-                    
+
                     <div class="filter-group">
                         <?php foreach ($categories as $category): ?>
                             <label class="filter-item">
-                                <input 
-                                    type="checkbox" 
-                                    name="category[]" 
+                                <input
+                                    type="radio"
+                                    name="category"
                                     value="<?php echo esc_attr($category['name']); ?>"
                                     class="category-checkbox"
-                                    <?php echo in_array($category['name'], $selected_categories) ? 'checked' : ''; ?>
-                                >
+                                    <?php echo in_array($category['name'], $selected_categories) ? 'checked' : ''; ?>>
                                 <span class="filter-label">
                                     <?php echo esc_html($category['label']); ?>
                                     <span class="filter-count">(<?php echo $category['count']; ?>)</span>
@@ -123,7 +124,7 @@ $breadcrumb_data = [
                             </label>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <?php if (!empty($selected_categories)): ?>
                         <button type="button" class="clear-filters-btn" id="clearFilters">
                             Xóa bộ lọc

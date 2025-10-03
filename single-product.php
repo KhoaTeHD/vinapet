@@ -6,6 +6,30 @@
  * @package VinaPet
  */
 
+// THÊM MỚI: Lấy SEO data nếu có
+$seo_title = '';
+$seo_description = '';
+$seo_og_image = '';
+
+if (isset($product['seo'])) {
+    $seo_title = $product['seo']['title'];
+    $seo_description = $product['seo']['description'];
+    $seo_og_image = $product['seo']['og_image'];
+}
+
+// Fallback nếu không có SEO custom
+if (empty($seo_title)) {
+    $seo_title = $product_name . ' - VinaPet';
+}
+
+if (empty($seo_description)) {
+    $seo_description = wp_trim_words($product_desc, 25, '...');
+}
+
+if (empty($seo_og_image)) {
+    $seo_og_image = $product_image;
+}
+
 get_header();
 
 // Lấy mã sản phẩm từ URL

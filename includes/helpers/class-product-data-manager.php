@@ -12,6 +12,7 @@ class Product_Data_Manager {
     
     private $erp_client;
     private $sample_provider;
+    private $meta_manager;
     private $cache_prefix = 'vinapet_products_';
     private $cache_time = 3600;
     
@@ -22,6 +23,10 @@ class Product_Data_Manager {
         
         if (class_exists('Sample_Product_Provider')) {
             $this->sample_provider = new Sample_Product_Provider();
+        }
+
+        if (class_exists('Product_Meta_Manager')) {
+            $this->meta_manager = new Product_Meta_Manager();
         }
     }
     
@@ -40,6 +45,9 @@ class Product_Data_Manager {
         
         if ($cached !== false) {
             $cached['is_cached'] = true;
+
+            // THÊM MỚI: Apply meta cho cached data
+            $cached['products'] = array_map([$this, 'merge_with_meta'], $cached['products']);
             return $cached;
         }
         
@@ -70,6 +78,9 @@ class Product_Data_Manager {
                     // Apply search và sort LOCAL
                     $products_data = $this->filter_products($products_data, $search, $sort);
                     
+                    // THÊM MỚI: Apply meta cho từng sản phẩm
+                    $products_data = array_map([$this, 'merge_with_meta'], $products_data);
+
                     $result['products'] = $products_data;
                     $result['total'] = count($products_data);
                     $result['source'] = 'erp';
@@ -90,6 +101,9 @@ class Product_Data_Manager {
                 if (isset($sample_response['data'])) {
                     $products_data = $this->filter_products($sample_response['data'], $search, $sort);
                     
+                    // THÊM MỚI: Apply meta
+                    $products_data = array_map([$this, 'merge_with_meta'], $products_data);
+
                     $result['products'] = $products_data;
                     $result['total'] = count($products_data);
                     $result['source'] = 'sample';
@@ -174,6 +188,7 @@ class Product_Data_Manager {
     
     /**
      * Get single product
+     * UPDATED: Merge với meta data
      */
     public function get_product($item_code) {
         $result = [
@@ -194,6 +209,12 @@ class Product_Data_Manager {
                 if ($erp_response !== false) {
                     $result['product'] = $erp_response;
                     $result['source'] = 'erp';
+
+                    // Merge với meta data
+                    if (!is_null($result['product'])) {
+                        $result['product'] = $this->merge_with_meta($result['product']);
+                    }
+
                     return $result;
                 }
             } catch (Exception $e) {
@@ -217,6 +238,53 @@ class Product_Data_Manager {
         
         $result['error'] = 'Không tìm thấy sản phẩm';
         return $result;
+    }
+
+    /**
+     * THÊM MỚI: Merge ERP data với Meta data
+     * @param array $product_data - Data từ ERP/Sample
+     * @return array - Merged data
+     */
+    private function merge_with_meta($product_data) {
+        if (!$this->meta_manager || empty($product_data)) {
+            return $product_data;
+        }
+        
+        // Lấy product_code
+        $product_code = $product_data['product_id'] ?? 
+                       $product_data['ProductID'] ?? 
+                       $product_data['item_code'] ?? '';
+        
+        if (empty($product_code)) {
+            return $product_data;
+        }
+        
+        // Lấy meta
+        $meta = $this->meta_manager->get_product_meta($product_code);
+        
+        if (!$meta) {
+            return $product_data;
+        }
+        
+        // Merge logic: Meta ưu tiên hơn ERP
+        if ($meta['use_custom_desc'] && !empty($meta['custom_description'])) {
+            $product_data['description'] = $meta['custom_description'];
+            $product_data['short_description'] = $meta['custom_short_desc'] ?? $product_data['short_description'] ?? '';
+        }
+        
+        // Thêm SEO data
+        $product_data['seo'] = [
+            'title' => $meta['seo_title'] ?? '',
+            'description' => $meta['seo_description'] ?? '',
+            'og_image' => $meta['seo_og_image'] ?? ''
+        ];
+        
+        // Thêm flags
+        $product_data['is_featured'] = (bool)($meta['is_featured'] ?? false);
+        $product_data['display_order'] = (int)($meta['display_order'] ?? 0);
+        $product_data['has_custom_meta'] = true;
+        
+        return $product_data;
     }
     
     /**

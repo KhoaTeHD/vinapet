@@ -646,6 +646,16 @@ add_action('wp_head', 'vinapet_responsive_meta', 1);
 // Cho phép đăng ký user mới
 add_filter('option_users_can_register', '__return_true');
 
+// Include Database Migration
+if (file_exists(VINAPET_THEME_DIR . '/includes/db/create-product-meta-table.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/db/create-product-meta-table.php';
+}
+
+// Include Product Meta Manager
+if (file_exists(VINAPET_THEME_DIR . '/includes/helpers/class-product-meta-manager.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/helpers/class-product-meta-manager.php';
+}
+
 // Include Products Admin - Class riêng cho quản lý sản phẩm
 if (file_exists(VINAPET_THEME_DIR . '/includes/admin/class-products-admin.php')) {
     require_once VINAPET_THEME_DIR . '/includes/admin/class-products-admin.php';
@@ -1251,3 +1261,51 @@ add_action('wp_enqueue_scripts', 'vinapet_localize_checkout_scripts', 25);
 //     }
 // }
 // add_action('admin_init', 'vinapet_check_unified_session');
+
+/**
+ * SEO Meta cho trang sản phẩm
+ */
+function vinapet_add_product_seo_meta() {
+    global $product, $seo_title, $seo_description, $seo_og_image;
+    
+    if (is_singular() && isset($product)) {
+        ?>
+        <!-- SEO Meta Tags -->
+        <title><?php echo esc_html($seo_title); ?></title>
+        <meta name="description" content="<?php echo esc_attr($seo_description); ?>">
+        
+        <!-- Open Graph -->
+        <meta property="og:type" content="product">
+        <meta property="og:title" content="<?php echo esc_attr($seo_title); ?>">
+        <meta property="og:description" content="<?php echo esc_attr($seo_description); ?>">
+        <meta property="og:image" content="<?php echo esc_url($seo_og_image); ?>">
+        <meta property="og:url" content="<?php echo esc_url(get_permalink()); ?>">
+        <meta property="og:site_name" content="VinaPet">
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="<?php echo esc_attr($seo_title); ?>">
+        <meta name="twitter:description" content="<?php echo esc_attr($seo_description); ?>">
+        <meta name="twitter:image" content="<?php echo esc_url($seo_og_image); ?>">
+        
+        <!-- Product Schema -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": "<?php echo esc_js($product['product_name']); ?>",
+            "image": "<?php echo esc_url($seo_og_image); ?>",
+            "description": "<?php echo esc_js($seo_description); ?>",
+            "sku": "<?php echo esc_js($product['product_code']); ?>",
+            "offers": {
+                "@type": "Offer",
+                "priceCurrency": "VND",
+                "price": "<?php echo esc_js($product['standard_rate'] ?? 0); ?>",
+                "availability": "https://schema.org/InStock"
+            }
+        }
+        </script>
+        <?php
+    }
+}
+add_action('wp_head', 'vinapet_add_product_seo_meta');

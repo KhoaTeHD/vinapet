@@ -827,9 +827,9 @@
 .product-filter-sidebar {
     width: 280px;
     flex-shrink: 0;
-    background: #ffffff;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    /* background: #ffffff; */
+    /* border: 2px solid #e0e0e0; */
+    /* border-radius: 12px; */
     overflow: hidden;
 }
 
@@ -839,15 +839,15 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border-bottom: 2px solid #e0e0e0;
-    background: #f8f9fa;
+    /* border-bottom: 2px solid #e0e0e0; */
+    /* background: #f8f9fa; */
 }
 
 .sidebar-title {
     font-family: 'Baloo 2', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #19457B;
+    font-size: 20px;
+    font-weight: 800;
+    /* color: #19457B; */
     margin: 0;
 }
 
@@ -856,9 +856,9 @@
     width: 32px;
     height: 32px;
     border: none;
-    background: #2E86AB;
-    color: white;
-    border-radius: 6px;
+    background: none;
+    /* color: white; */
+    /* border-radius: 6px; */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -870,8 +870,8 @@
 }
 
 .sidebar-toggle:hover {
-    background: #19457B;
-    transform: scale(1.1);
+    /* background: #19457B; */
+    /* transform: scale(1.1); */
 }
 
 .toggle-icon {

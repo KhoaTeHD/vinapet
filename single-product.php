@@ -117,6 +117,22 @@ $product_variants = isset($product['variants']) && !empty($product['variants']) 
     ['variant_name' => 'Sen - Màu hồng', 'thumbnail' => get_template_directory_uri() . '/assets/images/variants/pink.jpg'],
 ];
 
+$product_prices = $data_manager->get_product_price_detail($product_code);
+error_log(print_r($product_prices, true));
+
+$prices = [];
+
+foreach ($product_prices['price_detail'][1] as $price) {
+    $prices[]  = [
+        'name' => $price['title'],
+        'price' => $price['value'],
+        'unit' => 'đ/kg',
+        'min_quantity' => $price['min_qty']
+    ];
+}
+
+error_log(print_r($prices, true));
+
 
 // Các quy cách đóng gói
 $product_sizes = [
@@ -124,6 +140,7 @@ $product_sizes = [
     ['name' => '1 - 5 tấn', 'price' => 42000, 'unit' => 'đ/kg'],
     ['name' => 'Trên 5 tấn', 'price' => 34000, 'unit' => 'đ/kg'],
 ];
+
 // Xử lý variants để hiển thị sizes
 // $product_sizes = [];
 // if (isset($product['variants']) && !empty($product['variants'])) {
@@ -302,7 +319,7 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
 
             <!-- Product Sizes -->
             <div class="product-sizes">
-                <?php foreach ($product_sizes as $size) : ?>
+                <?php foreach ($prices as $size) : ?>
                     <div class="size-option">
                         <div class="size-name"><?php echo esc_html($size['name']); ?></div>
                         <div class="size-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></div>

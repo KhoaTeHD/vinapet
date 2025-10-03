@@ -74,7 +74,7 @@ $breadcrumb_data = [
         <!-- Sidebar Filter -->
         <aside class="product-filter-sidebar" id="productSidebar">
             <div class="sidebar-header">
-                <h3 class="sidebar-title">Danh mục sản phẩm</h3>
+                <h3 class="sidebar-title">Loại sản phẩm</h3>
                 <button class="sidebar-toggle" id="sidebarToggle" aria-label="Thu gọn sidebar">
                     <span class="toggle-icon">−</span>
                 </button>
@@ -85,27 +85,14 @@ $breadcrumb_data = [
                     <?php
                     // Lấy category hiện tại từ URL
                     //$selected_categories = isset($_GET['category']) ? explode(',', sanitize_text_field($_GET['category'])) : [];
-
+                    $count = $product_manager->count_products();
                     // 3 danh mục cố định
                     $categories = [
-                        ['name' => 'Cát tre', 'label' => 'Cát tre', 'count' => 0],
-                        ['name' => 'Cát tofu', 'label' => 'Cát tofu', 'count' => 0],
-                        ['name' => 'S.A.P', 'label' => 'SAP', 'count' => 0],
+                        ['name' => 'Cát tre', 'label' => 'Cát tre', 'count' => $count['count']['cat_tre']],
+                        ['name' => 'Cát tofu', 'label' => 'Cát tofu', 'count' => $count['count']['cat_tofu']],
+                        ['name' => 'S.A.P', 'label' => 'SAP', 'count' => $count['count']['hat_sap']],
                     ];
 
-                    // Đếm số lượng sản phẩm theo danh mục
-                    // if (!empty($products)) {
-                    //     foreach ($products as $product) {
-                    //         $cat = strtolower($product['Nhom_hang'] ?? $product['item_group'] ?? '');
-
-                    //         foreach ($categories as &$category) {
-                    //             if (strpos($cat, str_replace('-', ' ', $category['name'])) !== false) {
-                    //                 $category['count']++;
-                    //                 break;
-                    //             }
-                    //         }
-                    //     }
-                    // }
                     ?>
 
                     <div class="filter-group">

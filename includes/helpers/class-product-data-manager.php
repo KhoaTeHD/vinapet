@@ -248,6 +248,24 @@ class Product_Data_Manager {
         ];
     }
 
+    public function count_products() {
+        $products = $this->get_products();
+        $cat_tre = $this->filter_products($products['products'], 'Cát tre', 'default');
+        $cat_tofu = $this->filter_products($products['products'], 'Cát tofu', 'default');
+        $hat_sap = $this->filter_products($products['products'], 'S.A.P', 'default');
+
+        return [
+            'count' => [
+                'all' => count($products['products']),
+                'cat_tre' => count($cat_tre),
+                'cat_tofu' => count($cat_tofu),
+                'hat_sap' => count($hat_sap)
+            ],
+            'source' => 'none',
+            'error' => 'Chưa triển khai'
+        ];
+    }
+
     public function get_product_price_detail($item_code) {
         $result = [
             'price_detail' => null,

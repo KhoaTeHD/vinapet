@@ -76,11 +76,11 @@ $product_prices = $data_manager->get_product_price_detail($main_product_code);
 
 $prices = [];
 
-foreach ($product_prices['price_detail'] as $price) {
+foreach ($product_prices['price_detail'][1] as $price) {
     $prices[]  = [
         'name' => $price['title'],
         'price' => $price['value'],
-        'unit' => $price['unit'],
+        'unit' => 'đ/kg',
         'min_quantity' => $price['min_qty']
     ];
 }
@@ -182,7 +182,7 @@ if ($packages) {
 
                 <!-- Tiered Pricing -->
                 <div class="product-sizes">
-                    <?php foreach ($product_sizes as $size) : ?>
+                    <?php foreach ($prices as $size) : ?>
                         <div class="size-option">
                             <div class="size-name"><?php echo esc_html($size['name']); ?></div>
                             <div class="size-price"><?php echo number_format($size['price'], 0, ',', '.'); ?> <span class="unit"><?php echo esc_html($size['unit']); ?></span></div>

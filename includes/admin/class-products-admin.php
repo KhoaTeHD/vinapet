@@ -1,4 +1,5 @@
 <?php
+
 /**
  * File: includes/admin/class-products-admin.php
  * Class riêng để quản lý menu Sản phẩm - Tách biệt khỏi settings
@@ -8,13 +9,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class VinaPet_Products_Admin {
+class VinaPet_Products_Admin
+{
     private $meta_manager;
-    
-    public function __construct() {
+
+    public function __construct()
+    {
         add_action('admin_menu', array($this, 'add_products_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
-        
+
         // AJAX handlers
         add_action('wp_ajax_vinapet_load_erp_products', array($this, 'ajax_load_products'));
         add_action('wp_ajax_vinapet_save_product_meta', array($this, 'ajax_save_product_meta'));
@@ -24,8 +27,9 @@ class VinaPet_Products_Admin {
             $this->meta_manager = new Product_Meta_Manager();
         }
     }
-    
-    public function add_products_menu() {
+
+    public function add_products_menu()
+    {
         add_menu_page(
             'Quản lý Sản phẩm ERP',
             'Sản phẩm',
@@ -45,18 +49,21 @@ class VinaPet_Products_Admin {
             array($this, 'product_editor_page')
         );
     }
-    
-    public function enqueue_scripts($hook) {
+
+    public function enqueue_scripts($hook)
+    {
         // Script cho trang danh sách
         if ($hook === 'toplevel_page_vinapet-products-erp') {
             wp_enqueue_script('jquery');
         }
-        
+
+
+
         // THÊM MỚI: Script cho trang editor
-        if ($hook === 'sản-phẩm_page_vinapet-product-editor') {
+        if ($hook === 'san-pham_page_vinapet-product-editor') {
             wp_enqueue_editor();
             wp_enqueue_media();
-            
+
             wp_enqueue_script(
                 'vinapet-product-editor',
                 get_template_directory_uri() . '/assets/js/admin-product-editor.js',
@@ -64,17 +71,17 @@ class VinaPet_Products_Admin {
                 '1.0',
                 true
             );
-            
+
             wp_localize_script('vinapet-product-editor', 'vinapet_editor_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('vinapet_product_meta_nonce')
             ));
-            
+
             wp_enqueue_style(
                 'vinapet-product-editor',
                 get_template_directory_uri() . '/assets/css/admin-product-editor.css',
                 array(),
-                '1.0'
+                '2.0.0'
             );
         }
     }
@@ -82,42 +89,44 @@ class VinaPet_Products_Admin {
     /**
      * THÊM MỚI: Trang editor mô tả & SEO
      */
-    public function product_editor_page() {
+    public function product_editor_page()
+    {
         // Lấy product code từ URL
         $product_code = isset($_GET['product']) ? sanitize_text_field($_GET['product']) : '';
-        
+
         if (empty($product_code)) {
             echo '<div class="wrap"><h1>Lỗi: Không tìm thấy mã sản phẩm</h1></div>';
             return;
         }
-        
+
         // Lấy thông tin sản phẩm từ ERP
         require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
         $data_manager = new Product_Data_Manager();
         $product_response = $data_manager->get_product($product_code);
-        
+
         if (!isset($product_response['product'])) {
             echo '<div class="wrap"><h1>Lỗi: Không tìm thấy sản phẩm</h1></div>';
             return;
         }
-        
+
         $product = $product_response['product'];
         $product_name = $product['product_name'] ?? 'Sản phẩm';
-        $product_price = $product['standard_rate'] ?? 0;
+        $product_price = $product['standard_rate'][0]['price_list_rate'] ?? 0;
+        error_log('Product Price: ' . print_r($product_response, true));
         $product_stock = $product['actual_qty'] ?? 0;
         $product_image = $product['thumbnail'] ?? get_template_directory_uri() . '/assets/images/placeholder.jpg';
-        
+
         // Lấy meta hiện tại (nếu có)
         $meta = $this->meta_manager ? $this->meta_manager->get_product_meta($product_code) : null;
-        
+
         $custom_description = $meta['custom_description'] ?? '';
         $custom_short_desc = $meta['custom_short_desc'] ?? '';
         $seo_title = $meta['seo_title'] ?? '';
         $seo_description = $meta['seo_description'] ?? '';
         $seo_og_image = $meta['seo_og_image'] ?? '';
         $is_featured = isset($meta['is_featured']) ? (bool)$meta['is_featured'] : false;
-        
-        ?>
+
+?>
         <div class="wrap vinapet-product-editor">
             <div class="editor-header">
                 <h1>
@@ -127,13 +136,13 @@ class VinaPet_Products_Admin {
                     Chỉnh sửa: <?php echo esc_html($product_name); ?>
                 </h1>
             </div>
-            
+
             <input type="hidden" id="product-code" value="<?php echo esc_attr($product_code); ?>">
-            
+
             <div class="editor-container">
                 <!-- Left: Editor -->
                 <div class="editor-main">
-                    
+
                     <!-- Thông tin ERP (Readonly) -->
                     <div class="erp-info-box">
                         <h3>📦 Thông tin từ ERPNext</h3>
@@ -147,7 +156,7 @@ class VinaPet_Products_Admin {
                             </div>
                             <div class="erp-info-item">
                                 <label>Giá:</label>
-                                <strong><?php echo number_format($product_price, 0, ',', '.'); ?> ₫</strong>
+                                <strong><?php echo  number_format($product_price, 0, ',', '.'); ?> ₫</strong>
                             </div>
                             <div class="erp-info-item">
                                 <label>Tồn kho:</label>
@@ -155,7 +164,7 @@ class VinaPet_Products_Admin {
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Tabs -->
                     <div class="editor-tabs">
                         <button class="tab-btn active" data-tab="description">
@@ -165,23 +174,27 @@ class VinaPet_Products_Admin {
                             🔍 SEO
                         </button>
                     </div>
-                    
+
                     <!-- Tab Content: Mô tả -->
                     <div class="tab-content active" id="tab-description">
                         <h3>Mô tả chi tiết (hiển thị cho khách hàng)</h3>
-                        <?php
-                        wp_editor($custom_description, 'custom_description', array(
-                            'textarea_name' => 'custom_description',
-                            'textarea_rows' => 15,
-                            'media_buttons' => true,
-                            'teeny' => false,
-                            'tinymce' => array(
-                                'toolbar1' => 'formatselect,bold,italic,underline,bullist,numlist,link,unlink,image,undo,redo',
-                                'toolbar2' => 'alignleft,aligncenter,alignright,forecolor,backcolor,removeformat'
-                            )
-                        ));
-                        ?>
-                        
+                        <div>
+                            <?php
+                            wp_editor($custom_description, 'custom_description', array(
+                                'textarea_name' => 'custom_description',
+                                'textarea_rows' => 15,
+                                'media_buttons' => true,
+                                
+                                'teeny' => false,
+                                'tinymce' => array(
+                                    'toolbar1' => 'formatselect,bold,italic,underline,bullist,numlist,link,unlink,image,undo,redo',
+                                    'toolbar2' => 'alignleft,aligncenter,alignright,forecolor,backcolor,removeformat'
+                                )
+                            ));
+                            ?>
+                        </div>
+
+
                         <div style="margin-top: 20px;">
                             <label for="custom_short_desc"><strong>Mô tả ngắn (150-200 ký tự):</strong></label>
                             <textarea id="custom_short_desc" name="custom_short_desc" rows="3" style="width: 100%;" maxlength="200"><?php echo esc_textarea($custom_short_desc); ?></textarea>
@@ -190,29 +203,29 @@ class VinaPet_Products_Admin {
                             </p>
                         </div>
                     </div>
-                    
+
                     <!-- Tab Content: SEO -->
                     <div class="tab-content" id="tab-seo">
                         <h3>🔍 Tối ưu hóa công cụ tìm kiếm (SEO)</h3>
-                        
+
                         <div class="seo-field">
                             <label for="seo_title"><strong>SEO Title (50-60 ký tự):</strong></label>
                             <input type="text" id="seo_title" name="seo_title" value="<?php echo esc_attr($seo_title); ?>" maxlength="70" style="width: 100%;">
                             <p class="description">
-                                <span id="seo-title-count">0</span>/60 ký tự | 
+                                <span id="seo-title-count">0</span>/60 ký tự |
                                 Tiêu đề hiển thị trên Google Search
                             </p>
                         </div>
-                        
+
                         <div class="seo-field">
                             <label for="seo_description"><strong>SEO Description (150-160 ký tự):</strong></label>
                             <textarea id="seo_description" name="seo_description" rows="3" maxlength="200" style="width: 100%;"><?php echo esc_textarea($seo_description); ?></textarea>
                             <p class="description">
-                                <span id="seo-desc-count">0</span>/160 ký tự | 
+                                <span id="seo-desc-count">0</span>/160 ký tự |
                                 Mô tả ngắn gọn dưới link trên Google
                             </p>
                         </div>
-                        
+
                         <div class="seo-field">
                             <label><strong>Ảnh đại diện khi share (OG Image):</strong></label>
                             <div class="og-image-wrapper">
@@ -233,7 +246,7 @@ class VinaPet_Products_Admin {
                             </div>
                             <p class="description">Kích thước đề xuất: 1200x630px</p>
                         </div>
-                        
+
                         <!-- Preview Snippet -->
                         <div class="seo-preview">
                             <h4>👁️ Xem trước trên Google:</h4>
@@ -248,7 +261,7 @@ class VinaPet_Products_Admin {
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Action Buttons -->
                     <div class="editor-actions">
                         <button type="button" class="button button-primary button-large" id="save-meta">
@@ -265,7 +278,7 @@ class VinaPet_Products_Admin {
                         <span class="spinner" id="save-spinner"></span>
                     </div>
                 </div>
-                
+
                 <!-- Right: Settings Sidebar -->
                 <div class="editor-sidebar">
                     <div class="sidebar-box">
@@ -275,7 +288,7 @@ class VinaPet_Products_Admin {
                             ⭐ Sản phẩm nổi bật
                         </label>
                     </div>
-                    
+
                     <div class="sidebar-box">
                         <h3>💡 Hướng dẫn</h3>
                         <ul style="font-size: 13px; line-height: 1.6;">
@@ -288,25 +301,26 @@ class VinaPet_Products_Admin {
                 </div>
             </div>
         </div>
-        <?php
+    <?php
     }
 
     /**
      * AJAX: Lưu meta
      */
-    public function ajax_save_product_meta() {
+    public function ajax_save_product_meta()
+    {
         check_ajax_referer('vinapet_product_meta_nonce', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Không có quyền');
         }
-        
+
         $product_code = sanitize_text_field($_POST['product_code'] ?? '');
-        
+
         if (empty($product_code)) {
             wp_send_json_error('Mã sản phẩm không hợp lệ');
         }
-        
+
         $data = [
             'custom_description' => $_POST['custom_description'] ?? '',
             'custom_short_desc' => sanitize_textarea_field($_POST['custom_short_desc'] ?? ''),
@@ -315,16 +329,16 @@ class VinaPet_Products_Admin {
             'seo_og_image' => esc_url_raw($_POST['seo_og_image'] ?? ''),
             'is_featured' => isset($_POST['is_featured']) ? 1 : 0,
         ];
-        
+
         if ($this->meta_manager) {
             $result = $this->meta_manager->save_product_meta($product_code, $data);
-            
+
             if ($result) {
                 // Clear cache
                 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
                 $manager = new Product_Data_Manager();
                 $manager->clear_cache($product_code);
-                
+
                 wp_send_json_success('Lưu thành công!');
             } else {
                 wp_send_json_error('Lỗi khi lưu dữ liệu');
@@ -333,32 +347,33 @@ class VinaPet_Products_Admin {
             wp_send_json_error('Meta Manager chưa được khởi tạo');
         }
     }
-    
+
     /**
      * AJAX: Xóa meta
      */
-    public function ajax_delete_product_meta() {
+    public function ajax_delete_product_meta()
+    {
         check_ajax_referer('vinapet_product_meta_nonce', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Không có quyền');
         }
-        
+
         $product_code = sanitize_text_field($_POST['product_code'] ?? '');
-        
+
         if (empty($product_code)) {
             wp_send_json_error('Mã sản phẩm không hợp lệ');
         }
-        
+
         if ($this->meta_manager) {
             $result = $this->meta_manager->delete_product_meta($product_code);
-            
+
             if ($result) {
                 // Clear cache
                 require_once get_template_directory() . '/includes/helpers/class-product-data-manager.php';
                 $manager = new Product_Data_Manager();
                 $manager->clear_cache($product_code);
-                
+
                 wp_send_json_success('Đã xóa tùy chỉnh!');
             } else {
                 wp_send_json_error('Lỗi khi xóa');
@@ -367,27 +382,28 @@ class VinaPet_Products_Admin {
             wp_send_json_error('Meta Manager chưa được khởi tạo');
         }
     }
-    
-    public function products_page() {
-        ?>
+
+    public function products_page()
+    {
+    ?>
         <div class="wrap">
             <h1>
                 <span class="dashicons dashicons-archive"></span>
                 Quản lý Sản phẩm ERP
             </h1>
-            
+
             <!-- Thanh công cụ -->
             <div class="products-toolbar" style="background: #f8f9fa; padding: 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 5px;">
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm..." 
-                           style="width: 300px;">
+                    <input type="text" id="search-input" placeholder="Tìm kiếm sản phẩm..."
+                        style="width: 300px;">
                     <button type="button" id="btn-search" class="button">Tìm kiếm</button>
                     <button type="button" id="btn-load-erp" class="button button-primary">
                         <span class="dashicons dashicons-download" style="vertical-align: text-top;"></span>
                         Lấy từ ERP
                     </button>
-                     <button class="button" id="refresh-list">
-                        <span class="dashicons dashicons-update" style="vertical-align: text-top;"></span> 
+                    <button class="button" id="refresh-list">
+                        <span class="dashicons dashicons-update" style="vertical-align: text-top;"></span>
                         Làm mới
                     </button>
                     <span id="loading" style="display: none;">
@@ -396,7 +412,7 @@ class VinaPet_Products_Admin {
                     </span>
                 </div>
             </div>
-            
+
             <!-- Bảng sản phẩm -->
             <table class="wp-list-table widefat fixed striped">
                 <thead>
@@ -417,219 +433,231 @@ class VinaPet_Products_Admin {
                     </tr>
                 </tbody>
             </table>
-            
+
             <!-- Phân trang -->
             <div id="pagination" style="margin: 20px 0; text-align: center;"></div>
         </div>
-        
+
         <script>
-        jQuery(document).ready(function($) {
-            let allProducts = [];
-            let filteredProducts = [];
-            let currentPage = 1;
-            const itemsPerPage = 20;
-            
-            // Lấy từ ERP
-            $('#btn-load-erp').click(function() {
-                loadProducts();
-            });
-            
-            // Tìm kiếm
-            $('#btn-search').click(function() {
-                searchProducts();
-            });
-            
-            $('#search-input').keypress(function(e) {
-                if (e.which === 13) searchProducts();
-            });
-            
-            function loadProducts() {
-                $('#loading').show();
-                $('#btn-load-erp').prop('disabled', true);
-                
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'vinapet_load_erp_products',
-                        nonce: '<?php echo wp_create_nonce('vinapet_erp_products'); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            allProducts = response.data || [];
-                            filteredProducts = allProducts;
-                            currentPage = 1;
-                            renderTable();
-                            showNotice('Đã tải ' + allProducts.length + ' sản phẩm từ ERP', 'success');
-                        } else {
-                            showNotice('Lỗi: ' + (response.data || 'Không thể tải dữ liệu'), 'error');
-                        }
-                    },
-                    error: function() {
-                        showNotice('Lỗi kết nối. Vui lòng kiểm tra cài đặt ERP.', 'error');
-                    },
-                    complete: function() {
-                        $('#loading').hide();
-                        $('#btn-load-erp').prop('disabled', false);
-                    }
+            jQuery(document).ready(function($) {
+                let allProducts = [];
+                let filteredProducts = [];
+                let currentPage = 1;
+                const itemsPerPage = 20;
+
+                // Lấy từ ERP
+                $('#btn-load-erp').click(function() {
+                    loadProducts();
                 });
-            }
-            
-            function searchProducts() {
-                const search = $('#search-input').val().toLowerCase().trim();
-                
-                if (!search) {
-                    filteredProducts = allProducts;
-                } else {
-                    filteredProducts = allProducts.filter(function(product) {
-                        return (product.item_name && product.item_name.toLowerCase().includes(search)) ||
-                               (product.item_code && product.item_code.toLowerCase().includes(search));
-                    });
-                }
-                
-                currentPage = 1;
-                renderTable();
-            }
-            
-            function renderTable() {
-                const start = (currentPage - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const pageProducts = filteredProducts.slice(start, end);
-                
-                let html = '';
-                
-                if (pageProducts.length === 0) {
-                    if (filteredProducts.length === 0 && allProducts.length > 0) {
-                        html = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 20px;">Không tìm thấy sản phẩm phù hợp</td></tr>';
-                    } else {
-                        html = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 20px;">Chưa có dữ liệu</td></tr>';
-                    }
-                } else {
-                    pageProducts.forEach(function(product) {
-                        html += '<tr>';
-                        html += '<td><code>' + (product.ProductID || '') + '</code></td>';
-                        html += '<td><strong>' + (product.Ten_SP || '') + '</strong></td>';
-                        html += '<td>' + (product.item_group || '') + '</td>';
-                        html += '<td>' + formatPrice(product.Gia_ban_le) + '</td>';
-                        html += '<td>' + truncate(product.Mo_ta_ngan || '', 80) + '</td>';
-                        html += '</tr>';
-                    });
-                }
-                
-                $('#products-tbody').html(html);
-                renderPagination();
-            }
-            
-            function renderPagination() {
-                const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-                let html = '';
-                
-                if (totalPages > 1) {
-                    html += '<p style="margin-bottom: 10px;">Trang ' + currentPage + ' / ' + totalPages + ' (' + filteredProducts.length + ' sản phẩm)</p>';
-                    
-                    // Previous button
-                    if (currentPage > 1) {
-                        html += '<button class="button" onclick="changePage(' + (currentPage - 1) + ')">‹ Trước</button> ';
-                    }
-                    
-                    // Page numbers
-                    const startPage = Math.max(1, currentPage - 2);
-                    const endPage = Math.min(totalPages, currentPage + 2);
-                    
-                    for (let i = startPage; i <= endPage; i++) {
-                        if (i === currentPage) {
-                            html += '<button class="button button-primary">' + i + '</button> ';
-                        } else {
-                            html += '<button class="button" onclick="changePage(' + i + ')">' + i + '</button> ';
+
+                // Tìm kiếm
+                $('#btn-search').click(function() {
+                    searchProducts();
+                });
+
+                $('#search-input').keypress(function(e) {
+                    if (e.which === 13) searchProducts();
+                });
+
+                function loadProducts() {
+                    $('#loading').show();
+                    $('#btn-load-erp').prop('disabled', true);
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'vinapet_load_erp_products',
+                            nonce: '<?php echo wp_create_nonce('vinapet_erp_products'); ?>'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                allProducts = response.data || [];
+                                filteredProducts = allProducts;
+                                currentPage = 1;
+                                renderTable();
+                                showNotice('Đã tải ' + allProducts.length + ' sản phẩm từ ERP', 'success');
+                            } else {
+                                showNotice('Lỗi: ' + (response.data || 'Không thể tải dữ liệu'), 'error');
+                            }
+                        },
+                        error: function() {
+                            showNotice('Lỗi kết nối. Vui lòng kiểm tra cài đặt ERP.', 'error');
+                        },
+                        complete: function() {
+                            $('#loading').hide();
+                            $('#btn-load-erp').prop('disabled', false);
                         }
-                    }
-                    
-                    // Next button
-                    if (currentPage < totalPages) {
-                        html += '<button class="button" onclick="changePage(' + (currentPage + 1) + ')">Sau ›</button>';
-                    }
-                } else if (filteredProducts.length > 0) {
-                    html += '<p>' + filteredProducts.length + ' sản phẩm</p>';
-                }
-                
-                $('#pagination').html(html);
-            }
-            
-            // Global function cho pagination
-            window.changePage = function(page) {
-                currentPage = page;
-                renderTable();
-            };
-            
-            function showNotice(message, type) {
-                // Xóa notice cũ
-                $('.wrap .notice').remove();
-                
-                const className = type === 'success' ? 'notice-success' : 'notice-error';
-                const notice = $('<div class="notice ' + className + ' is-dismissible"><p>' + message + '</p></div>');
-                $('.wrap h1').after(notice);
-                
-                // Auto hide sau 5 giây
-                setTimeout(function() {
-                    notice.fadeOut(function() {
-                        notice.remove();
                     });
-                }, 5000);
-            }
-            
-            function formatPrice(price) {
-                if (!price || price === 0) return '0 ₫';
-                return new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
-            }
-            
-            function truncate(text, length) {
-                if (!text || text.length <= length) return text;
-                return text.substring(0, length) + '...';
-            }
-        });
+                }
+
+                function searchProducts() {
+                    const search = $('#search-input').val().toLowerCase().trim();
+
+                    if (!search) {
+                        filteredProducts = allProducts;
+                    } else {
+                        filteredProducts = allProducts.filter(function(product) {
+                            return (product.item_name && product.item_name.toLowerCase().includes(search)) ||
+                                (product.item_code && product.item_code.toLowerCase().includes(search));
+                        });
+                    }
+
+                    currentPage = 1;
+                    renderTable();
+                }
+
+                function renderTable() {
+                    const start = (currentPage - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+                    const pageProducts = filteredProducts.slice(start, end);
+
+                    let html = '';
+
+                    if (pageProducts.length === 0) {
+                        if (filteredProducts.length === 0 && allProducts.length > 0) {
+                            html = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 20px;">Không tìm thấy sản phẩm phù hợp</td></tr>';
+                        } else {
+                            html = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 20px;">Chưa có dữ liệu</td></tr>';
+                        }
+                    } else {
+                        pageProducts.forEach(function(product) {
+                            const code = product.product_id || product.ProductID || '';
+                            const editUrl = '<?php echo admin_url('admin.php?page=vinapet-product-editor&product='); ?>' + code;
+
+                            html += '<tr>';
+                            html += '<td><code>' + (product.ProductID || '') + '</code></td>';
+                            html += '<td><strong>' + (product.Ten_SP || '') + '</strong></td>';
+                            html += '<td>' + (product.item_group || '') + '</td>';
+                            html += '<td>' + formatPrice(product.Gia_ban_le) + '</td>';
+                            html += '<td style="text-align:center;">' + (product.has_custom_meta ? '✅ Có' : '❌ Chưa') + '</td>';
+                            html += `<td>
+                                <a href="${editUrl}" class="button button-small">
+                                    <span class="dashicons dashicons-edit"></span> Tùy chỉnh
+                                </a>
+                            </td>`;
+                            html += '</tr>';
+                        });
+                    }
+
+                    $('#products-tbody').html(html);
+                    renderPagination();
+                }
+
+                function renderPagination() {
+                    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+                    let html = '';
+
+                    if (totalPages > 1) {
+                        html += '<p style="margin-bottom: 10px;">Trang ' + currentPage + ' / ' + totalPages + ' (' + filteredProducts.length + ' sản phẩm)</p>';
+
+                        // Previous button
+                        if (currentPage > 1) {
+                            html += '<button class="button" onclick="changePage(' + (currentPage - 1) + ')">‹ Trước</button> ';
+                        }
+
+                        // Page numbers
+                        const startPage = Math.max(1, currentPage - 2);
+                        const endPage = Math.min(totalPages, currentPage + 2);
+
+                        for (let i = startPage; i <= endPage; i++) {
+                            if (i === currentPage) {
+                                html += '<button class="button button-primary">' + i + '</button> ';
+                            } else {
+                                html += '<button class="button" onclick="changePage(' + i + ')">' + i + '</button> ';
+                            }
+                        }
+
+                        // Next button
+                        if (currentPage < totalPages) {
+                            html += '<button class="button" onclick="changePage(' + (currentPage + 1) + ')">Sau ›</button>';
+                        }
+                    } else if (filteredProducts.length > 0) {
+                        html += '<p>' + filteredProducts.length + ' sản phẩm</p>';
+                    }
+
+                    $('#pagination').html(html);
+                }
+
+                // Global function cho pagination
+                window.changePage = function(page) {
+                    currentPage = page;
+                    renderTable();
+                };
+
+                function showNotice(message, type) {
+                    // Xóa notice cũ
+                    $('.wrap .notice').remove();
+
+                    const className = type === 'success' ? 'notice-success' : 'notice-error';
+                    const notice = $('<div class="notice ' + className + ' is-dismissible"><p>' + message + '</p></div>');
+                    $('.wrap h1').after(notice);
+
+                    // Auto hide sau 5 giây
+                    setTimeout(function() {
+                        notice.fadeOut(function() {
+                            notice.remove();
+                        });
+                    }, 5000);
+                }
+
+                function formatPrice(price) {
+                    if (!price || price === 0) return '0 ₫';
+                    return new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+                }
+
+                function truncate(text, length) {
+                    if (!text || text.length <= length) return text;
+                    return text.substring(0, length) + '...';
+                }
+            });
         </script>
-        
+
         <style>
-        .products-toolbar {
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        #products-tbody code {
-            background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 12px;
-            color: #333;
-        }
-        #products-tbody strong {
-            color: #0073aa;
-        }
-        .notice {
-            margin: 15px 0 5px 0;
-        }
+            .products-toolbar {
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            #products-tbody code {
+                background: #f0f0f0;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-size: 12px;
+                color: #333;
+            }
+
+            #products-tbody strong {
+                color: #0073aa;
+            }
+
+            .notice {
+                margin: 15px 0 5px 0;
+            }
         </style>
-        <?php
+<?php
     }
-    
-    public function ajax_load_products() {
+
+    public function ajax_load_products()
+    {
         check_ajax_referer('vinapet_erp_products', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Bạn không có quyền thực hiện thao tác này');
         }
-        
+
         // Kiểm tra xem ERP API Client có tồn tại không
         if (!class_exists('ERP_API_Client')) {
             wp_send_json_error('ERP API Client chưa được cài đặt');
         }
-        
+
         try {
             $erp_client = new ERP_API_Client();
             $products = $erp_client->get_products();
-            
+
             if (is_wp_error($products)) {
                 wp_send_json_error('Lỗi ERP API: ' . $products->get_error_message());
             }
-            
+
             // Kiểm tra cấu trúc dữ liệu trả về
             $product_data = [];
             if (isset($products['data']) && is_array($products['data'])) {
@@ -637,9 +665,8 @@ class VinaPet_Products_Admin {
             } elseif (is_array($products)) {
                 $product_data = $products;
             }
-            
+
             wp_send_json_success($product_data);
-            
         } catch (Exception $e) {
             wp_send_json_error('Lỗi: ' . $e->getMessage());
         }

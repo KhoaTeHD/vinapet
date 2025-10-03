@@ -81,6 +81,7 @@ $product = $product_response['product'];
 // Lấy thông tin sản phẩm
 $product_name = isset($product['product_name']) ? $product['product_name'] : '';
 $product_desc = isset($product['short_description']) ? $product['short_description'] : '';
+$product_description = isset($product['description']) ? $product['description'] : '';
 $product_image = isset($product['thumbnail']) ? $product['thumbnail'] : '';
 $product_price = isset($product['standard_rate']) ? $product['standard_rate'] : 0;
 $product_code = isset($product['product_code']) ? $product['product_code'] : '';
@@ -254,7 +255,8 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
             <div class="product-description-section">
                 <h2 class="section-title">Mô tả</h2>
                 <div class="product-description-content">
-                    <p>Tre, nguyên liệu của sự kiện cường và tinh thần Việt Nam, nay được chuyển hóa thành một sản phẩm đầy ý nghĩa – cát vệ sinh cho mèo từ nguồn nguyên liệu phụ phẩm nông nghiệp Việt Nam. Sản phẩm này không những được chế tạc từ tre, mà còn gắn liền với những giá trị chuyên về thiên nhiên và con người Việt, được thu mua từ các hộ tác xã và bà con nông dân địa phương. Từng hạt cát tre là kết tinh của sự chăm chỉ, sự khéo léo, và lòng yêu thương dành cho thú cưng.</p>
+                    <?php echo $product_description; ?>
+                    <!-- <p>Tre, nguyên liệu của sự kiện cường và tinh thần Việt Nam, nay được chuyển hóa thành một sản phẩm đầy ý nghĩa – cát vệ sinh cho mèo từ nguồn nguyên liệu phụ phẩm nông nghiệp Việt Nam. Sản phẩm này không những được chế tạc từ tre, mà còn gắn liền với những giá trị chuyên về thiên nhiên và con người Việt, được thu mua từ các hộ tác xã và bà con nông dân địa phương. Từng hạt cát tre là kết tinh của sự chăm chỉ, sự khéo léo, và lòng yêu thương dành cho thú cưng.</p>
                     <p>Cát tre Vinapet sở hữu các đặc tính ưu việt:</p>
                     <ul>
                         <li><strong>Siêu khử mùi:</strong> Loại bỏ hoàn toàn mùi hôi từ chất thải của mèo.</li>
@@ -262,7 +264,7 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
                         <li><strong>Siêu nhẹ:</strong> Trọng lượng chỉ bằng 1/3 cát thông thường.</li>
                         <li><strong>Thấm hút mạnh mẽ:</strong> Khả năng hút nước gấp 2.5 lần trọng lượng.</li>
                         <li><strong>Vón cục nhanh:</strong> Dễ dàng loại bỏ chất thải mà không lãng phí.</li>
-                    </ul>
+                    </ul> -->
                 </div>
             </div>
 

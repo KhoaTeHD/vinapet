@@ -163,7 +163,7 @@ $breadcrumb_data = [
                     <?php foreach ($products as $index => $product):
                         // Dùng trực tiếp ERPNext fields, fallback to old fields để tương thích
                         $product_name = $product['Ten_SP'] ?? $product['item_name'] ?? '';
-                        $product_desc = strip_tags($product['Mo_ta_ngan'] ?? $product['description'] ?? '');
+                        $product_desc = strip_tags($product['Mo_ta_ngan'] ?? $product['short_description'] ?? '');
                         $product_image = $product['Thumbnail_File'] ?? $product['image'] ?? '';
                         $product_code = $product['Ma_SP'] ?? $product['ProductID'] ?? $product['item_code'] ?? '';
                         $product_price = floatval($product['Gia_ban_le'] ?? $product['standard_rate'] ?? 0);

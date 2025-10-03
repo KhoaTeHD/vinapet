@@ -627,6 +627,11 @@ if (is_admin() && file_exists(VINAPET_THEME_DIR . '/includes/admin/footer-admin.
     require_once VINAPET_THEME_DIR . '/includes/admin/footer-admin.php';
 }
 
+// Include footer admin (chỉ trong admin)
+if (is_admin() && file_exists(VINAPET_THEME_DIR . '/includes/admin/class-suggest-admin.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/admin/class-suggest-admin.php';
+}
+
 /**
  * Add responsive viewport meta tag
  */

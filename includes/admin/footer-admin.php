@@ -20,16 +20,6 @@ class VinaPet_Footer_Admin {
      * Add admin menu
      */
     public function add_admin_menu() {
-        // Main menu
-        // add_menu_page(
-        //     'VinaPet Settings',
-        //     'VinaPet',
-        //     'manage_options',
-        //     'vinapet-settings',
-        //     array($this, 'main_settings_page'),
-        //     'dashicons-store',
-        //     30
-        // );
         
         // Footer submenu
         add_submenu_page(

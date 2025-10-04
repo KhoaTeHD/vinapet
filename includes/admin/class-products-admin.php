@@ -655,7 +655,7 @@ class VinaPet_Products_Admin
         try {
             $erp_client = new ERP_API_Client();
             $products = $erp_client->get_products();
-            error_log('Products from ERP: ' . print_r($products, true));
+            //error_log('Products from ERP: ' . print_r($products, true));
 
             if (is_wp_error($products)) {
                 wp_send_json_error('Lỗi ERP API: ' . $products->get_error_message());

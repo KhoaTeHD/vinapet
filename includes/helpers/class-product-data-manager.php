@@ -81,6 +81,8 @@ class Product_Data_Manager {
                     // THÊM MỚI: Apply meta cho từng sản phẩm
                     $products_data = array_map([$this, 'merge_with_meta'], $products_data);
 
+                    error_log(print_r($products_data, true));
+
                     $result['products'] = $products_data;
                     $result['total'] = count($products_data);
                     $result['source'] = 'erp';
@@ -103,6 +105,7 @@ class Product_Data_Manager {
                     
                     // THÊM MỚI: Apply meta
                     $products_data = array_map([$this, 'merge_with_meta'], $products_data);
+                    //error_log(print_r($products_data, true));
 
                     $result['products'] = $products_data;
                     $result['total'] = count($products_data);

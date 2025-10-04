@@ -112,7 +112,6 @@ class VinaPet_Products_Admin
         $product = $product_response['product'];
         $product_name = $product['product_name'] ?? 'Sản phẩm';
         $product_price = $product['standard_rate'][0]['price_list_rate'] ?? 0;
-        error_log('Product Price: ' . print_r($product_response, true));
         $product_stock = $product['actual_qty'] ?? 0;
         $product_image = $product['thumbnail'] ?? get_template_directory_uri() . '/assets/images/placeholder.jpg';
 
@@ -427,7 +426,7 @@ class VinaPet_Products_Admin
                 </thead>
                 <tbody id="products-tbody">
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px; color: #666;">
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #666;">
                             Nhấn "Lấy từ ERP" để tải danh sách sản phẩm
                         </td>
                     </tr>
@@ -445,6 +444,7 @@ class VinaPet_Products_Admin
                 let currentPage = 1;
                 const itemsPerPage = 20;
 
+                loadProducts();
                 // Lấy từ ERP
                 $('#btn-load-erp').click(function() {
                     loadProducts();
@@ -473,6 +473,7 @@ class VinaPet_Products_Admin
                         success: function(response) {
                             if (response.success) {
                                 allProducts = response.data || [];
+                                // console.log(allProducts);
                                 filteredProducts = allProducts;
                                 currentPage = 1;
                                 renderTable();
@@ -524,13 +525,14 @@ class VinaPet_Products_Admin
                         pageProducts.forEach(function(product) {
                             const code = product.product_id || product.ProductID || '';
                             const editUrl = '<?php echo admin_url('admin.php?page=vinapet-product-editor&product='); ?>' + code;
+                            // console.log(product);
 
                             html += '<tr>';
                             html += '<td><code>' + (product.ProductID || '') + '</code></td>';
                             html += '<td><strong>' + (product.Ten_SP || '') + '</strong></td>';
                             html += '<td>' + (product.item_group || '') + '</td>';
                             html += '<td>' + formatPrice(product.Gia_ban_le) + '</td>';
-                            html += '<td style="text-align:center;">' + (product.has_custom_meta ? '✅ Có' : '❌ Chưa') + '</td>';
+                            html += '<td style="text-align:center;">' + (product.has_custom_meta == 1 ? '✅ Có' : '❌ Chưa') + '</td>';
                             html += `<td>
                                 <a href="${editUrl}" class="button button-small">
                                     <span class="dashicons dashicons-edit"></span> Tùy chỉnh
@@ -653,6 +655,7 @@ class VinaPet_Products_Admin
         try {
             $erp_client = new ERP_API_Client();
             $products = $erp_client->get_products();
+            error_log('Products from ERP: ' . print_r($products, true));
 
             if (is_wp_error($products)) {
                 wp_send_json_error('Lỗi ERP API: ' . $products->get_error_message());
@@ -664,6 +667,16 @@ class VinaPet_Products_Admin
                 $product_data = $products['data'];
             } elseif (is_array($products)) {
                 $product_data = $products;
+            }
+
+            forEach($product_data as &$product) {
+                $product['has_custom_meta'] = '❌';
+                if ($this->meta_manager) {
+                    $meta = $this->meta_manager->get_product_meta($product['ProductID'] ?? '');
+                    if ($meta) {
+                        $product['has_custom_meta'] = true;
+                    }
+                }
             }
 
             wp_send_json_success($product_data);

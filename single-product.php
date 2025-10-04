@@ -143,7 +143,6 @@ $product_variants = isset($product['variants']) && !empty($product['variants']) 
 ];
 
 $product_prices = $data_manager->get_product_price_detail($product_code);
-error_log(print_r($product_prices, true));
 
 $prices = [];
 
@@ -156,8 +155,6 @@ foreach ($product_prices['price_detail'][1] as $price) {
     ];
 }
 
-error_log(print_r($prices, true));
-
 
 // Các quy cách đóng gói
 $product_sizes = [
@@ -166,41 +163,6 @@ $product_sizes = [
     ['name' => 'Trên 5 tấn', 'price' => 34000, 'unit' => 'đ/kg'],
 ];
 
-// Xử lý variants để hiển thị sizes
-// $product_sizes = [];
-// if (isset($product['variants']) && !empty($product['variants'])) {
-//     foreach ($product['variants'] as $variant) {
-//         // Lấy thông tin giá từ standard_rate
-//         $price = 0;
-//         $currency = 'VND';
-//         if (isset($variant['standard_rate']) && !empty($variant['standard_rate'])) {
-//             $price = $variant['standard_rate'][0]['price_list_rate'] ?? 0;
-//             $currency = $variant['standard_rate'][0]['currency'] ?? 'VND';
-//         }
-
-//         // Kiểm tra tiered pricing từ rules
-//         $has_tiered_price = isset($variant['rules']) && !empty($variant['rules']);
-//         $min_price = $price;
-//         if ($has_tiered_price) {
-//             // Lấy giá thấp nhất từ rules
-//             foreach ($variant['rules'] as $rule) {
-//                 if (isset($rule['value']) && $rule['value'] < $min_price) {
-//                     $min_price = $rule['value'];
-//                 }
-//             }
-//         }
-
-//         $product_sizes[] = [
-//             'id' => $variant['id'],
-//             'name' => $variant['sku'], // Sử dụng SKU làm tên hiển thị
-//             'price' => $has_tiered_price ? $min_price : $price,
-//             'original_price' => $price,
-//             'currency' => $currency,
-//             'has_tiered' => $has_tiered_price,
-//             'rules' => $variant['rules'] ?? []
-//         ];
-//     }
-// }
 
 // Thông số kỹ thuật
 $product_specs = isset($product['specifications']['original']) ? $product['specifications']['original'] : [

@@ -1309,3 +1309,5 @@ function vinapet_add_product_seo_meta() {
     }
 }
 add_action('wp_head', 'vinapet_add_product_seo_meta');
+
+require_once get_template_directory() . '/includes/ajax/ajax-mix-pricing.php';

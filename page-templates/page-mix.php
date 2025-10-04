@@ -295,6 +295,18 @@ if ($packages) {
                             <polyline points="6,9 12,15 18,9"></polyline>
                         </svg>
                     </div>
+                    <div style="
+                            margin-top: 16px;
+                            height: 47px;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        " id="mixsuggest-container-3">
+                        <span style="color:#666471">Đề xuất</span> 
+                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tre XLTX">Cát tre xanh lá trà xanh</span> 
+                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span> 
+                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu TLVD">Cát tofu trắng lavender</span>
+                    </div>
                 </div>
 
                 <!-- Will be populated when product is selected -->

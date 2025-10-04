@@ -17,6 +17,12 @@
       flexible: 0, // Linh hoạt (trên 30 ngày): Miễn phí
     };
 
+    const deliveryTime = {
+      urgent: 15, // Gấp (dưới 15 ngày)
+      normal: 30, // Trung bình (15-30 ngày)
+      flexible: 31, // Linh hoạt (trên 30 ngày)
+    };
+
     const shippingMethodPrices = {
       factory_support: 300000, // Nhà máy hỗ trợ vận chuyển: +3,000,000đ
       self_pickup: 0, // Tự lấy hàng: Miễn phí
@@ -42,30 +48,6 @@
 
       alert("Tính năng giỏ hàng sẽ được phát triển trong tương lai!");
 
-      // Template cho tương lai:
-      // const cartData = {
-      //     type: checkoutData.type,
-      //     products: checkoutData.products || [checkoutData],
-      //     total_quantity: baseQuantity,
-      //     total_price: getCurrentTotalPrice(),
-      //     checkout_options: getCurrentCheckoutOptions()
-      // };
-      //
-      // $.ajax({
-      //     url: vinapet_ajax.ajax_url,
-      //     type: 'POST',
-      //     data: {
-      //         action: 'vinapet_add_to_cart',
-      //         nonce: vinapet_ajax.nonce,
-      //         cart_data: cartData
-      //     },
-      //     success: function(response) {
-      //         if (response.success) {
-      //             alert('Đã thêm vào giỏ hàng!');
-      //             // Update cart count in header
-      //         }
-      //     }
-      // });
     });
 
     /**
@@ -93,7 +75,7 @@
         }
 
         // Lấy tổng số lượng từ total_quantity
-        const totalQty = parseInt(checkoutData.total_quantity);
+        //const totalQty = parseInt(checkoutData.total_quantity);
 
         const packet_item = checkoutData.details.packaging;
 
@@ -113,9 +95,9 @@
             item_code: product.code,
             packet_item: packet_item || "SPTUI01",
             mix_percent: parseFloat(product.percentage) || 0.0,
-            qty: totalQty, // Tất cả items trong mix có cùng qty
+            qty: product.quantity || 0, // Tất cả items trong mix có cùng qty
             uom: "Nos",
-            rate: rate || 25000,
+            rate: product.price_per_kg || rate || 50000, // Mỗi item có thể có giá riêng
             is_free_item: 0,
           };
 
@@ -190,7 +172,7 @@
 
     /**
      * ===================================================================
-     * SỬA HÀM SUBMIT BUTTON HANDLER
+     * HÀM SUBMIT BUTTON HANDLER
      * ===================================================================
      */
     $(".submit-request-btn").on("click", function (e) {
@@ -233,6 +215,11 @@
         return;
       }
 
+      const deliveryTimeline = $(
+        'input[name="delivery_timeline"]:checked'
+      ).val();
+      const shippingMethod = $('input[name="shipping_method"]:checked').val();
+
       // ======== 4. COLLECT FORM DATA ========
       const formData = {
         // ✅ Customer information
@@ -242,10 +229,10 @@
         items: items,
 
         // ✅ Pricing information
-        shipping_cost: parseInt($("#shipping-cost").val()) || 50000,
+        shipping_cost: shippingMethodPrices[shippingMethod] || 50000,
         desired_delivery_time_amount:
-          parseInt($("#delivery-time-cost").val()) || 30000,
-        date_to_receive: parseInt($("#date-to-receive").val()) || 15,
+          deliveryTimelinePrices[deliveryTimeline] || 30000,
+        date_to_receive: deliveryTime[deliveryTimeline] || 15,
 
         // ✅ Method information
         delivery_method: mapShippingMethodToAPI(

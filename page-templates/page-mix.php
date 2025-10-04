@@ -218,7 +218,8 @@ if ($packages) {
                             <?php foreach ($other_products as $product): ?>
                                 <option value="<?php echo esc_attr($product['ProductID']); ?>"
                                     data-name="<?php echo esc_attr($product['Ten_SP']); ?>"
-                                    data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>">
+                                    data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>"
+                                    data-pricing-rules="<?php echo esc_attr(json_encode($product['pricing_rules'], JSON_UNESCAPED_UNICODE)); ?>">
                                     <?php echo esc_html($product['Ten_SP']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -286,7 +287,8 @@ if ($packages) {
                             <?php foreach ($other_products as $product): ?>
                                 <option value="<?php echo esc_attr($product['ProductID']); ?>"
                                     data-name="<?php echo esc_attr($product['Ten_SP']); ?>"
-                                    data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>">
+                                    data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>"
+                                    data-pricing-rules='<?php echo esc_attr(json_encode($pricing_rules, JSON_UNESCAPED_UNICODE)); ?>'>
                                     <?php echo esc_html($product['Ten_SP']); ?>
                                 </option>
                             <?php endforeach; ?>

@@ -6,6 +6,10 @@
         code: "CAT-TRE-001",
         name: "Cát Tre",
         percentage: 100,
+        pricing_rules: mainMixProduct.pricing_rules ?? [],
+        quantity: 0, // - sẽ được tính động
+        price_per_kg: 0, // - sẽ được tính động
+        total_price: 0, // - sẽ được tính động
       },
       product2: null,
       product3: null,
@@ -36,24 +40,39 @@
 
     // Handle second product selection
     $("#second-product-select").on("change", function () {
+      const $selectedOption = $(this).find("option:selected");
       const selectedValue = $(this).val();
-      const selectedName = $(this).find("option:selected").data("name");
-      const selectedDescription = $(this)
-        .find("option:selected")
-        .data("description");
 
       if (selectedValue) {
+        // ✅ Parse pricing rules từ data-attribute
+        let pricingRules = [];
+        try {
+          const rulesAttr = $selectedOption.attr("data-pricing-rules");
+          console.log("Pricing rules attribute:", rulesAttr);
+          pricingRules = rulesAttr ? JSON.parse(rulesAttr) : [];
+        } catch (e) {
+          console.error("Error parsing pricing rules for product2:", e);
+        }
+
         mixData.product2 = {
           code: selectedValue,
-          name: selectedName,
+          name: $selectedOption.data("name"),
           percentage: 50,
+          pricing_rules: pricingRules, // ✅ THÊM MỚI
+          quantity: 0, // ✅ THÊM MỚI
+          price_per_kg: 0, // ✅ THÊM MỚI
+          total_price: 0, // ✅ THÊM MỚI
         };
 
-        showSecondProductContent(selectedName, selectedDescription);
+        showSecondProductContent(
+          $selectedOption.data("name"),
+          $selectedOption.data("description")
+        );
         showMixOptions();
         redistributePercentages();
         updateMixSliders();
         showFooterSummary();
+        updateFooterSummary(); // ✅ Hàm này sẽ tính toán pricing
         $(".secondary-product").addClass("has-selection");
         $("#mixsuggest-container-2").slideUp();
       } else {
@@ -63,24 +82,42 @@
 
     // Handle third product selection
     $("#third-product-select").on("change", function () {
+      const $selectedOption = $(this).find("option:selected");
       const selectedValue = $(this).val();
-      const selectedName = $(this).find("option:selected").data("name");
-      const selectedDescription = $(this)
-        .find("option:selected")
-        .data("description");
 
       if (selectedValue) {
+        // ✅ Parse pricing rules từ data-attribute
+        let pricingRules = [];
+        try {
+          const rulesAttr = $selectedOption.attr("data-pricing-rules");
+          pricingRules = rulesAttr ? JSON.parse(rulesAttr) : [];
+        } catch (e) {
+          console.error("Error parsing pricing rules for product2:", e);
+        }
+
         mixData.product3 = {
           code: selectedValue,
-          name: selectedName,
+          name: $selectedOption.data("name"),
           percentage: 33,
+          pricing_rules: pricingRules, // ✅ THÊM MỚI
+          quantity: 0, // ✅ THÊM MỚI
+          price_per_kg: 0, // ✅ THÊM MỚI
+          total_price: 0, // ✅ THÊM MỚI
         };
 
-        showThirdProductContent(selectedName, selectedDescription);
+        showThirdProductContent(
+          $selectedOption.data("name"),
+          $selectedOption.data("description")
+        );
+        showMixOptions();
         redistributePercentages();
         updateMixSliders();
-        updateFooterSummary();
+        showFooterSummary();
+        updateFooterSummary(); // ✅ Hàm này sẽ tính toán pricing
         $(".third-product").addClass("has-selection");
+        $("#mixsuggest-container-3").slideUp();
+      } else {
+        resetProduct3();
       }
     });
 
@@ -421,6 +458,77 @@
     // =============================================================================
 
     /**
+     * Tìm giá phù hợp dựa trên pricing rules và quantity
+     * @param {Array} pricingRules - Mảng pricing rules từ ERPNext
+     * @param {Number} quantity - Số lượng cần tính giá (kg)
+     * @returns {Number} - Giá mỗi kg (VND)
+     */
+    function getPriceByQuantity(pricingRules, quantity) {
+      if (!pricingRules || pricingRules.length === 0) {
+        console.warn("No pricing rules available, returning 0");
+        return 0;
+      }
+
+      // Sắp xếp rules theo min_qty tăng dần để tìm đúng bậc
+      const sortedRules = [...pricingRules].sort((a, b) => {
+        return parseFloat(a.min_qty || 0) - parseFloat(b.min_qty || 0);
+      });
+
+      // Tìm rule phù hợp
+      for (let i = sortedRules.length - 1; i >= 0; i--) {
+        const rule = sortedRules[i];
+        const minQty = parseFloat(rule.min_qty) || 0;
+        const maxQty = parseFloat(rule.max_qty) || 0;
+
+        // max_qty = 0 nghĩa là không giới hạn trên
+        if (quantity >= minQty) {
+          if (maxQty === 0 || quantity <= maxQty) {
+            console.log(
+              `✅ Matched rule: ${rule.title} (${minQty}-${
+                maxQty || "∞"
+              }kg) = ${rule.value} VND/kg`
+            );
+            return parseFloat(rule.value) || 0;
+          }
+        }
+      }
+
+      // Fallback: dùng rule đầu tiên nếu không match
+      console.warn("No matching rule found, using first rule as fallback");
+      return parseFloat(sortedRules[0]?.value) || 0;
+    }
+
+    /**
+     * Tính toán pricing cho TẤT CẢ các products trong mix
+     * Gọi hàm này mỗi khi percentage hoặc total_quantity thay đổi
+     */
+    function calculateProductPricing() {
+      const totalQty = calculateTotalQuantity(); // Tổng kg từ options
+      const activeProducts = getActiveProducts();
+
+      activeProducts.forEach((productKey) => {
+        const product = mixData[productKey];
+
+        // Tính quantity cho product này
+        product.quantity = (product.percentage / 100) * totalQty;
+
+        //console.log(`🔍 ${productKey}: ${product.pricing_rules}`);
+        // Tính giá theo quantity
+        product.price_per_kg = getPriceByQuantity(
+          product.pricing_rules,
+          product.quantity
+        );
+
+        // Tính tổng tiền
+        product.total_price = product.quantity * product.price_per_kg;
+
+        console.log(
+          `💰 ${productKey}: ${product.quantity}kg × ${product.price_per_kg}đ = ${product.total_price}đ`
+        );
+      });
+    }
+
+    /**
      * Tính tổng số lượng (kg) dựa trên option được chọn
      * @returns {number} Tổng số lượng tính bằng kg
      */
@@ -468,40 +576,62 @@
       const activeProducts = getActiveProducts();
       if (activeProducts.length < 2) return;
 
-      // ✅ Sử dụng các hàm helper
-      const quantity = calculateTotalQuantity();
-      const totalPrice = calculateTotalPrice();
-      const pricePerKg = calculatePricePerKg();
+      // ✅ BƯỚC 1: Tính pricing cho tất cả products
+      calculateProductPricing();
 
-      // Update quantity display
+      // ✅ BƯỚC 2: Tính tổng của mix
+      const totalQuantity = calculateTotalQuantity();
+
+      // Tổng giá mix = tổng của từng product
+      const totalMixPrice = activeProducts.reduce((sum, productKey) => {
+        return sum + (mixData[productKey].total_price || 0);
+      }, 0);
+
+      // Giá trung bình mỗi kg của mix
+      const avgPricePerKg =
+        totalQuantity > 0 ? totalMixPrice / totalQuantity : 0;
+
+      // ✅ BƯỚC 3: Format hiển thị
       let quantityText;
-      if (quantity >= 1000) {
-        quantityText = (quantity / 1000).toLocaleString("vi-VN") + " tấn";
+      if (totalQuantity >= 1000) {
+        quantityText = (totalQuantity / 1000).toLocaleString("vi-VN") + " tấn";
       } else {
-        quantityText = quantity.toLocaleString("vi-VN") + " kg";
+        quantityText = totalQuantity.toLocaleString("vi-VN") + " kg";
       }
 
-      // Update price display
       let formattedTotalPrice;
-      if (totalPrice >= 1000000000) {
-        formattedTotalPrice = Math.round(totalPrice / 1000000000) + " tỷ";
-      } else if (totalPrice >= 1000000) {
-        formattedTotalPrice = Math.round(totalPrice / 1000000) + " triệu";
+      if (totalMixPrice >= 1000000000) {
+        formattedTotalPrice = (totalMixPrice / 1000000000).toFixed(1) + " tỷ";
+      } else if (totalMixPrice >= 1000000) {
+        formattedTotalPrice = Math.round(totalMixPrice / 1000000) + " triệu";
       } else {
-        formattedTotalPrice = formatPrice(totalPrice) + " đ";
+        formattedTotalPrice = formatPrice(totalMixPrice) + " đ";
       }
 
-      // Update footer text based on number of products
       const productCountText =
         activeProducts.length === 2
           ? "Mix 2 loại sản phẩm"
           : "Mix 3 loại sản phẩm";
-      $(".footer-top-row").first().text(productCountText);
 
-      // Update footer values
+      // ✅ BƯỚC 4: Cập nhật UI
+      $(".footer-top-row").first().text(productCountText);
       $("#footer-total-quantity").text(quantityText);
       $("#footer-estimated-price").text(formattedTotalPrice);
-      $("#footer-price-per-kg").text(formatPrice(pricePerKg) + " đ/kg");
+      $("#footer-price-per-kg").text(formatPrice(avgPricePerKg) + " đ/kg");
+
+      // ✅ BƯỚC 5: Log debug (có thể xóa sau khi test xong)
+      console.log("📊 Mix Summary:", {
+        totalQuantity: totalQuantity + "kg",
+        totalPrice: totalMixPrice.toLocaleString("vi-VN") + "đ",
+        avgPrice: avgPricePerKg.toLocaleString("vi-VN") + "đ/kg",
+        breakdown: activeProducts.map((key) => ({
+          product: mixData[key].name,
+          percentage: mixData[key].percentage + "%",
+          quantity: mixData[key].quantity + "kg",
+          price: mixData[key].price_per_kg.toLocaleString("vi-VN") + "đ/kg",
+          total: mixData[key].total_price.toLocaleString("vi-VN") + "đ",
+        })),
+      });
     }
 
     function formatPrice(price) {
@@ -516,12 +646,44 @@
     $("#next-step-button").on("click", function (e) {
       e.preventDefault();
 
-      // Collect mix data (existing logic)
-      const mixData = {
+      // ✅ Đảm bảo pricing đã được tính
+      calculateProductPricing();
+
+      // Collect mix data
+      const checkoutMixData = {
         products: {
-          product1: getMixProduct("product1"),
-          product2: getMixProduct("product2"),
-          product3: getMixProduct("product3"),
+          product1: mixData.product1
+            ? {
+                code: mixData.product1.code,
+                name: mixData.product1.name,
+                percentage: mixData.product1.percentage,
+                quantity: mixData.product1.quantity, // ✅ THÊM
+                price_per_kg: mixData.product1.price_per_kg, // ✅ THÊM
+                total_price: mixData.product1.total_price, // ✅ THÊM
+              }
+            : null,
+
+          product2: mixData.product2
+            ? {
+                code: mixData.product2.code,
+                name: mixData.product2.name,
+                percentage: mixData.product2.percentage,
+                quantity: mixData.product2.quantity, // ✅ THÊM
+                price_per_kg: mixData.product2.price_per_kg, // ✅ THÊM
+                total_price: mixData.product2.total_price, // ✅ THÊM
+              }
+            : null,
+
+          product3: mixData.product3
+            ? {
+                code: mixData.product3.code,
+                name: mixData.product3.name,
+                percentage: mixData.product3.percentage,
+                quantity: mixData.product3.quantity, // ✅ THÊM
+                price_per_kg: mixData.product3.price_per_kg, // ✅ THÊM
+                total_price: mixData.product3.total_price, // ✅ THÊM
+              }
+            : null,
         },
         options: {
           color: $('input[name="color"]:checked').val(),
@@ -533,43 +695,42 @@
           total: calculateTotalQuantity(),
         },
         pricing: {
-          rate: basePrices[$('input[name="quantity"]:checked').val()],
-          total: calculateTotalPrice(),
-          per_kg: calculatePricePerKg(),
+          total: Object.values(mixData)
+            .filter((p) => p && p.total_price)
+            .reduce((sum, p) => sum + p.total_price, 0),
+          per_kg:
+            calculateTotalQuantity() > 0
+              ? Object.values(mixData)
+                  .filter((p) => p && p.total_price)
+                  .reduce((sum, p) => sum + p.total_price, 0) /
+                calculateTotalQuantity()
+              : 0,
         },
       };
 
-      // Validate mix data
-      if (!validateMixData(mixData)) {
+      // Validate
+      if (!validateMixData(checkoutMixData)) {
         return;
       }
 
-
-      // AJAX call để store mix data trong PHP session
+      // AJAX call
       $.ajax({
         url: vinapet_ajax.ajax_url,
         type: "POST",
         data: {
           action: "vinapet_store_mix_session",
           nonce: vinapet_ajax.nonce,
-          mix_data: mixData,
-        },
-        beforeSend: function () {
-          showLoading($(this));
+          mix_data: checkoutMixData,
         },
         success: function (response) {
           if (response.success) {
-            // Redirect to checkout
-            window.location.href = "/vinapet/checkout";
+            window.location.href = response.data.redirect;
           } else {
             alert(response.data || "Có lỗi xảy ra!");
           }
         },
         error: function () {
           alert("Lỗi kết nối! Vui lòng thử lại.");
-        },
-        complete: function () {
-          hideLoading($("#next-step-button"));
         },
       });
     });
@@ -582,7 +743,8 @@
 
     function validateMixData(data) {
       // Validate total percentage = 100%
-      const activeProducts = Object.values(data.products).filter((p) => p.name);
+      console.log("Validating mix data:", data);
+      const activeProducts = Object.values(data.products).filter((p) => p && p.name);
       if (activeProducts.length < 2) {
         alert("Cần ít nhất 2 sản phẩm để mix!");
         return false;

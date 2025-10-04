@@ -233,7 +233,10 @@ class VinaPet_Order_Session { private static $instance = null;
                     'code' => $product['code'] ?? '',
                     'name' => $product['name'],
                     'percentage' => $product['percentage'] ?? 0,
-                    'details' => $product['details'] ?? []
+                    'quantity' => $product['quantity'] ?? 0,
+                    'price_per_kg' => $product['price_per_kg'] ?? 0,
+                    'total_price' => $product['total_price'] ?? 0,
+                    'details' => $product['details'] ?? [],
                 ];
             }
         }

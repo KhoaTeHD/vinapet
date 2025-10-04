@@ -153,14 +153,6 @@ class VinaPet_Products_Admin
                                 <label>Mã sản phẩm:</label>
                                 <code><?php echo esc_html($product_code); ?></code>
                             </div>
-                            <div class="erp-info-item">
-                                <label>Giá:</label>
-                                <strong><?php echo  number_format($product_price, 0, ',', '.'); ?> ₫</strong>
-                            </div>
-                            <div class="erp-info-item">
-                                <label>Tồn kho:</label>
-                                <span><?php echo esc_html($product_stock); ?></span>
-                            </div>
                         </div>
                     </div>
 
@@ -246,7 +238,7 @@ class VinaPet_Products_Admin
                             <p class="description">Kích thước đề xuất: 1200x630px</p>
                         </div>
 
-                        <!-- Preview Snippet -->
+                        <!-- Preview Snippet
                         <div class="seo-preview">
                             <h4>👁️ Xem trước trên Google:</h4>
                             <div class="google-snippet">
@@ -258,7 +250,7 @@ class VinaPet_Products_Admin
                                     <?php echo $seo_description ? esc_html($seo_description) : 'Mô tả sản phẩm sẽ hiển thị ở đây...'; ?>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Action Buttons -->
@@ -266,9 +258,9 @@ class VinaPet_Products_Admin
                         <button type="button" class="button button-primary button-large" id="save-meta">
                             💾 Lưu thay đổi
                         </button>
-                        <button type="button" class="button button-large" id="preview-product">
+                        <!-- <button type="button" class="button button-large" id="preview-product">
                             👁️ Xem trước
-                        </button>
+                        </button> -->
                         <?php if ($meta): ?>
                             <button type="button" class="button button-link-delete" id="delete-meta">
                                 🗑️ Xóa tùy chỉnh (quay về ERP)
@@ -280,19 +272,18 @@ class VinaPet_Products_Admin
 
                 <!-- Right: Settings Sidebar -->
                 <div class="editor-sidebar">
-                    <div class="sidebar-box">
+                    <!-- <div class="sidebar-box">
                         <h3>⚙️ Cài đặt</h3>
                         <label>
                             <input type="checkbox" id="is_featured" <?php checked($is_featured); ?>>
                             ⭐ Sản phẩm nổi bật
                         </label>
-                    </div>
+                    </div> -->
 
                     <div class="sidebar-box">
                         <h3>💡 Hướng dẫn</h3>
                         <ul style="font-size: 13px; line-height: 1.6;">
                             <li>✅ Mô tả chi tiết dành cho khách hàng đọc</li>
-                            <li>✅ SEO Title/Description dành cho Google</li>
                             <li>✅ Có thể upload ảnh trực tiếp vào mô tả</li>
                             <li>✅ Xóa tùy chỉnh sẽ quay về dùng data từ ERP</li>
                         </ul>
@@ -401,10 +392,6 @@ class VinaPet_Products_Admin
                         <span class="dashicons dashicons-download" style="vertical-align: text-top;"></span>
                         Lấy từ ERP
                     </button>
-                    <button class="button" id="refresh-list">
-                        <span class="dashicons dashicons-update" style="vertical-align: text-top;"></span>
-                        Làm mới
-                    </button>
                     <span id="loading" style="display: none;">
                         <span class="spinner is-active" style="float: none;"></span>
                         Đang tải...
@@ -418,15 +405,13 @@ class VinaPet_Products_Admin
                     <tr>
                         <th style="width: 120px;">Mã sản phẩm</th>
                         <th>Tên sản phẩm</th>
-                        <th style="width: 150px;">Nhóm sản phẩm</th>
-                        <th style="width: 100px;">Giá bán</th>
                         <th width="10%">Mô tả tùy chỉnh</th>
                         <th width="20%">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="products-tbody">
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 30px; color: #666;">
+                        <td colspan="4" style="text-align: center; padding: 30px; color: #666;">
                             Nhấn "Lấy từ ERP" để tải danh sách sản phẩm
                         </td>
                     </tr>
@@ -530,8 +515,6 @@ class VinaPet_Products_Admin
                             html += '<tr>';
                             html += '<td><code>' + (product.ProductID || '') + '</code></td>';
                             html += '<td><strong>' + (product.Ten_SP || '') + '</strong></td>';
-                            html += '<td>' + (product.item_group || '') + '</td>';
-                            html += '<td>' + formatPrice(product.Gia_ban_le) + '</td>';
                             html += '<td style="text-align:center;">' + (product.has_custom_meta == 1 ? '✅ Có' : '❌ Chưa') + '</td>';
                             html += `<td>
                                 <a href="${editUrl}" class="button button-small">

@@ -859,6 +859,9 @@ function vinapet_ajax_store_mix_session() {
                     'code' => sanitize_text_field($product['code']),
                     'name' => sanitize_text_field($product['name']),
                     'percentage' => floatval($product['percentage'] ?? 0),
+                    'quantity' => floatval($product['quantity'] ?? 0),
+                    'price_per_kg' => floatval($product['price_per_kg'] ?? 0),
+                    'total_price' => floatval($product['total_price'] ?? 0),
                     'details' => array_map('sanitize_text_field', $product['details'] ?? [])
                 ];
             }

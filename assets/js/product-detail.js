@@ -117,37 +117,151 @@ jQuery(document).ready(function($) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Sử dụng class có sẵn từ CSS
     const description = document.querySelector('.product-description-content');
     
     if (!description) return;
     
-    const fullText = description.textContent;
-    const limit = 200;
+    // ✅ LẤY HTML CONTENT thay vì textContent
+    const fullHTML = description.innerHTML;
     
-    if (fullText.length > limit) {
-        const shortText = fullText.substring(0, limit);
+    // Tạo temporary element để đếm độ dài text thực (không có HTML tags)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = fullHTML;
+    const textLength = tempDiv.textContent.trim().length;
+    
+    const limit = 200; // Giới hạn số ký tự
+    
+    if (textLength > limit) {
+        // Hàm truncate HTML thông minh
+        const truncatedHTML = truncateHTML(fullHTML, limit);
         
-        description.innerHTML = `
-            <span class="short-text">${shortText}...</span>
-            <span class="full-text" style="display:none;">${fullText}</span>
+        // Tạo wrapper cho short và full content
+        const wrapper = document.createElement('div');
+        wrapper.className = 'description-wrapper';
+        
+        wrapper.innerHTML = `
+            <div class="short-text">${truncatedHTML}...</div>
+            <div class="full-text" style="display:none;">${fullHTML}</div>
             <button class="read-more-btn">Đọc thêm</button>
         `;
         
-        const btn = description.querySelector('.read-more-btn');
-        const short = description.querySelector('.short-text');
-        const full = description.querySelector('.full-text');
+        // Thay thế nội dung
+        description.innerHTML = '';
+        description.appendChild(wrapper);
         
-        btn.addEventListener('click', function() {
-            if (full.style.display === 'none') {
-                short.style.display = 'none';
-                full.style.display = 'inline';
+        // Xử lý sự kiện click
+        const btn = description.querySelector('.read-more-btn');
+        const shortDiv = description.querySelector('.short-text');
+        const fullDiv = description.querySelector('.full-text');
+        
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (fullDiv.style.display === 'none') {
+                // Hiển thị full content
+                shortDiv.style.display = 'none';
+                fullDiv.style.display = 'block';
                 btn.textContent = 'Thu gọn';
+                
+                // Scroll mượt đến vị trí
+                description.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'nearest' 
+                });
             } else {
-                short.style.display = 'inline';
-                full.style.display = 'none';
+                // Hiển thị short content
+                shortDiv.style.display = 'block';
+                fullDiv.style.display = 'none';
                 btn.textContent = 'Đọc thêm';
             }
         });
     }
 });
+
+/**
+ * Hàm truncate HTML thông minh
+ * Giữ nguyên cấu trúc HTML, chỉ cắt text content
+ */
+function truncateHTML(html, maxLength) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    let charCount = 0;
+    let truncated = false;
+    
+    function traverseNodes(node) {
+        if (truncated) return;
+        
+        // Nếu là text node
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            const remainingChars = maxLength - charCount;
+            
+            if (charCount + text.length > maxLength) {
+                // Cắt text tại vị trí phù hợp (tránh cắt giữa từ)
+                let cutText = text.substring(0, remainingChars);
+                const lastSpace = cutText.lastIndexOf(' ');
+                
+                if (lastSpace > 0) {
+                    cutText = cutText.substring(0, lastSpace);
+                }
+                
+                node.textContent = cutText;
+                truncated = true;
+                
+                // Xóa các siblings sau node này
+                let nextSibling = node.nextSibling;
+                while (nextSibling) {
+                    const toRemove = nextSibling;
+                    nextSibling = nextSibling.nextSibling;
+                    toRemove.parentNode.removeChild(toRemove);
+                }
+            } else {
+                charCount += text.length;
+            }
+        } 
+        // Nếu là element node
+        else if (node.nodeType === Node.ELEMENT_NODE) {
+            // Các thẻ tự đóng như img, br không tính
+            if (['IMG', 'BR', 'HR'].includes(node.tagName)) {
+                return;
+            }
+            
+            // Duyệt qua các child nodes
+            const childNodes = Array.from(node.childNodes);
+            for (let child of childNodes) {
+                if (truncated) {
+                    // Xóa các child còn lại
+                    node.removeChild(child);
+                } else {
+                    traverseNodes(child);
+                }
+            }
+        }
+    }
+    
+    traverseNodes(tempDiv);
+    
+    // Dọn dẹp các thẻ rỗng
+    cleanEmptyTags(tempDiv);
+    
+    return tempDiv.innerHTML;
+}
+
+/**
+ * Xóa các thẻ HTML rỗng sau khi truncate
+ */
+function cleanEmptyTags(element) {
+    const children = Array.from(element.children);
+    
+    children.forEach(child => {
+        // Đệ quy dọn dẹp children trước
+        cleanEmptyTags(child);
+        
+        // Nếu thẻ không có nội dung và không phải thẻ tự đóng
+        if (!child.textContent.trim() && 
+            !['IMG', 'BR', 'HR', 'INPUT'].includes(child.tagName)) {
+            child.remove();
+        }
+    });
+}

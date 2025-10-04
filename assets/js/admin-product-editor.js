@@ -170,7 +170,7 @@ jQuery(document).ready(function($) {
                     
                     // Redirect về danh sách sau 1s
                     setTimeout(function() {
-                        window.location.href = '<?php echo admin_url("admin.php?page=vinapet-products-erp"); ?>';
+                        window.location.href = 'admin.php?page=vinapet-products-erp';
                     }, 1000);
                 } else {
                     showNotice('error', response.data);
@@ -187,9 +187,9 @@ jQuery(document).ready(function($) {
     
     // Preview Product
     $('#preview-product').on('click', function() {
-        const productCode = $('#product-code').val();
-        const previewUrl = '<?php echo home_url("/san-pham/"); ?>' + productCode;
-        window.open(previewUrl, '_blank');
+        // const productCode = $('#product-code').val();
+        // const previewUrl = '/san-pham/' + productCode;
+        // window.open(previewUrl, '_blank');
     });
     
     // Show Notice

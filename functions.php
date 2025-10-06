@@ -1314,3 +1314,8 @@ function vinapet_add_product_seo_meta() {
 add_action('wp_head', 'vinapet_add_product_seo_meta');
 
 require_once get_template_directory() . '/includes/ajax/ajax-mix-pricing.php';
+
+// Include Products Grid Shortcode
+if (file_exists(VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-products-grid.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-products-grid.php';
+}

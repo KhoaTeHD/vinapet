@@ -120,6 +120,12 @@ class VinaPet_Products_Admin
 
         $custom_description = $meta['custom_description'] ?? '';
         $custom_short_desc = $meta['custom_short_desc'] ?? '';
+        // Lấy custom images
+        $custom_image_1 = $meta['custom_image_1'] ?? '';
+        $custom_image_2 = $meta['custom_image_2'] ?? '';
+        $custom_image_3 = $meta['custom_image_3'] ?? '';
+        $custom_image_4 = $meta['custom_image_4'] ?? '';
+
         $seo_title = $meta['seo_title'] ?? '';
         $seo_description = $meta['seo_description'] ?? '';
         $seo_og_image = $meta['seo_og_image'] ?? '';
@@ -175,7 +181,7 @@ class VinaPet_Products_Admin
                                 'textarea_name' => 'custom_description',
                                 'textarea_rows' => 15,
                                 'media_buttons' => true,
-                                
+
                                 'teeny' => false,
                                 'tinymce' => array(
                                     'toolbar1' => 'formatselect,bold,italic,underline,bullist,numlist,link,unlink,image,undo,redo',
@@ -183,6 +189,42 @@ class VinaPet_Products_Admin
                                 )
                             ));
                             ?>
+                            <!-- Hình ảnh sản phẩm tùy chỉnh -->
+                            <div class="product-images-section" style="margin-top: 30px;">
+                                <h3>📷 Hình ảnh sản phẩm (4 ảnh)</h3>
+                                <p class="description">4 hình ảnh này sẽ hiển thị trong gallery trang chi tiết sản phẩm, sau thumbnail từ API</p>
+
+                                <div class="images-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 15px;">
+
+                                    <?php for ($i = 1; $i <= 4; $i++):
+                                        $img_var = 'custom_image_' . $i;
+                                        $img_url = $$img_var;
+                                    ?>
+                                        <div class="image-upload-box">
+                                            <label><strong>Hình <?php echo $i; ?>:</strong></label>
+                                            <div class="image-preview-wrapper" style="border: 2px dashed #ddd; border-radius: 8px; padding: 15px; text-align: center; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                                <input type="hidden" id="custom_image_<?php echo $i; ?>" name="custom_image_<?php echo $i; ?>" value="<?php echo esc_attr($img_url); ?>">
+                                                <div id="preview-custom-image-<?php echo $i; ?>" style="width: 100%;">
+                                                    <?php if ($img_url): ?>
+                                                        <img src="<?php echo esc_url($img_url); ?>" style="max-width: 100%; height: auto; border-radius: 5px;">
+                                                    <?php else: ?>
+                                                        <p style="color: #999;">Chưa có ảnh</p>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                                                <button type="button" class="button upload-custom-image-btn" data-index="<?php echo $i; ?>">
+                                                    📷 Chọn ảnh
+                                                </button>
+                                                <button type="button" class="button remove-custom-image-btn" data-index="<?php echo $i; ?>" <?php echo empty($img_url) ? 'style="display:none;"' : ''; ?>>
+                                                    🗑️ Xóa
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endfor; ?>
+
+                                </div>
+                            </div>
                         </div>
 
 
@@ -311,6 +353,7 @@ class VinaPet_Products_Admin
             wp_send_json_error('Mã sản phẩm không hợp lệ');
         }
 
+        error_log( 'custom_image_1: ' . print_r($_POST['custom_image_1'], true));
         $data = [
             'custom_description' => $_POST['custom_description'] ?? '',
             'custom_short_desc' => sanitize_textarea_field($_POST['custom_short_desc'] ?? ''),
@@ -318,6 +361,10 @@ class VinaPet_Products_Admin
             'seo_description' => sanitize_textarea_field($_POST['seo_description'] ?? ''),
             'seo_og_image' => esc_url_raw($_POST['seo_og_image'] ?? ''),
             'is_featured' => isset($_POST['is_featured']) ? 1 : 0,
+            'custom_image_1' => esc_url_raw($_POST['custom_image_1'] ?? ''),
+            'custom_image_2' => esc_url_raw($_POST['custom_image_2'] ?? ''),
+            'custom_image_3' => esc_url_raw($_POST['custom_image_3'] ?? ''),
+            'custom_image_4' => esc_url_raw($_POST['custom_image_4'] ?? ''),
         ];
 
         if ($this->meta_manager) {
@@ -652,7 +699,7 @@ class VinaPet_Products_Admin
                 $product_data = $products;
             }
 
-            forEach($product_data as &$product) {
+            foreach ($product_data as &$product) {
                 $product['has_custom_meta'] = '❌';
                 if ($this->meta_manager) {
                     $meta = $this->meta_manager->get_product_meta($product['ProductID'] ?? '');

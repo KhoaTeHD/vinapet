@@ -122,16 +122,24 @@ if (!empty($category_info)) {
 
 $breadcrumb_data[] = ['name' => $product_name, 'url' => ''];
 
-// Thêm hình ảnh sản phẩm
-$product_gallery = isset($product['gallery']) && !empty($product['gallery']) ? $product['gallery'] : [];
-if (empty($product_gallery)) {
-    $product_gallery = [
-        $product_image,
-        get_template_directory_uri() . '/assets/images/products/cat-tre-2.jpg',
-        get_template_directory_uri() . '/assets/images/products/cat-tre-3.jpg',
-        get_template_directory_uri() . '/assets/images/products/cat-tre-4.jpg',
-        get_template_directory_uri() . '/assets/images/products/cat-tre-5.jpg',
-    ];
+// Lấy custom images từ meta nếu có
+$meta = null;
+if (class_exists('Product_Meta_Manager')) {
+    $meta_manager = new Product_Meta_Manager();
+    $meta = $meta_manager->get_product_meta($product_code);
+}
+
+// Tạo gallery: thumbnail từ API + 4 ảnh custom từ WP
+$product_gallery = [$product_image]; // Thumbnail từ API luôn là ảnh đầu tiên
+
+if ($meta) {
+    // Thêm 4 ảnh custom nếu có
+    for ($i = 1; $i <= 4; $i++) {
+        $custom_img = $meta['custom_image_' . $i] ?? '';
+        if (!empty($custom_img)) {
+            $product_gallery[] = $custom_img;
+        }
+    }
 }
 
 // Biến thể sản phẩm

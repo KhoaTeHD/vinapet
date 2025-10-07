@@ -118,7 +118,7 @@ jQuery(document).ready(function ($) {
     btn.prop("disabled", true);
     spinner.addClass("is-active");
 
-    alert($('#custom_image_1').val() + '---' + $('#custom_image_2').val() + '---' + $('#custom_image_3').val() + '---' + $('#custom_image_4').val());
+    //alert($('#custom_image_1').val() + '---' + $('#custom_image_2').val() + '---' + $('#custom_image_3').val() + '---' + $('#custom_image_4').val());
 
     $.ajax({
       url: vinapet_editor_ajax.ajax_url,

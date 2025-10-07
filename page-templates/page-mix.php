@@ -151,6 +151,46 @@ if ($packages) {
 }
 ?>
 
+<?php
+// Lấy cấu hình đề xuất từ admin
+$suggest_data = get_option('vinapet_suggest_products', array(
+    'product_2' => array('suggest_1' => '', 'suggest_2' => '', 'suggest_3' => ''),
+    'product_3' => array('suggest_1' => '', 'suggest_2' => '', 'suggest_3' => '')
+));
+
+// error_log("Suggest Data: " . print_r($suggest_data, true));
+
+// $product_2_suggests = $suggest_data['product_2'];  
+// $product_3_suggests = $suggest_data['product_3'];
+
+
+//Lấy thông tin chi tiết sản phẩm đề xuất
+$product_2_suggests = array();
+for ($i = 1; $i <= 3; $i++) {
+    $product_code = $suggest_data['product_2']['suggest_' . $i];
+    if (!empty($product_code)) {
+        $product_info = $data_manager->get_product($product_code);
+        if (isset($product_info['product'])) {
+            $product_2_suggests[] = $product_info['product'];
+        }
+    }
+}
+
+$product_3_suggests = array();
+for ($i = 1; $i <= 3; $i++) {
+    $product_code = $suggest_data['product_3']['suggest_' . $i];
+    if (!empty($product_code)) {
+        $product_info = $data_manager->get_product($product_code);
+        if (isset($product_info['product'])) {
+            $product_3_suggests[] = $product_info['product'];
+        }
+    }
+}
+
+// error_log("Product 2 Suggests: " . print_r($product_2_suggests, true));
+// error_log("Product 3 Suggests: " . print_r($product_3_suggests, true));
+?>
+
 <div class="container">
     <!-- Breadcrumb -->
     <?php get_template_part('template-parts/breadcrumbs', 'bar'); ?>
@@ -228,7 +268,7 @@ if ($packages) {
                             <polyline points="6,9 12,15 18,9"></polyline>
                         </svg>
                     </div>
-                    <div style="
+                    <!-- <div style="
                             margin-top: 16px;
                             height: 47px;
                             display: flex;
@@ -239,6 +279,20 @@ if ($packages) {
                         <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tre XLTX">Cát tre xanh lá trà xanh</span> 
                         <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span> 
                         <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu TLVD">Cát tofu trắng lavender</span>
+                    </div> -->
+                    <div style="margin-top: 16px; height: 47px; display: flex; align-items: center; gap: 8px;" id="mixsuggest-container-2">
+                        <span style="color:#666471">Đề xuất</span>
+                        <?php if (!empty($product_2_suggests)): ?>
+                            <?php foreach ($product_2_suggests as $suggest_product): ?>
+                                <span class="sugItems-2"
+                                    style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer"
+                                    data-index="<?php echo esc_attr($suggest_product['product_id']); ?>">
+                                    <?php echo esc_html($suggest_product['product_name']); ?>
+                                </span>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <span style="color:#999;font-size:14px;">Chưa có sản phẩm đề xuất</span>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -288,7 +342,7 @@ if ($packages) {
                                 <option value="<?php echo esc_attr($product['ProductID']); ?>"
                                     data-name="<?php echo esc_attr($product['Ten_SP']); ?>"
                                     data-description="<?php echo esc_attr($product['Mo_ta_ngan']); ?>"
-                                    data-pricing-rules='<?php echo esc_attr(json_encode($pricing_rules, JSON_UNESCAPED_UNICODE)); ?>'>
+                                    data-pricing-rules='<?php echo esc_attr(json_encode($product['pricing_rules'], JSON_UNESCAPED_UNICODE)); ?>'>
                                     <?php echo esc_html($product['Ten_SP']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -297,17 +351,31 @@ if ($packages) {
                             <polyline points="6,9 12,15 18,9"></polyline>
                         </svg>
                     </div>
-                    <div style="
+                    <!-- <div style="
                             margin-top: 16px;
                             height: 47px;
                             display: flex;
                             align-items: center;
                             gap: 8px;
                         " id="mixsuggest-container-3">
-                        <span style="color:#666471">Đề xuất</span> 
-                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tre XLTX">Cát tre xanh lá trà xanh</span> 
-                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span> 
+                        <span style="color:#666471">Đề xuất</span>
+                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tre XLTX">Cát tre xanh lá trà xanh</span>
+                        <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span>
                         <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu TLVD">Cát tofu trắng lavender</span>
+                    </div> -->
+                    <div style="margin-top: 16px; height: 47px; display: flex; align-items: center; gap: 8px;" id="mixsuggest-container-3">
+                        <span style="color:#666471">Đề xuất</span>
+                        <?php if (!empty($product_3_suggests)): ?>
+                            <?php foreach ($product_3_suggests as $suggest_product): ?>
+                                <span class="sugItems-3"
+                                    style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer"
+                                    data-index="<?php echo esc_attr($suggest_product['product_id']); ?>">
+                                    <?php echo esc_html($suggest_product['product_name']); ?>
+                                </span>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <span style="color:#999;font-size:14px;">Chưa có sản phẩm đề xuất</span>
+                        <?php endif; ?>
                     </div>
                 </div>
 

@@ -1319,3 +1319,307 @@ require_once get_template_directory() . '/includes/ajax/ajax-mix-pricing.php';
 if (file_exists(VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-products-grid.php')) {
     require_once VINAPET_THEME_DIR . '/includes/shortcodes/shortcode-products-grid.php';
 }
+
+
+/**
+ * Floating Contact Button 
+ */
+
+// 1. ENQUEUE CSS & JS
+function vinapet_floating_contact_assets() {
+    ?>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Floating Contact Button Styles */
+        .floating-container {
+            position: fixed;
+            bottom: 50px;
+            right: 30px;
+            z-index: 9999;
+        }
+
+        .floating-button {
+            width: 60px;
+            height: 60px;
+            background: #19457B;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .floating-button i {
+            color: white;
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-button.active i {
+            transform: rotate(45deg);
+        }
+
+        .contact-menu {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .contact-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .floating-contact-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .floating-contact-item:nth-child(1) { animation-delay: 0.1s; }
+        .floating-contact-item:nth-child(2) { animation-delay: 0.15s; }
+        .floating-contact-item:nth-child(3) { animation-delay: 0.2s; }
+        .floating-contact-item:nth-child(4) { animation-delay: 0.25s; }
+        .floating-contact-item:nth-child(5) { animation-delay: 0.3s; }
+        .floating-contact-item:nth-child(6) { animation-delay: 0.35s; }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .floating-contact-item:hover {
+            transform: scale(1.15);
+        }
+
+        .floating-contact-item i,
+        .floating-contact-item img {
+            color: white;
+            font-size: 22px;
+            max-width: 24px;
+            max-height: 24px;
+        }
+
+        .floating-contact-item.facebook { background: #1877f2; }
+        .floating-contact-item.tiktok { background: #000000; }
+        .floating-contact-item.wechat { background: #09b83e; }
+        .floating-contact-item.whatsapp { background: #25d366; }
+        .floating-contact-item.zalo { background: #0068ff; }
+        .floating-contact-item.phone { background: #19457B; }
+
+        .contact-tooltip {
+            position: absolute;
+            right: 65px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .floating-contact-item:hover .contact-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .contact-tooltip::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid rgba(0, 0, 0, 0.8);
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .floating-container {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .floating-button {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .floating-button i {
+                font-size: 22px;
+            }
+            
+            .floating-contact-item {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .floating-contact-item i,
+            .floating-contact-item img {
+                font-size: 20px;
+                max-width: 22px;
+                max-height: 22px;
+            }
+            
+            .contact-tooltip {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const floatingBtn = document.getElementById('floatingContactBtn');
+            const contactMenu = document.getElementById('floatingContactMenu');
+            let isOpen = false;
+
+            if (!floatingBtn || !contactMenu) return;
+
+            floatingBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                isOpen = !isOpen;
+                
+                if (isOpen) {
+                    contactMenu.classList.add('show');
+                    floatingBtn.classList.add('active');
+                } else {
+                    contactMenu.classList.remove('show');
+                    floatingBtn.classList.remove('active');
+                }
+            });
+
+            // Đóng menu khi click bên ngoài
+            document.addEventListener('click', function(e) {
+                if (!floatingBtn.contains(e.target) && !contactMenu.contains(e.target)) {
+                    contactMenu.classList.remove('show');
+                    floatingBtn.classList.remove('active');
+                    isOpen = false;
+                }
+            });
+        });
+    </script>
+    <?php
+}
+add_action('wp_head', 'vinapet_floating_contact_assets');
+
+
+// 2. RENDER HTML
+function vinapet_floating_contact_button() {
+    ?>
+    <div class="floating-container">
+        <div class="contact-menu" id="floatingContactMenu">
+            
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/profile.php?id=100094599485921" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="floating-contact-item facebook"
+               aria-label="Facebook">
+                <i class="fab fa-facebook-f"></i>
+                <span class="contact-tooltip">Facebook</span>
+            </a>
+            
+            <!-- TikTok -->
+            <a href="https://www.tiktok.com/@nha_may_vinapet" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="floating-contact-item tiktok"
+               aria-label="TikTok">
+                <i class="fab fa-tiktok"></i>
+                <span class="contact-tooltip">TikTok</span>
+            </a>
+            
+            <!-- WeChat -->
+            <a href="weixin://dl/chat?0911818518" 
+               class="floating-contact-item wechat"
+               aria-label="WeChat">
+                <i class="fab fa-weixin"></i>
+                <span class="contact-tooltip">WeChat: 0911818518</span>
+            </a>
+            
+            <!-- WhatsApp -->
+            <a href="https://wa.me/840911818518" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="floating-contact-item whatsapp"
+               aria-label="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+                <span class="contact-tooltip">WhatsApp: 0911818518</span>
+            </a>
+            
+            <!-- Zalo -->
+            <a href="https://zalo.me/0911818518" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="floating-contact-item zalo"
+               aria-label="Zalo">
+                <?php 
+                // Kiểm tra có icon Zalo SVG không
+                $zalo_icon = get_template_directory_uri() . '/images/icon-zalo.svg';
+                if (file_exists(get_template_directory() . '/images/icon-zalo.svg')) : ?>
+                    <img src="<?php echo esc_url($zalo_icon); ?>" alt="Zalo">
+                <?php else : ?>
+                    <i class="fas fa-comment-dots"></i>
+                <?php endif; ?>
+                <span class="contact-tooltip">Zalo: 0911818518</span>
+            </a>
+            
+            <!-- Phone -->
+            <a href="tel:0911818518" 
+               class="floating-contact-item phone"
+               aria-label="Điện thoại">
+                <i class="fas fa-phone"></i>
+                <span class="contact-tooltip">Phone: 0911818518</span>
+            </a>
+            
+        </div>
+        
+        <div class="floating-button" id="floatingContactBtn" role="button" aria-label="Liên hệ">
+            <i class="fas fa-message"></i>
+        </div>
+    </div>
+    <?php
+}
+add_action('wp_footer', 'vinapet_floating_contact_button', 999);

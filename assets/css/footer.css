@@ -255,12 +255,12 @@
         padding: 40px 0;
     }
     
-    .footer-content-grid {
+    /* .footer-content-grid {
         display: flex;
         flex-direction: column;
         gap: 31px;
         overflow: visible;
-    }
+    } */
     
     .footer-col {
         width: 100%;

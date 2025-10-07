@@ -67,6 +67,7 @@ class VinaPet_Products_Shortcode {
             cursor: pointer;
             transition: var(--vp-transition);
             box-shadow: var(--vp-shadow);
+            font-family: 'SVN-Gilroy', sans-serif;
         }
 
         .vinapet-product-card:hover {

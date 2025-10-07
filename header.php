@@ -82,6 +82,11 @@
                     vinapet_fallback_mobile_menu();
                 }
                 ?>
+
+                <!-- Language Switcher cho Mobile - Ở DƯỚI CÙNG -->
+                <div class="mobile-language-switcher">
+                    <?php echo do_shortcode('[gtranslate]'); ?>
+                </div>
             </div>
         </div>
     </header>

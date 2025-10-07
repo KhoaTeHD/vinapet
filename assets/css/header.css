@@ -704,7 +704,7 @@ body {
 }
 
 /* Language Switcher - riêng biệt không phải button */
-.language-switcher {
+/* .language-switcher {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -726,38 +726,17 @@ body {
     width: 18px;
     height: 18px;
     margin-right: 6px;
-}
+} */
 
 /* Language text control */
-.language-switcher .lang-text-short {
+/* .language-switcher .lang-text-short {
     display: none;
 }
 
 .language-switcher .lang-text-full {
     display: inline;
-}
+} */
 
-/* Mobile/iPad responsive */
-@media (max-width: 768px) {
-    .language-switcher .lang-text-full {
-        display: none !important;
-    }
-    .language-switcher .lang-text-short {
-        display: inline !important;
-    }
-    
-    .language-switcher {
-        padding: 10px 12px;
-        font-size: 13px;
-        min-height: 44px;
-    }
-    
-    .language-switcher svg {
-        margin-right: 4px;
-        width: 16px;
-        height: 16px;
-    }
-}
 /* =============================================================================
    DROPDOWN MENU STYLES - FIXED Z-INDEX
    ============================================================================= */
@@ -911,5 +890,40 @@ body {
     
     .menu-item-has-children:hover .dropdown-menu {
         display: block;
+    }
+}
+
+/* =============================================================================
+   LANGUAGE SWITCHER RESPONSIVE
+   ============================================================================= */
+
+/* Desktop: Hiển thị gtranslate trong header */
+.language-switcher.desktop-only {
+    display: block;
+}
+
+/* Mobile: Ẩn gtranslate trong header */
+.mobile-language-switcher {
+    display: none;
+}
+
+/* Mobile breakpoint - khi có hamburger button */
+@media (max-width: 768px) {
+    /* Ẩn language switcher ở header desktop */
+    .language-switcher.desktop-only {
+        display: none !important;
+    }
+    
+    /* Hiển thị language switcher trong mobile menu */
+    .mobile-language-switcher {
+        display: block;
+        padding: 20px 0 10px 0;
+        border-top: 1px solid #f0f0f0;
+        text-align: center;
+    }
+    
+    /* Style cho gtranslate widget trong mobile menu */
+    .mobile-language-switcher .gtranslate_wrapper {
+        display: inline-block;
     }
 }

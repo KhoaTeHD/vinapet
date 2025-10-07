@@ -8,7 +8,7 @@ $is_logged_in = is_user_logged_in();
 
 <div class="header-user-actions">
     <!-- Language Switcher - hiển thị cho cả logged in và chưa logged in -->
-     <div class="language-switcher">
+     <div class="language-switcher desktop-only">
 		<?php echo do_shortcode('[gtranslate]');  ?>
 	</div>
     <!-- <div class="language-switcher">

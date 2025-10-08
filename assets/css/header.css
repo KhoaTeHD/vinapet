@@ -819,10 +819,41 @@ body {
     align-items: center;
 }
 
-/* =============================================================================
+   /* =============================================================================
    MOBILE DROPDOWN STYLES
    ============================================================================= */
 
+/* Style cho button toggle */
+.mobile-dropdown-toggle {
+    /* Reset button default styles */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    
+    /* Style giống link trong mobile menu */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 15px 0;
+    color: #19457B;
+    text-decoration: none;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    transition: var(--transition, all 0.3s ease);
+    font-size: 16px;
+    text-align: left; /* Căn text về bên trái */
+}
+
+/* Focus state cho accessibility */
+.mobile-dropdown-toggle:focus {
+    outline: 2px solid #19457B;
+    outline-offset: 2px;
+    background: rgba(46, 134, 171, 0.05);
+}
+
+/* Style cũ vẫn giữ nguyên */
 .mobile-menu-item-has-children .mobile-dropdown-toggle {
     display: flex;
     justify-content: space-between;
@@ -843,7 +874,45 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    background: rgba(46, 134, 171, 0.05);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+.mobile-menu-item-has-children.active .mobile-submenu {
+    max-height: 200px;
+    padding: 8px 0;
+}
+
+.mobile-menu-item-has-children.active .mobile-arrow {
+    transform: rotate(45deg);
+}
+
+.mobile-submenu a {
+    display: block;
+    padding: 10px 20px 10px 40px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.mobile-submenu a:hover {
+    color: var(--primary-color);
+}
+
+.mobile-arrow {
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+}
+
+.mobile-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
     border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
@@ -868,7 +937,6 @@ body {
 
 .mobile-submenu a:hover {
     background: rgba(46, 134, 171, 0.1);
-    border-left-color: var(--primary-color);
     color: var(--primary-color);
 }
 

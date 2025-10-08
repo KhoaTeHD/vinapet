@@ -861,6 +861,7 @@
     
     .product-card {
         padding: 20px;
+        width: 100%;
     }
     
     .product-sizes {
@@ -924,9 +925,9 @@
         gap: 8px;
     }
     
-    .color-grid {
+    /* .color-grid {
         grid-template-columns: 1fr;
-    }
+    } */
     
     .product-title {
         font-size: 18px;

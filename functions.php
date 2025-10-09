@@ -647,12 +647,6 @@ if (file_exists(VINAPET_THEME_DIR . '/includes/account-functions.php')) {
     require_once VINAPET_THEME_DIR . '/includes/account-functions.php';
 }
 
-// if(file_exists(VINAPET_THEME_DIR . '/includes/ajax/ajax-account.php')) {
-//     require_once VINAPET_THEME_DIR . '/includes/ajax/ajax-account.php';
-// }
-
-// footer
-
 // Include footer initialization
 if (file_exists(VINAPET_THEME_DIR . '/includes/footer-init.php')) {
     require_once VINAPET_THEME_DIR . '/includes/footer-init.php';
@@ -914,114 +908,6 @@ add_action('wp_ajax_vinapet_store_mix_session', 'vinapet_ajax_store_mix_session'
 add_action('wp_ajax_nopriv_vinapet_store_mix_session', 'vinapet_ajax_store_mix_session');
 
 /**
- * AJAX: Unified checkout submission
- */
-function vinapet_ajax_submit_unified_checkout()
-{
-    check_ajax_referer('vinapet_nonce', 'nonce');
-
-    if (!is_user_logged_in()) {
-        wp_send_json_error('Bạn cần đăng nhập để thực hiện chức năng này!');
-    }
-
-    $checkout_form = $_POST['checkout_form'] ?? [];
-
-    // Sanitize checkout form data
-    $clean_form = [
-        'packaging_design' => sanitize_text_field($checkout_form['packaging_design'] ?? ''),
-        'delivery_timeline' => sanitize_text_field($checkout_form['delivery_timeline'] ?? ''),
-        'shipping_method' => sanitize_text_field($checkout_form['shipping_method'] ?? ''),
-        'contact_info' => [
-            'notes' => sanitize_textarea_field($checkout_form['contact_info']['notes'] ?? ''),
-            'phone' => sanitize_text_field($checkout_form['contact_info']['phone'] ?? ''),
-            'email' => sanitize_email($checkout_form['contact_info']['email'] ?? '')
-        ]
-    ];
-
-    // Validate required fields
-    if (
-        empty($clean_form['packaging_design']) ||
-        empty($clean_form['delivery_timeline']) ||
-        empty($clean_form['shipping_method'])
-    ) {
-        wp_send_json_error('Vui lòng điền đầy đủ thông tin bắt buộc!');
-    }
-
-    // Get session data
-    $session = VinaPet_Order_Session::get_instance();
-    $checkout_data = $session->get_checkout_data();
-
-    if (!$checkout_data) {
-        wp_send_json_error('Không tìm thấy dữ liệu đơn hàng! Vui lòng thử lại từ bước đầu.');
-    }
-
-    // Store checkout form data
-    $session->store_checkout($clean_form);
-
-    // Prepare unified request data
-    $request_data = [
-        'order_type' => $checkout_data['type'],
-        'user_id' => get_current_user_id(),
-        'order_data' => $checkout_data,
-        'checkout_form' => $clean_form,
-        'request_time' => current_time('mysql'),
-        'user_ip' => $_SERVER['REMOTE_ADDR'] ?? ''
-    ];
-
-    // Generate order ID
-    $order_prefix = ($checkout_data['type'] === 'mix') ? 'MIX' : 'VP';
-    $order_id = $order_prefix . '_' . time() . '_' . get_current_user_id();
-
-    // Log request for debugging
-    error_log('VinaPet Unified Checkout Request: ' . json_encode($request_data));
-
-    // Tích hợp với ERPNext API (nếu có)
-    //$erp_result = vinapet_submit_to_erp($request_data, $order_id);
-
-    // Create order record trong database
-    //$order_created = vinapet_create_order_record($request_data, $order_id);
-
-    // Clear session after successful submission
-    $session->clear_all();
-
-    // Response success
-    $message = ($checkout_data['type'] === 'mix')
-        ? 'Yêu cầu đơn hàng tùy chỉnh đã được gửi thành công!'
-        : 'Yêu cầu đơn hàng đã được gửi thành công!';
-
-    wp_send_json_success([
-        'message' => $message,
-        'order_id' => $order_id,
-        'order_type' => $checkout_data['type'],
-        'redirect' => home_url('/tai-khoan'),
-        'order_info' => [
-            'total_quantity' => $checkout_data['total_quantity'],
-            'estimated_price' => $checkout_data['estimated_price']
-        ]
-    ]);
-}
-add_action('wp_ajax_vinapet_submit_unified_checkout', 'vinapet_ajax_submit_unified_checkout');
-add_action('wp_ajax_nopriv_vinapet_submit_unified_checkout', 'vinapet_ajax_submit_unified_checkout');
-
-/**
- * Helper: Submit to ERPNext API
- */
-// function vinapet_submit_to_erp($request_data, $order_id) {
-//     // Tích hợp với ERPNext API client nếu có
-//     if (class_exists('VinaPet_ERP_API_Client')) {
-//         $erp = VinaPet_ERP_API_Client::get_instance();
-
-//         if ($request_data['order_type'] === 'mix') {
-//             return $erp->create_mix_order($request_data, $order_id);
-//         } else {
-//             return $erp->create_normal_order($request_data, $order_id);
-//         }
-//     }
-
-//     return ['status' => 'pending', 'message' => 'ERP integration not available'];
-// }
-
-/**
  * Helper: Create order record trong database
  */
 function vinapet_create_order_record($request_data, $order_id)
@@ -1145,7 +1031,7 @@ function vinapet_ajax_store_product_order()
             'products' => $product_code,
             'variant' => $variant,
             'order_type' => 'mix',
-            'source' => 'single_product'  // ← THÊM để biết nguồn
+            'source' => 'single_product'  
         ];
 
         $session->store_mix($mix_data);

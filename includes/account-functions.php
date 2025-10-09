@@ -264,13 +264,13 @@ add_action('template_redirect', 'vinapet_protect_account_page');
  * Add account menu item to WordPress admin menu for easier management
  */
 function vinapet_add_account_admin_menu() {
-    add_theme_page(
-        __('Cài đặt tài khoản', 'vinapet'),
-        __('Tài khoản khách hàng', 'vinapet'),
-        'manage_options',
-        'vinapet-account-settings',
-        'vinapet_account_settings_page'
-    );
+    // add_theme_page(
+    //     __('Cài đặt tài khoản', 'vinapet'),
+    //     __('Tài khoản khách hàng', 'vinapet'),
+    //     'manage_options',
+    //     'vinapet-account-settings',
+    //     'vinapet_account_settings_page'
+    // );
 }
 add_action('admin_menu', 'vinapet_add_account_admin_menu');
 

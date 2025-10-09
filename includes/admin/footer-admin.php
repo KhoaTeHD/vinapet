@@ -22,14 +22,14 @@ class VinaPet_Footer_Admin {
     public function add_admin_menu() {
         
         // Footer submenu
-        add_submenu_page(
-            'vinapet-settings',
-            'Cài đặt Footer',
-            'Footer Settings',
-            'manage_options',
-            'vinapet-footer-settings',
-            array($this, 'footer_settings_page')
-        );
+        // add_submenu_page(
+        //     'vinapet-settings',
+        //     'Cài đặt Footer',
+        //     'Footer Settings',
+        //     'manage_options',
+        //     'vinapet-footer-settings',
+        //     array($this, 'footer_settings_page')
+        // );
     }
     
     /**

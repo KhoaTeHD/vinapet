@@ -10,8 +10,6 @@ require_once get_template_directory() . '/includes/helpers/class-order-session.p
 $session = VinaPet_Order_Session::get_instance();
 $checkout_data = $session->get_checkout_data();
 
-error_log('Checkout Data Retrieved: ' . print_r($checkout_data, true));
-
 // Redirect nếu không có data
 if (!$checkout_data) {
     wp_redirect(home_url('/san-pham'));
@@ -28,7 +26,6 @@ $breadcrumb_data = [
     ['name' => 'Đặt hàng', 'url' => '']
 ];
 
-error_log('Checkout Data from checkout page: ' . print_r($checkout_data, true));
 ?>
 
 <div class="container">

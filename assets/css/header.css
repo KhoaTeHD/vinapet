@@ -703,40 +703,6 @@ body {
     }
 }
 
-/* Language Switcher - riêng biệt không phải button */
-/* .language-switcher {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 16px;
-    border-radius: 8px;
-    color: #19457B;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.language-switcher:hover {
-    color: #19457B;
-}
-
-.language-switcher svg {
-    width: 18px;
-    height: 18px;
-    margin-right: 6px;
-} */
-
-/* Language text control */
-/* .language-switcher .lang-text-short {
-    display: none;
-}
-
-.language-switcher .lang-text-full {
-    display: inline;
-} */
-
 /* =============================================================================
    DROPDOWN MENU STYLES - FIXED Z-INDEX
    ============================================================================= */

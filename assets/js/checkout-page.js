@@ -146,7 +146,6 @@
         }
         // Xử lý nếu chỉ có 1 sản phẩm (checkoutData chính là product)
         else if (checkoutData.product_code) {
-          alert(checkoutData.packaging);
           const item = {
             item_code: checkoutData.product_code,
             item_name: checkoutData.product_name || checkoutData.code,

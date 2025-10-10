@@ -138,7 +138,7 @@ $breadcrumb_data = [
                         <input
                             type="text"
                             class="search-input"
-                            placeholder="🔍 Tìm theo tên, mẫu, mã hàng..."
+                            placeholder="🔍︎ Tìm theo tên, mẫu, mã hàng..."
                             value="<?php echo esc_attr($search_query); ?>"
                             id="product-search">
                     </div>

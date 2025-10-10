@@ -293,11 +293,11 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
             <!-- Product About Us -->
             <div class="product-about-us gallery-vinapet">
                 <h2 class="section-title">Về Vinapet</h2>
-                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image1.png" alt="Vinapet">
-                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image2.png" alt="Vinapet">
-                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image3.png" alt="Vinapet">
-                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image4.png" alt="Vinapet">
-                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutVinapet/image5.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutvinapet/image1.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutvinapet/image2.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutvinapet/image3.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutvinapet/image4.png" alt="Vinapet">
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/images/aboutvinapet/image5.png" alt="Vinapet">
             </div>
         </div>
 

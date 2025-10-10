@@ -9,6 +9,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    box-sizing: border-box;
 }
 
 /* Account Header */
@@ -29,16 +30,28 @@
     display: grid;
     grid-template-columns: 280px 1fr;
     gap: 30px;
-    overflow: hidden;
+    align-items: start;
+}
+
+/* Đảm bảo cả 2 columns không vượt quá container */
+.account-content > * {
+    min-width: 0; /* Cho phép flex item thu nhỏ */
 }
 
 /* Sidebar */
 .account-sidebar {
     padding: 0;
+    position: sticky; /* Sidebar dính khi scroll */
+    top: 100px; /* Khoảng cách từ top khi sticky */
+    align-self: start;
+    max-height: calc(100vh - 120px); /* Giới hạn chiều cao */
+    overflow-y: auto; /* Scroll nếu menu quá dài */
 }
 
 .sidebar-menu {
     padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-item {
@@ -75,6 +88,13 @@
 /* Main Content */
 .account-main {
     padding: 0 30px 30px 30px;
+    min-width: 0; /* Quan trọng: cho phép content wrap */
+    overflow-x: hidden; /* Tránh scroll ngang */
+}
+
+/* Đảm bảo form không vượt quá chiều rộng */
+.account-main form {
+    max-width: 100%;
 }
 
 .tab-content {
@@ -193,6 +213,8 @@
 
 .btn-icon {
     font-size: 16px;
+    display: flex;
+    justify-content: center;
 }
 
 /* Orders Placeholder */
@@ -287,43 +309,60 @@
     }
 
     .account-content {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Chuyển sang 1 cột */
         gap: 0;
     }
 
     .account-sidebar {
+        position: static; /* Bỏ sticky trên mobile */
+        max-height: none;
         border-right: none;
         border-bottom: 1px solid #e9ecef;
+        margin-bottom: 20px;
     }
 
     .sidebar-menu {
         display: flex;
+        flex-direction: row; /* Menu ngang trên mobile */
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 0;
+        scroll-snap-type: x mandatory;
     }
 
     .menu-item {
+        flex: 0 0 auto; /* Không co giãn */
         white-space: nowrap;
         border-bottom: none;
         border-right: 1px solid #e9ecef;
+        padding: 15px 20px;
+        scroll-snap-align: start;
+    }
+
+    .menu-item:last-child {
+        border-right: none;
     }
 
     .menu-item.active {
         border-left: none;
         border-top: 4px solid #2E86AB;
+        border-bottom: none;
     }
 
     .account-main {
-        padding: 20px;
+        padding: 20px 15px;
     }
 
     .profile-tabs .tab-nav {
         flex-direction: column;
+        gap: 0;
     }
 
     .tab-button {
         text-align: left;
         border-bottom: 1px solid #e9ecef;
         border-radius: 0;
+        padding: 12px 15px;
     }
 
     .tab-button.active {
@@ -332,18 +371,66 @@
     }
 }
 
+/* Tablet - Medium screens */
+@media (max-width: 992px) and (min-width: 769px) {
+    .account-content {
+        grid-template-columns: 240px 1fr; /* Thu nhỏ sidebar */
+        gap: 20px;
+    }
+    
+    .account-sidebar {
+        top: 80px;
+    }
+    
+    .menu-item {
+        padding: 16px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Small mobile */
 @media (max-width: 480px) {
     .account-wrapper {
-        padding: 0 15px;
+        padding: 0 10px;
     }
 
     .account-title {
-        font-size: 24px;
+        font-size: 22px;
     }
 
     .profile-form {
         max-width: none;
     }
+    
+    .menu-item {
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+}
+
+/* =============================================================================
+   BOX-SIZING RESET - CRITICAL FIX
+   ============================================================================= */
+
+/* Apply box-sizing to all elements in account page */
+.account-page *,
+.account-page *::before,
+.account-page *::after {
+    box-sizing: border-box;
+}
+
+/* Ensure all form elements use border-box */
+.account-page input,
+.account-page textarea,
+.account-page select,
+.account-page button {
+    box-sizing: border-box;
 }
 
 /* Orders Section */

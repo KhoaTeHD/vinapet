@@ -302,8 +302,6 @@
 .quantity-option, .grain-size-option input[type="radio"] {
     /* Hiển thị radio button thực */
     display: block;
-    width: 16px;
-    height: 16px;
     margin: 0;
     flex-shrink: 0;
     accent-color: var(--primary-color);

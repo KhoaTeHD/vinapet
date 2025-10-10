@@ -280,7 +280,7 @@ for ($i = 1; $i <= 3; $i++) {
                         <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span> 
                         <span class="sugItems-2" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu TLVD">Cát tofu trắng lavender</span>
                     </div> -->
-                    <div style="margin-top: 16px; height: 47px; display: flex; align-items: center; gap: 8px;" id="mixsuggest-container-2">
+                    <div style="margin-top: 16px; min-height: 47px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;" id="mixsuggest-container-2">
                         <span style="color:#666471">Đề xuất</span>
                         <?php if (!empty($product_2_suggests)): ?>
                             <?php foreach ($product_2_suggests as $suggest_product): ?>
@@ -363,7 +363,7 @@ for ($i = 1; $i <= 3; $i++) {
                         <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu XLTX">Cát tofu xanh lá trà xanh</span>
                         <span class="sugItems-3" style="background:#F8F8F8;border-radius: 100px;border: solid #D9D8DC 1px;padding: 12px;cursor:pointer" data-index="Cát tofu TLVD">Cát tofu trắng lavender</span>
                     </div> -->
-                    <div style="margin-top: 16px; height: 47px; display: flex; align-items: center; gap: 8px;" id="mixsuggest-container-3">
+                    <div style="margin-top: 16px; min-height: 47px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;" id="mixsuggest-container-3">
                         <span style="color:#666471">Đề xuất</span>
                         <?php if (!empty($product_3_suggests)): ?>
                             <?php foreach ($product_3_suggests as $suggest_product): ?>

@@ -170,7 +170,7 @@ if ($packages) {
 
                 <!-- Store Logo -->
                 <div class="store-logo">
-                    <img src="<?php echo get_template_directory_uri(); ?>/assets/images/vinapet-logo.png" alt="VinaPet Logo" class="logo">
+                    <img src="<?php echo get_template_directory_uri(); ?>/assets/images/logo-small.png" alt="VinaPet Logo" class="logo">
                 </div>
             </div>
         </div>

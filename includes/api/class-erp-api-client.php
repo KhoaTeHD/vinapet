@@ -538,6 +538,7 @@ class ERP_API_Client
         }
 
         $user = get_user_by('ID', $user_id);
+        //error_log('VinaPet ERP: Syncing user ID ' . $user->ID);
         if (!$user) {
             return false;
         }
@@ -546,8 +547,8 @@ class ERP_API_Client
             'customer_name' => $user->display_name ?: $user->user_login,
             'email' => $user->user_email,
             'name' => $user->user_email, // Unique identifier
-            'phone' => get_user_meta($user_id, 'phone_number', true) ?: '',
-            'address' => get_user_meta($user_id, 'user_address', true) ?: '',
+            'phone' => get_user_meta($user_id, 'phone_number', true) ?: '0123456789',
+            'address' => get_user_meta($user_id, 'user_address', true) ?: 'TP HCM',
             'company_name' => get_user_meta($user_id, 'company_name', true) ?: ''
         );
 
@@ -565,6 +566,7 @@ class ERP_API_Client
                 return array('status' => 'updated', 'message' => 'Customer updated in ERP');
             }
         } else {
+            $customer_data['name'] = null; // Ensure name is null for creation
             // Create new customer
             $result = $this->create_customer_vinapet($customer_data);
 

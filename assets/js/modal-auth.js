@@ -821,16 +821,6 @@
       "googleAuth",
       "width=500,height=600,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,status=yes"
     );
-
-    // socialLoginWindow = popup;
-
-    // // Check if popup is closed manually
-    // const checkClosed = setInterval(() => {
-    //   if (popup.closed) {
-    //     clearInterval(checkClosed);
-    //     socialLoginWindow = null;
-    //   }
-    // }, 1000);
   }
 
   function handleSocialLoginCallback(event) {

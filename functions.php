@@ -1600,3 +1600,8 @@ function vinapet_floating_contact_button()
 <?php
 }
 add_action('wp_footer', 'vinapet_floating_contact_button', 999);
+
+// Load Auto Migration
+if (file_exists(VINAPET_THEME_DIR . '/includes/admin/class-auto-erp-migration.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/admin/class-auto-erp-migration.php';
+}

@@ -31,11 +31,9 @@ class VinaPet_Customer_Sync_Helper {
      * Initialize WordPress hooks
      */
     private function init_hooks() {
-        // Scheduled sync
-        add_action('vinapet_sync_customers_cron', array($this, 'scheduled_sync_customers'));
         
         // AJAX handlers
-        add_action('wp_ajax_vinapet_manual_sync_customers', array($this, 'handle_manual_sync'));
+       // add_action('wp_ajax_vinapet_manual_sync_customers', array($this, 'handle_manual_sync'));
         add_action('wp_ajax_vinapet_get_customer_from_erp', array($this, 'handle_get_customer_from_erp'));
         
         // User registration hooks
@@ -66,95 +64,36 @@ class VinaPet_Customer_Sync_Helper {
     // SCHEDULED SYNC METHODS
     // ============================================================================
     
-    /**
-     * Scheduled sync customers từ ERP
-     */
-    public function scheduled_sync_customers() {
-        if (!$this->erp_api->is_configured()) {
-            error_log('VinaPet: ERP API không được cấu hình, bỏ qua scheduled sync');
-            return;
-        }
-        
-        error_log('VinaPet: Bắt đầu scheduled sync customers từ ERP');
-        
-        $result = $this->sync_all_customers_from_erp();
-        
-        // Update last sync time
-        update_option('vinapet_last_customer_sync', current_time('mysql'));
-        
-        // Log kết quả
-        error_log('VinaPet: Scheduled sync hoàn thành - ' . $result['message']);
-        
-        // Gửi email thông báo nếu có lỗi
-        if ($result['status'] === 'error' || (isset($result['errors']) && $result['errors'] > 0)) {
-            $this->send_sync_error_notification($result);
-        }
-    }
     
     /**
      * Manual sync customers (từ admin)
      */
-    public function handle_manual_sync() {
-        // Check permissions
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Không có quyền thực hiện');
-        }
+    // public function handle_manual_sync() {
+    //     // Check permissions
+    //     if (!current_user_can('manage_options')) {
+    //         wp_send_json_error('Không có quyền thực hiện');
+    //     }
         
-        // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'vinapet_admin_nonce')) {
-            wp_send_json_error('Security check failed');
-        }
+    //     // Verify nonce
+    //     if (!wp_verify_nonce($_POST['nonce'], 'vinapet_admin_nonce')) {
+    //         wp_send_json_error('Security check failed');
+    //     }
         
-        if (!$this->erp_api->is_configured()) {
-            wp_send_json_error('ERP API chưa được cấu hình');
-        }
+    //     if (!$this->erp_api->is_configured()) {
+    //         wp_send_json_error('ERP API chưa được cấu hình');
+    //     }
         
-        $result = $this->sync_all_customers_from_erp();
+    //     $result = $this->sync_all_customers_from_erp();
         
-        // Update last sync time
-        update_option('vinapet_last_customer_sync', current_time('mysql'));
+    //     // Update last sync time
+    //     update_option('vinapet_last_customer_sync', current_time('mysql'));
         
-        if ($result['status'] === 'success') {
-            wp_send_json_success($result);
-        } else {
-            wp_send_json_error($result['message']);
-        }
-    }
-    
-    /**
-     * Sync all customers từ ERP về WordPress
-     */
-    private function sync_all_customers_from_erp() {
-        if (!$this->erp_api->is_configured()) {
-            return array('status' => 'error', 'message' => 'ERP chưa được cấu hình');
-        }
-        
-        $customers_response = $this->erp_api->get_customers_list_vinapet();
-        
-        if (!$customers_response || $customers_response['status'] !== 'success') {
-            return array('status' => 'error', 'message' => 'Không thể lấy danh sách customer từ ERP');
-        }
-        
-        $synced_count = 0;
-        $error_count = 0;
-        
-        foreach ($customers_response['customers'] as $customer) {
-            try {
-                $this->sync_customer_to_wordpress($customer);
-                $synced_count++;
-            } catch (Exception $e) {
-                $error_count++;
-                error_log("VinaPet: Lỗi sync customer {$customer['email']}: " . $e->getMessage());
-            }
-        }
-        
-        return array(
-            'status' => 'success',
-            'synced' => $synced_count,
-            'errors' => $error_count,
-            'message' => "Đã sync {$synced_count} customers, {$error_count} lỗi"
-        );
-    }
+    //     if ($result['status'] === 'success') {
+    //         wp_send_json_success($result);
+    //     } else {
+    //         wp_send_json_error($result['message']);
+    //     }
+    // }
     
     /**
      * Sync customer data to WordPress user

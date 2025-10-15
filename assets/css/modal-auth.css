@@ -577,13 +577,14 @@ body.modal-open {
 
 @media (max-width: 768px) {
     .modal-overlay {
-        padding: 16px;
+        padding: 0px;
         align-items: flex-start;
         padding-top: 60px;
     }
     
     .modal-container {
         max-height: calc(100vh - 120px);
+        max-width: calc(100vh - 10px);
     }
     
     .modal-content {
@@ -618,12 +619,13 @@ body.modal-open {
 
 @media (max-width: 480px) {
     .modal-overlay {
-        padding: 12px;
+        padding: 0px;
         padding-top: 40px;
     }
     
     .modal-container {
         max-height: calc(100vh - 80px);
+        max-width: calc(100vh - 10px);
     }
     
     .modal-content {

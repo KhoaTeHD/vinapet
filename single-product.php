@@ -306,11 +306,11 @@ $product_specs_sap = isset($product['specifications']['sap']) ? $product['specif
             <h1 class="product-title"><?php echo esc_html($product_name); ?></h1>
 
             <div class="product-short-desc">
-                <?php if (!empty($product_desc)) : ?>
+                <?php //if (!empty($product_desc)) : ?>
                     <?php echo wp_kses_post($product_desc); ?>
-                <?php else : ?>
-                    <p>Siêu Khử Mùi & Khống Chế Mùi Tự Ưu, Siêu Nhẹ & Thấm Hút Mạnh Mẽ</p>
-                <?php endif; ?>
+                <?php //else : ?>
+                    <!-- <p>Siêu Khử Mùi & Khống Chế Mùi Tự Ưu, Siêu Nhẹ & Thấm Hút Mạnh Mẽ</p> -->
+                <?php //endif; ?>
             </div>
 
             <!-- Product Sizes -->

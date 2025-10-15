@@ -431,9 +431,9 @@ textarea::placeholder {
         gap: 8px;
     }
     
-    .option-icon {
+    /* .option-icon {
         align-self: flex-start;
-    }
+    } */
     
     .checkout-form-card {
         padding: 16px;

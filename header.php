@@ -125,8 +125,8 @@
         echo '<li class="mobile-menu-item-has-children">';
         echo '<button type="button" class="mobile-dropdown-toggle">Giới thiệu <span class="mobile-arrow">+</span></button>';
         echo '<ul class="mobile-submenu">';
-        echo '<li><a href="' . home_url('/gioi-thieu/cong-ty') . '">Giới thiệu về công ty</a></li>';
-        echo '<li><a href="' . home_url('/gioi-thieu/nha-may') . '">Giới thiệu về nhà máy</a></li>';
+        echo '<li><a href="' . home_url('/gioi-thieu-cong-ty') . '">Giới thiệu về công ty</a></li>';
+        echo '<li><a href="' . home_url('/gioi-thieu-nha-may') . '">Giới thiệu về nhà máy</a></li>';
         echo '</ul>';
         echo '</li>';
 

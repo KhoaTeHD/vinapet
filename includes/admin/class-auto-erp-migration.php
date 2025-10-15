@@ -31,7 +31,7 @@ class VinaPet_Auto_Migration
         add_action('vinapet_run_migration', array($this, 'process_migration'));
 
         // Admin notice
-        add_action('admin_notices', array($this, 'show_notice'));
+        //add_action('admin_notices', array($this, 'show_notice'));
 
         $this->helper = new VinaPet_Customer_Sync_Helper();
     }

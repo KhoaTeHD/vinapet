@@ -1605,3 +1605,14 @@ add_action('wp_footer', 'vinapet_floating_contact_button', 999);
 if (file_exists(VINAPET_THEME_DIR . '/includes/admin/class-auto-erp-migration.php')) {
     require_once VINAPET_THEME_DIR . '/includes/admin/class-auto-erp-migration.php';
 }
+
+// ============================================================================
+// REST API ENDPOINT CHO ELEMENTOR WEBHOOK
+// ============================================================================
+
+/**
+ * Load REST Lead Endpoint
+ */
+if (file_exists(VINAPET_THEME_DIR . '/includes/api/rest-lead-endpoint.php')) {
+    require_once VINAPET_THEME_DIR . '/includes/api/rest-lead-endpoint.php';
+}
